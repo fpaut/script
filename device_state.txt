@@ -1,0 +1,5 @@
+			'adb devices'								'fastboot devices'		'fastboot getvar all'
+arreté		"List of devices attached+rien"				rien
+Dnx			"List of devices attached+rien"				"4D5BB562+fastboot"		failed ($?=1)
+fastboot	"List of devices attached+rien"				"4D5BB562+fastboot"
+Booté		"List of devices attached+blablabla ($?=0)	rien ($?=0)				< waiting for device >

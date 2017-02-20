@@ -1,0 +1,1 @@
+truecrypt --auto-mount=favorites

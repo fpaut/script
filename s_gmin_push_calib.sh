@@ -1,0 +1,58 @@
+#!/bin/bash
+calib_file=$@
+
+if [ "$calib_file" = "" ]; then
+	echo "no parameter given"
+	calib_file="./calib.nvm"
+fi
+if [ ! -e $calib_file ]; then
+	echo "Calibration file ($calib_file) not found!"
+	exit 1
+fi
+echo "Calibration file is $calib_file"
+
+
+CMD="adb wait-for-device"; echo $CMD;eval "$CMD"
+CMD="adb root"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb shell chmod -R 777 /factory/telephony/"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb shell chmod -R 777 /config/telephony/"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb shell sync"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+echo "Stopping Telephony Services"
+CMD="adb shell killall mmgr"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb shell stop nvmmanager"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb shell stop ril-daemon"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb remount"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+echo "Removing old NVM files"
+CMD="adb shell rm /factory/telephony/calib.nvm"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb shell rm /factory/telephony/dynamic.nvm"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb shell rm /factory/telephony/static.nvm"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb shell rm /config/telephony/calib.nvm"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb shell rm /config/telephony/dynamic.nvm"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb shell rm /config/telephony/static.nvm"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb shell sync"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+echo "Restoring calibration data"
+CMD="adb push "$calib_file" /factory/telephony/calib.nvm"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb push "$calib_file" /config/telephony/calib.nvm"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb push "$calib_file" /config/telephony/1/calib.nvm"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+CMD="adb shell sync"; echo $CMD;eval "$CMD"
+CMD="sleep 2"; echo $CMD;eval "$CMD"
+echo "Sucess"
+CMD="adb shell reboot"; echo $CMD;eval "$CMD"

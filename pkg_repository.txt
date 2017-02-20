@@ -1,0 +1,6 @@
+sudo add-apt-repository ppa:danielrichter2007/grub-customizer
+sudo add-apt-repository ppa:hamishmb/myppa
+sudo add-apt-repository ppa:fossfreedom/indicator-sysmonitor
+sudo add-apt-repository http://www.mediahuman.com/packages/ubuntu
+sudo add-apt-repository ppa:nilarimogard/webupd8
+sudo add-apt-repository ppa:heyarje/libav-11

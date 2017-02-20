@@ -1,0 +1,1 @@
+sudo parted /dev/sdb rm 1 && sudo parted /dev/sdb rm 2 && sudo parted /dev/sdb rm 3 sudo parted /dev/sdb rm 4 && sudo parted /dev/sdb rm 5 && sudo parted /dev/sdb rm 6 && sudo parted /dev/sdb rm 7 && sudo parted /dev/sdb rm 8 && sudo parted /dev/sdb rm 9

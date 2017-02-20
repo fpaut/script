@@ -1,0 +1,5 @@
+#!/bin/bash
+VAR=$1
+PATTERN=$2
+RESULT=${VAR##*$PATTERN}
+echo $RESULT
