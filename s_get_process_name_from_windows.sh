@@ -1,0 +1,3 @@
+echo Click on window...
+WIN_PID=$(xprop _NET_WM_PID | cut -d' ' -f3)
+ps faux | grep -v "grep" | grep -i $WIN_PID

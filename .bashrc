@@ -94,7 +94,7 @@ alias apt_update="sudo apt-get update"
 alias bdb="bashdb -x ~/.bashdbinit"
 # list a bash function :
 alias blist="type"
-alias cddokuwikipages="cd /var/www/html/dokuwiki && cd data/pages"
+alias cddokuwikipages="cd /var/www/dokuwiki && cd data/pages"
 alias cddesktop_launcher="cd /usr/share/applications"
 alias df="df -h"
 alias galias='alias | grep -i'
@@ -116,6 +116,7 @@ alias simics='~/dev/simics/simics-4.8/simics-4.8.85/scripts/../vmxmon/scripts/in
 alias simicseclipse='~/dev/simics/simics-4.8/simics-4.8.85/scripts/../vmxmon/scripts/install; ~/dev/simics/simics-4.8/simics-4.8.85/bin/simics-eclipse'
 alias simicsgui='~/dev/simics/simics-4.8/simics-4.8.85/scripts/../vmxmon/scripts/install; ~/dev/simics/simics-4.8/simics-4.8.85/bin/simics-gui'
 alias sudo='sudo --preserve-env'
+alias sedit='gksudo kate'
 alias su='su --preserve-environment'
 alias tailf="tail --retry --follow=name"
 alias xopen="xdg-open"
@@ -283,6 +284,14 @@ craff() {
 	cmd="$craffpath/craff $source"; echo $cmd; eval "$cmd"
 	cmd="mv $source $srcpath/$filename.uncraff.$ext"; echo $cmd; eval "$cmd"
 	cmd="mv craff.out $srcpath/$filename.$ext"; echo $cmd; eval "$cmd"
+}
+
+contains() {
+	local search=$1
+	local myarray=$2
+	echo "contains() $search / $myarray"
+	case "${myarray[@]}" in  *$search*) return 0 ;; esac
+	return 1
 }
 
 def_font_attributes() {
@@ -584,6 +593,11 @@ wcat() {
 	CMD="cat $path"; echo $CMD; $CMD
 }
 
+wedit() {
+	local path=$(which $1)
+	CMD="mousepad $path"; echo $CMD; $CMD
+}
+
 wls() {
 	local path=$(which $1)
 	CMD="ls -halF $path"; echo $CMD; $CMD
@@ -593,7 +607,7 @@ wline () {
 	echo $(caller 0)
 }
 
-export PATH=$HOME/bin:$PATH
+export PATH=$HOME/bin:/var/homeTmp/easyToReinstall/bin:$PATH
 export PATH=$HOME/bin/scripts:$PATH
 export PATH=/usr/local/bin:$PATH
 export PATH=/usr/local/bin/scripts:$PATH
@@ -666,4 +680,6 @@ esac
 echo; echo "ALIAS :"
 galias cd
 
-
+export PATH="/home/user/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"

@@ -11,6 +11,7 @@ echo $filename
 CMD="import -pause 3 /home/$USER/Images/$filename"
 echo $CMD
 eval "$CMD"
-path_dest=$(eval "zenity --file-selection --directory")
+xdg-open "/home/$USER/Images/$filename"&
+path_dest=$(eval "zenity --file-selection --save --filename=$filename")
 mv /home/$USER/Images/$filename $path_dest
-xdg-open "$path_dest/$filename"&
+xdg-open "$path_dest"
