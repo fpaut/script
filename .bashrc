@@ -295,23 +295,23 @@ contains() {
 }
 
 def_font_attributes() {
-	ATTR_UNDERLINED="\e[4m"
+	ATTR_UNDERLINED="\[\e[4m\]"
 
-	FONT_BOLD="\e[1m"
+	FONT_BOLD="\[\e[1m\]"
 
-	BKG_RED="\e[41m"
-	BKG_GREEN="\e[42m"
-	BKG_BLUE="\e[44m"
+	BKG_RED="\[\e[41m\]"
+	BKG_GREEN="\[\e[42m\]"
+	BKG_BLUE="\[\e[44m\]"
 
-	BLACK="\e[30m"
-	RED="\e[91m"
-	GREEN="\e[92m"
-	YELLOW="\e[93m"
-	BLUE="\e[34m"
-	CYAN="\e[96m"
-	WHITE="\e[97m"
+	BLACK="\[\e[30m\]"
+	RED="\[\e[91m\]"
+	GREEN="\[\e[92m\]"
+	YELLOW="\[\e[93m\]"
+	BLUE="\[\e[34m\]"
+	CYAN="\[\e[96m\]"
+	WHITE="\[\e[97m\]"
 
-	ATTR_RESET="\e[0m"
+	ATTR_RESET="\[\e[0m\]"
 }
 # exit() {
 # 	trap_handler_unset
