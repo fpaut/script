@@ -489,12 +489,12 @@ ps1_set() {
                         echo "GIT repository too big ("$GIT_SIZE"ko), simple PS1 defined"
                         PS1="$PS1_PREFIX: "
                 else
-                        PROMPT_COMMAND="REPO_STAT=\$(get_repo_init)\$(android_sourced)\$(git_branch); GIT_STAT=\$(git_test_local_modif)\$(git_test_remote_modif)"
+                        PROMPT_COMMAND="REPO_STAT=\$(get_repo_init)\$(git_branch); GIT_STAT=\$(git_test_local_modif)\$(git_test_remote_modif)"
                         PS1="$PS1_PREFIX$YELLOW\$REPO_STAT\n$RED\$GIT_STAT$ATTR_RESET$GREEN > $ATTR_RESET"
                 fi
 	else
 		echo "Seems not a GIT repository..."
-		PS1="$PS1_PREFIX$YELLOW\$(get_repo_init)\$(android_sourced)\$(git_branch)\n$RED\$(git_get_stash)\$(git_test_local_modif)\$(git_test_remote_modif)$ATTR_RESET$GREEN > $ATTR_RESET"
+		PS1="$PS1_PREFIX$YELLOW\$(get_repo_init)\$(git_branch)\n$RED\$(git_get_stash)\$(git_test_local_modif)\$(git_test_remote_modif)$ATTR_RESET$GREEN > $ATTR_RESET"
 	fi
 
 }
@@ -595,7 +595,7 @@ wcat() {
 
 wedit() {
 	local path=$(which $1)
-	CMD="mousepad $path"; echo $CMD; $CMD
+	CMD="kate $path"; echo $CMD; $CMD
 }
 
 wls() {
