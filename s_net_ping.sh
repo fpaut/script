@@ -1,17 +1,19 @@
 #!/bin/bash
-IP=$1
-if [ -z $IP ]; then
-	echo "First parameter is IP address, try www.google.fr"
-	exit
+# To work with "indicator-sysmonitor"
+TIMEOUT=5
+
+HOST=$1
+FILE="dummy.txt"
+if [ -z $HOST ]; then
+	HOST="http://fpaut.free.fr/$FILE"
 fi
-source $(which s_bash_tools.sh)
-while [ true ]
-do
-	c_exec "ping -c 1 $IP 2>/dev/null 1>&2"
-	if [ "$?" = "0" ]; then
-		c_exec "notify-send CONNECTED!"
-		exit
-	else
-		sleep 1
-	fi
-done
+
+#Timeout de 5s
+wget -T $TIMEOUT $HOST 2>/dev/null 1>&2
+if [ "$?" = "0" ]; then
+    echo "Ok" 
+else
+    # Waiting 3 disconnect before declaring Disconnected
+        echo "!!! DOWN !!!"; notify-send -t 200 DISCONNECTED!
+fi
+eval rm "$FILE*" 2>/dev/null 1>&2
