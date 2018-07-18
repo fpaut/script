@@ -119,6 +119,7 @@ alias sudo='sudo --preserve-env'
 alias sedit='gksudo kate'
 alias su='su --preserve-environment'
 alias tailf="tail --retry --follow=name"
+alias wsyslog="echo 'cat /var/log/syslog' && cat /var/log/syslog"
 alias xopen="xdg-open"
 # History control
 #  ignore duplicate
@@ -142,16 +143,16 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
 
-if [ -f /home/fpaut/bin/scripts/git-completion.bash ]; then
+if [ -f $HOME/bin/scripts/git-completion.bash ]; then
 	echo "git-completion.bash sourced!"
-    . /home/fpaut/bin/scripts/git-completion.bash
+    . $HOME/bin/scripts/git-completion.bash
 else
 	echo "git-completion.bash not sourced..."
 fi
 
 # Personnal tools & aliases
-if [ -f /home/fpaut/bin/scripts/s_bash_tools.sh ]; then
-    . /home/fpaut/bin/scripts/s_bash_tools.sh
+if [ -f $HOME/bin/scripts/s_bash_tools.sh ]; then
+    . $HOME/bin/scripts/s_bash_tools.sh
 fi
 #trap_handler_set
 def_font_attributes
@@ -286,33 +287,6 @@ craff() {
 	cmd="mv craff.out $srcpath/$filename.$ext"; echo $cmd; eval "$cmd"
 }
 
-contains() {
-	local search=$1
-	local myarray=$2
-	echo "contains() $search / $myarray"
-	case "${myarray[@]}" in  *$search*) return 0 ;; esac
-	return 1
-}
-
-def_font_attributes() {
-	ATTR_UNDERLINED="\[\e[4m\]"
-
-	FONT_BOLD="\[\e[1m\]"
-
-	BKG_RED="\[\e[41m\]"
-	BKG_GREEN="\[\e[42m\]"
-	BKG_BLUE="\[\e[44m\]"
-
-	BLACK="\[\e[30m\]"
-	RED="\[\e[91m\]"
-	GREEN="\[\e[92m\]"
-	YELLOW="\[\e[93m\]"
-	BLUE="\[\e[34m\]"
-	CYAN="\[\e[96m\]"
-	WHITE="\[\e[97m\]"
-
-	ATTR_RESET="\[\e[0m\]"
-}
 # exit() {
 # 	trap_handler_unset
 # 	builtin exit $@
@@ -642,35 +616,35 @@ echo "Working on $HOSTNAME (HOSTNAME)"
 case $HOSTNAME in
 	fpaut-MOBL | fpaut-MOBL* | fpaut-mobl*)
 		echo "case fpaut-MOBL*)"
-		alias cdcts_root='pushd /home/fpaut/dev/android/gmin/android-cts; ps1_set'
-		alias cdcts_result='pushd /home/fpaut/dev/android/gmin/android-cts/repository/results; ps1_set'
-		alias cdgmin='pushd /home/fpaut/dev/android/gmin; export REPO="/home/fpaut/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
+		alias cdcts_root='pushd $HOME/dev/android/gmin/android-cts; ps1_set'
+		alias cdcts_result='pushd $HOME/dev/android/gmin/android-cts/repository/results; ps1_set'
+		alias cdgmin='pushd $HOME/dev/android/gmin; export REPO="$HOME/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
 
-		alias cdsimics_src='pushd /mnt/ssd2/fpaut/dev/gmin/src_simics; export REPO="/home/fpaut/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
+		alias cdsimics_src='pushd /mnt/ssd2/fpaut/dev/gmin/src_simics; export REPO="$HOME/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
 		alias cdsimics_vt='cd ~/dev/simics/simics-4.8/simics-4.8.85'
 		alias cdsimics_x86_bxt='cd ~/dev/simics/project/targets/x86-bxt'
 		export PATH=/usr/lib/ccache:$PATH:~/bin/scripts/gmin_branch_mgmt
-		ccache_set 1 "20G" "/home/fpaut/dev/CCACHE"
+		ccache_set 1 "20G" "$HOME/dev/CCACHE"
 		;;
 	fpaut-Latitude-E5410)
 		echo "case fpaut-Latitude-E5410)"
-		ccache_set 1 "20G" "/home/fpaut/dev/CCACHE"
+		ccache_set 1 "20G" "$HOME/dev/CCACHE"
 		;;
 	tequila)
 		echo "case tequila)"
-		alias cdgmin_L_r1='pushd /home/fpaut/dev/gmin/l_lollipop/gmin-one-android/r1; export REPO="/home/fpaut/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
-		alias cdgmin_L_r2='pushd /home/fpaut/dev/gmin/l_lollipop/gmin-one-android/r2; export REPO="/home/fpaut/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
-		alias cdgmin_root='pushd /home/fpaut/dev/gmin; export REPO="/home/fpaut/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
-		alias cdgmin_l='pushd /mnt/fpaut/dev/gmin/src; export REPO="/home/fpaut/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
-		alias cdgmin_L_one='pushd /mnt/fpaut/dev/gmin/l_lollipop/gmin-one-android; export REPO="/home/fpaut/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
-		alias cdkernel='pushd /mnt/fpaut/dev/gmin/kernel; export REPO="/home/fpaut/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
+		alias cdgmin_L_r1='pushd $HOME/dev/gmin/l_lollipop/gmin-one-android/r1; export REPO="$HOME/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
+		alias cdgmin_L_r2='pushd $HOME/dev/gmin/l_lollipop/gmin-one-android/r2; export REPO="$HOME/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
+		alias cdgmin_root='pushd $HOME/dev/gmin; export REPO="$HOME/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
+		alias cdgmin_l='pushd /mnt/fpaut/dev/gmin/src; export REPO="$HOME/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
+		alias cdgmin_L_one='pushd /mnt/fpaut/dev/gmin/l_lollipop/gmin-one-android; export REPO="$HOME/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
+		alias cdkernel='pushd /mnt/fpaut/dev/gmin/kernel; export REPO="$HOME/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
 		alias cdirdasrc='pushd ~/dev/irda/src; ps1_set; echo "REPO=$REPO"'
-		alias cdsimics_src='pushd /mnt/fpaut/dev/gmin/src_simics; export REPO="/home/fpaut/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
+		alias cdsimics_src='pushd /mnt/fpaut/dev/gmin/src_simics; export REPO="$HOME/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
 		alias cdsimics_vt='cd ~/dev/simics/simics-4.8/simics-4.8.85'
 		alias cdsimics_x86_bxt='cd ~/dev/simics/project/targets/x86-bxt'
 		export PATH=$PATH:~/bin/scripts/gmin_branch_mgmt
 		ssh_agent_init
-		ccache_set 1 "50G" "/home/fpaut/CCACHE"
+		ccache_set 1 "50G" "$HOME/CCACHE"
 		kerberos_init
 		;;
 	*)
@@ -683,3 +657,6 @@ galias cd
 export PATH="/home/user/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
+
+#Used by s_net_ping.sh
+declare -g COUNT=2
