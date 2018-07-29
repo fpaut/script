@@ -5,4 +5,6 @@ if [ ! $NO_PUBKEY_VALUE ]; then
   echo "first parameter must be the 'NO_PUBKEY' hexadecimal value"
   exit
 fi
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $NO_PUBKEY_VALUE
+CMD="sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $NO_PUBKEY_VALUE"
+echo "CMD=$CMD"
+eval $CMD

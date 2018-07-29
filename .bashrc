@@ -658,5 +658,3 @@ export PATH="/home/user/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
-#Used by s_net_ping.sh
-declare -g COUNT=2
