@@ -111,6 +111,7 @@ alias ll='ls -halF'
 alias ls_attr="my_lsattr"
 alias lz='sudo ls -halFZ'
 alias mutable="sudo chattr -i "
+alias rm='trash'
 alias rmb='$(which rm)'
 alias simics='~/dev/simics/simics-4.8/simics-4.8.85/scripts/../vmxmon/scripts/install; ~/dev/simics/simics-4.8/simics-4.8.85/bin/simics'
 alias simicseclipse='~/dev/simics/simics-4.8/simics-4.8.85/scripts/../vmxmon/scripts/install; ~/dev/simics/simics-4.8/simics-4.8.85/bin/simics-eclipse'
