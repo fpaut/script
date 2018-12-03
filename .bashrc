@@ -202,6 +202,10 @@ aosp_gedit() {
 	aosp gedit $@
 }
 
+ccache() {
+    echo ccache not installed
+}
+
 ccache_clear() {
 	CMD="ccache -C"
 	echo $CMD && $CMD
@@ -294,17 +298,18 @@ def_font_attributes() {
 
 	FONT_BOLD="\e[1m"
 
-	BKG_RED="\e[41m"
+	BKG_RED="\e[31m"
 	BKG_GREEN="\e[42m"
-	BKG_BLUE="\e[44m"
+	BKG_BLUE="\e[34m"
 
 	BLACK="\e[30m"
 	RED="\e[91m"
-	GREEN="\e[92m"
+	GREEN="\e[32m"
 	YELLOW="\e[93m"
 	BLUE="\e[34m"
-	CYAN="\e[96m"
+	CYAN="\e[36m"
 	WHITE="\e[97m"
+	MAGENTA="\e[35m"
 
 	ATTR_RESET="\e[0m"
 }
@@ -648,8 +653,8 @@ ps1_unset
 HOSTNAME=$(hostname)
 echo "Working on $HOSTNAME (HOSTNAME)"
 case $HOSTNAME in
-	fpaut-MOBL | fpaut-MOBL* | fpaut-mobl*)
-		echo "case fpaut-MOBL*)"
+	WSTMONDT019*)
+		echo "case WSTMONDT019*)"
 		alias cdcts_root='pushd $HOME/dev/android/gmin/android-cts; ps1_set'
 		alias cdcts_result='pushd $HOME/dev/android/gmin/android-cts/repository/results; ps1_set'
 		alias cdgmin='pushd $HOME/dev/android/gmin; export REPO="$HOME/bin/repo-gmin"; ps1_set; echo "REPO=$REPO"'
