@@ -53,13 +53,13 @@ if [ -n "$force_color_prompt" ]; then
 	color_prompt=
     fi
 fi
-
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
-unset color_prompt force_color_prompt
+# 
+# if [ "$color_prompt" = yes ]; then
+#     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+# else
+#     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+# fi
+# unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
@@ -77,9 +77,9 @@ if [ -x /usr/bin/dircolors ]; then
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
-    alias grep='grep --color=always'
-    alias fgrep='fgrep --color=always'
-    alias egrep='egrep --color=always'
+    alias grep='grep -n --color=always'
+    alias fgrep='fgrep -n --color=always'
+    alias egrep='egrep -n --color=always'
 fi
 
 alias adb_trace_on="export ADB_TRACE=1"
@@ -97,13 +97,14 @@ alias blist="type"
 alias cddokuwikipages="cd /var/www/dokuwiki && cd data/pages"
 alias cddesktop_launcher="cd /usr/share/applications"
 alias df="df -h"
-alias galias='alias | grep -i'
+alias galias='alias | grep -ni'
 alias getXattr="getfattr -n security.selinux "
-alias ghistory='history | grep -i'
-alias glunch='lunch | grep -i'
-alias gps='ps faux | grep -i'
-alias gmount='mount | grep -i'
-alias igrep="grep -i"
+alias ghistory='history | grep -ni'
+alias glunch='lunch | grep -ni'
+alias gps='ps faux | grep -ni'
+alias gmount='mount | grep -ni'
+alias here="cygpath.exe -w $(pwd)"
+alias igrep="grep -ni"
 alias immutable="sudo chattr +i "
 alias l='ls -CF'
 alias la='ls -A'
@@ -111,7 +112,7 @@ alias ll='ls -halF'
 alias ls_attr="my_lsattr"
 alias lz='sudo ls -halFZ'
 alias mutable="sudo chattr -i "
-alias rm='trash'
+## alias rm='trash'
 alias rmb='$(which rm)'
 alias simics='~/dev/simics/simics-4.8/simics-4.8.85/scripts/../vmxmon/scripts/install; ~/dev/simics/simics-4.8/simics-4.8.85/bin/simics'
 alias simicseclipse='~/dev/simics/simics-4.8/simics-4.8.85/scripts/../vmxmon/scripts/install; ~/dev/simics/simics-4.8/simics-4.8.85/bin/simics-eclipse'
@@ -144,16 +145,16 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
 
-if [ -f $HOME/bin/scripts/git-completion.bash ]; then
+if [ -f /cygdrive/c/Users/fpaut/dev/scripts/git-completion.bash ]; then
 	echo "git-completion.bash sourced!"
-    . $HOME/bin/scripts/git-completion.bash
+    . /cygdrive/c/Users/fpaut/dev/scripts/git-completion.bash
 else
 	echo "git-completion.bash not sourced..."
 fi
 
 # Personnal tools & aliases
-if [ -f $HOME/bin/scripts/s_bash_tools.sh ]; then
-    . $HOME/bin/scripts/s_bash_tools.sh
+if [ -f /cygdrive/c/Users/fpaut/dev/scripts/s_bash_tools.sh ]; then
+    source /cygdrive/c/Users/fpaut/dev/scripts/s_bash_tools.sh
 fi
 #trap_handler_set
 def_font_attributes
@@ -288,16 +289,39 @@ craff() {
 	cmd="mv craff.out $srcpath/$filename.$ext"; echo $cmd; eval "$cmd"
 }
 
+def_font_attributes() {
+	ATTR_UNDERLINED="\e[4m"
+
+	FONT_BOLD="\e[1m"
+
+	BKG_RED="\e[41m"
+	BKG_GREEN="\e[42m"
+	BKG_BLUE="\e[44m"
+
+	BLACK="\e[30m"
+	RED="\e[91m"
+	GREEN="\e[92m"
+	YELLOW="\e[93m"
+	BLUE="\e[34m"
+	CYAN="\e[96m"
+	WHITE="\e[97m"
+
+	ATTR_RESET="\e[0m"
+}
+
 # exit() {
 # 	trap_handler_unset
 # 	builtin exit $@
 # }
 
-my_lsattr() {
-	FOLDER=$1
-	CMD='lsattr $FOLDER | grep "\-i\-"'
-	echo $CMD
-	eval $CMD
+filegrep () { # Global grep, ggrep name already exists in aosp (. build/envsetup.sh)
+	local options=$1
+	local pattern=$2
+	local file=$3
+	if [ -z $file ]; then
+		file="*"
+	fi
+	eval "fgrep -n $options $pattern $file"
 }
 
 git_branch () {
@@ -377,15 +401,6 @@ gexport () {
 	eval "export | grep -i $pattern"
 }
 
-filegrep () { # Global grep, ggrep name already exists in aosp (. build/envsetup.sh)
-	local options=$1
-	local pattern=$2
-	local file=$3
-	if [ -z $file ]; then
-		file="*"
-	fi
-	eval "fgrep -r $options $pattern $file"
-}
 
 gmin_source () {
 	TARGET=$1
@@ -417,6 +432,12 @@ irda_source () {
 	popd
 }
 
+kate() {
+    CMD="$(which kate) $(cygpath -m $@)"
+    echo $CMD&
+	$CMD&
+}
+
 kerberos_init() {
 	local done=$(klist | grep "$(date +%d)/$(date +%m)/$(date +%Y)" | grep -v renew)
 	if [ "$done" != "" ]; then
@@ -428,7 +449,18 @@ kerberos_init() {
 	fi
 }
 
-man () { yelp "man:$@"; }
+meld() {
+    CMD="$(which meld) $(cygpath -u $@)"
+    echo $CMD&
+	$CMD&
+}
+
+my_lsattr() {
+	FOLDER=$1
+	CMD='lsattr $FOLDER | grep "\-i\-"'
+	echo $CMD
+	eval $CMD
+}
 
 ps1_prefix() {
 	HOSTNAME=$(hostname)
@@ -464,12 +496,14 @@ ps1_set() {
                         echo "GIT repository too big ("$GIT_SIZE"ko), simple PS1 defined"
                         PS1="$PS1_PREFIX: "
                 else
-                        PROMPT_COMMAND="REPO_STAT=\$(get_repo_init)\$(git_branch); GIT_STAT=\$(git_test_local_modif)\$(git_test_remote_modif)"
-                        PS1="$PS1_PREFIX$YELLOW\$REPO_STAT\n$RED\$GIT_STAT$ATTR_RESET$GREEN > $ATTR_RESET"
+##                        PROMPT_COMMAND="REPO_STAT=\$(get_repo_init)\$(git_branch); GIT_STAT=\$(git_test_local_modif)\$(git_test_remote_modif)"
+                        PROMPT_COMMAND="IS_GIT=($(stat -t "$path/index"))"
+#                        PS1="$PS1_PREFIX$YELLOW \$(git_branch)\n$RED\$(git_get_stash)\$(git_test_local_modif)\$(git_test_remote_modif)$ATTR_RESET$GREEN > $ATTR_RESET"
+                        PS1="$PS1_PREFIX$YELLOW \$(git_branch)\n$RED\$(git_test_local_modif)\$(git_test_remote_modif)$ATTR_RESET$GREEN > $ATTR_RESET"
                 fi
 	else
 		echo "Seems not a GIT repository..."
-		PS1="$PS1_PREFIX$YELLOW\$(get_repo_init)\$(git_branch)\n$RED\$(git_get_stash)\$(git_test_local_modif)\$(git_test_remote_modif)$ATTR_RESET$GREEN > $ATTR_RESET"
+        PS1="$PS1_PREFIX$YELLOW\$REPO_STAT\n$RED\$GIT_STAT$ATTR_RESET$GREEN > $ATTR_RESET"
 	fi
 
 }
@@ -569,7 +603,7 @@ wcat() {
 }
 
 wedit() {
-	local path=$(which $1)
+	local path=$(cygpath.exe -w $(which $1))
 	CMD="kate $path"; echo $CMD; $CMD
 }
 
@@ -605,7 +639,6 @@ def_font_attributes
 ## export AOSP_HOME=$ANDROID_ROOT/aosp
 
 IAM=$(whoami)
-s_git_show_mirror.sh
 
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/
 echo "JAVA_HOME=$JAVA_HOME"
@@ -656,6 +689,7 @@ echo; echo "ALIAS :"
 galias cd
 
 export PATH="/home/user/.pyenv/bin:$PATH"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+## eval "$(pyenv init -)"
+## eval "$(pyenv virtualenv-init -)"
+
 
