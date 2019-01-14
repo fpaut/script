@@ -77,7 +77,7 @@ if [ -x /usr/bin/dircolors ]; then
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
-    alias grep='grep -n --color=always'
+    alias grep='grep --color=always'
     alias fgrep='fgrep -n --color=always'
     alias egrep='egrep -n --color=always'
 fi
@@ -99,20 +99,21 @@ alias cddesktop_launcher="cd /usr/share/applications"
 alias df="df -h"
 alias galias='alias | grep -ni'
 alias getXattr="getfattr -n security.selinux "
-alias ghistory='history | grep -ni'
+alias ghistory='history | grep -i'
 alias glunch='lunch | grep -ni'
 alias gps='ps faux | grep -ni'
 alias gmount='mount | grep -ni'
 alias here="cygpath.exe -w $(pwd)"
 alias igrep="grep -ni"
 alias immutable="sudo chattr +i "
+alias kill="sudo chattr +i "
 alias l='ls -CF'
 alias la='ls -A'
 alias ll='ls -halF'
 alias ls_attr="my_lsattr"
 alias lz='sudo ls -halFZ'
 alias mutable="sudo chattr -i "
-## alias rm='trash'
+alias rc='recycle'
 alias rmb='$(which rm)'
 alias simics='~/dev/simics/simics-4.8/simics-4.8.85/scripts/../vmxmon/scripts/install; ~/dev/simics/simics-4.8/simics-4.8.85/bin/simics'
 alias simicseclipse='~/dev/simics/simics-4.8/simics-4.8.85/scripts/../vmxmon/scripts/install; ~/dev/simics/simics-4.8/simics-4.8.85/bin/simics-eclipse'
@@ -166,6 +167,66 @@ android_source () {
 	lunch $TARGET
 	popd
 }
+
+# 
+# b) function cd_func
+# This function defines a 'cd' replacement function capable of keeping, 
+# displaying and accessing history of visited directories, up to 10 entries.
+# To use it, uncomment it, source this file and try 'cd --'.
+# acd_func 1.0.5, 10-nov-2004
+# Petar Marinov, http:/geocities.com/h2428, this is public domain
+cd_func ()
+{
+  local x2 the_new_dir adir index
+  local -i cnt
+
+  if [[ $1 ==  "--" ]]; then
+    dirs -v
+    return 0
+  fi
+
+  the_new_dir=$1
+  [[ -z $1 ]] && the_new_dir=$HOME
+
+  if [[ ${the_new_dir:0:1} == '-' ]]; then
+    #
+    # Extract dir N from dirs
+    index=${the_new_dir:1}
+    [[ -z $index ]] && index=1
+    adir=$(dirs +$index)
+    [[ -z $adir ]] && return 1
+    the_new_dir=$adir
+  fi
+
+  #
+  # '~' has to be substituted by ${HOME}
+  [[ ${the_new_dir:0:1} == '~' ]] && the_new_dir="${HOME}${the_new_dir:1}"
+
+  #
+  # Now change to the new dir and add to the top of the stack
+  pushd "${the_new_dir}" > /dev/null
+  [[ $? -ne 0 ]] && return 1
+  the_new_dir=$(pwd)
+
+  #
+  # Trim down everything beyond 11th entry
+  popd -n +11 2>/dev/null 1>/dev/null
+
+  #
+  # Remove any other occurence of this dir, skipping the top of the stack
+  for ((cnt=1; cnt <= 10; cnt++)); do
+    x2=$(dirs +${cnt} 2>/dev/null)
+    [[ $? -ne 0 ]] && return 0
+    [[ ${x2:0:1} == '~' ]] && x2="${HOME}${x2:1}"
+    if [[ "${x2}" == "${the_new_dir}" ]]; then
+      popd -n +$cnt 2>/dev/null 1>/dev/null
+      cnt=cnt-1
+    fi
+  done
+
+  return 0
+}
+
 
 android_sourced () {
 	if [ "$ANDROID_BUILD_TOP" != "" ]; then
@@ -276,7 +337,7 @@ cd () {
 ##		pushd $path 2>&1 1>/dev/null
 ##	fi
 	builtin cd "$path"
-##	local unused=$(git_test_remote_modif)
+##	local unused=$(git_get_remote_modif)
 }
 
 craff() {
@@ -362,7 +423,32 @@ git_get_stash () {
 	fi
 }
 
-git_test_local_modif () {
+#########################################
+# Copy modified files before a pull
+# (Avoiding difficult merge)
+#########################################
+git_save () {
+	git status | grep "modifié" | while read file
+	do
+		file=${file#*:}
+		CMD="cp $file $file-wip"
+		echo $CMD; $CMD
+	done
+	find . -iname "*"\-wip"*"
+}
+
+#########################################
+# Delete temporay copied files before a pull
+#########################################
+git_rm_wip () {
+	git status | grep --color=never "\-wip" | while read file
+	do
+		CMD="rm $file"
+		echo $CMD; $CMD
+	done
+}
+
+git_get_local_modif () {
 	unset LOCAL
  	LOCAL=$(git diff --shortstat 2> /dev/null)
  	LOCAL=$LOCAL$(git diff --shortstat --cached 2> /dev/null)
@@ -373,7 +459,7 @@ git_test_local_modif () {
 	fi
 }
 
-git_test_remote_modif () {
+git_get_remote_modif () {
 	unset REMOTE AHEAD BEHIND
 	BRANCH=$(git_get_branch)
  	AHEAD=$(git commit --dry-run 2>/dev/null | grep ahead)
@@ -390,7 +476,7 @@ git_test_remote_modif () {
  		BEHIND=${BEHIND%. *}
 		echo "[$BEHIND un-pulled]"
 	fi
-## 	echo "git_test_remote_modif" $(date +%T)
+## 	echo "git_get_remote_modif" $(date +%T)
 }
 
 git_show_unpushed_commit () {
@@ -443,6 +529,12 @@ kate() {
 	$CMD&
 }
 
+edit() {
+    CMD="npp $(cygpath -m $@)"
+    echo $CMD&
+	$CMD&
+}
+
 kerberos_init() {
 	local done=$(klist | grep "$(date +%d)/$(date +%m)/$(date +%Y)" | grep -v renew)
 	if [ "$done" != "" ]; then
@@ -453,9 +545,14 @@ kerberos_init() {
 		echo -e $ATTR_RESET
 	fi
 }
+make() {
+    CMD="mingw32-make $@"
+    echo $CMD
+	$CMD
+}
 
 meld() {
-    CMD="$(which meld) $(cygpath -u $@)"
+    CMD="$(which meld) $(cygpath -pw $@)"
     echo $CMD&
 	$CMD&
 }
@@ -601,10 +698,17 @@ wbdb() {
 	CMD="bashdb -x $HOME/.bashdbinit $path $@"; echo $CMD; $CMD
 }
 
-
 wcat() {
 	local path=$(which $1)
 	CMD="cat $path"; echo $CMD; $CMD
+}
+
+
+wll() {
+	local path=$(which $1)
+	CMD="ls -halF --color=auto $path"; echo $CMD; $CMD
+	echo $(cygpath -wa $path)
+	echo
 }
 
 wedit() {
