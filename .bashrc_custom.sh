@@ -1,6 +1,7 @@
-# ~/.bashrc_custom : executed by bash(1) for non-login shells.
+# $ROOTDRIVE/c/Users/fpaut/.bashrc_custom : executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
+
 
 export PS1_SVG="$PS1"
 
@@ -33,38 +34,6 @@ shopt -s checkwinsize
 if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
-
-# set a fancy prompt (non-color, unless we know we "want" color)
-case "$TERM" in
-    xterm-color) color_prompt=yes;;
-esac
-
-# Whenever displaying the prompt, write the previous line to disk
-export PROMPT_COMMAND="history -a"
-
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
-force_color_prompt=yes
-
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
-    else
-	color_prompt=
-    fi
-fi
- 
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
-unset color_prompt force_color_prompt
-
 
 # Aliases
 #
@@ -105,18 +74,18 @@ alias ll='ls -l'                              # long list
 
 ########### Personnal Aliases ###########
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-alias bdb="bashdb -x ~/.bashdbinit"
+alias bdb="bashdb -x $ROOTDRIVE/c/Users/fpaut/.bashdbinit"
 alias ghistory='history | grep -i'
 alias glunch='lunch | grep -ni'
 alias gps='ps faux | grep -ni'
 alias gmount='mount | grep -ni'
-alias here="cygpath.exe -w $(pwd)"
+alias here=conv_path_for_win"$(pwd)"
 alias igrep=" grep -ni"
 alias l='ls -CF'
 alias la='ls -A'
 alias ll='ls -halF'
 alias su='su --preserve-environment'
-alias sudo='sudo --preserve-env'
+## alias sudo='cygstart --action=runas'
 alias tailf="tail --retry --follow=name"
 alias xopen="xdg-open"
 # History control
@@ -164,8 +133,8 @@ cd_func ()
   fi
 
   #
-  # '~' has to be substituted by ${HOME}
-  [[ ${the_new_dir:0:1} == '~' ]] && the_new_dir="${HOME}${the_new_dir:1}"
+  # '$ROOTDRIVE/c/Users/fpaut' has to be substituted by ${HOME}
+  [[ ${the_new_dir:0:1} == '$ROOTDRIVE/c/Users/fpaut' ]] && the_new_dir="${HOME}${the_new_dir:1}"
 
   #
   # Now change to the new dir and add to the top of the stack
@@ -182,7 +151,7 @@ cd_func ()
   for ((cnt=1; cnt <= 10; cnt++)); do
     x2=$(dirs +${cnt} 2>/dev/null)
     [[ $? -ne 0 ]] && return 0
-    [[ ${x2:0:1} == '~' ]] && x2="${HOME}${x2:1}"
+    [[ ${x2:0:1} == '$ROOTDRIVE/c/Users/fpaut' ]] && x2="${HOME}${x2:1}"
     if [[ "${x2}" == "${the_new_dir}" ]]; then
       popd -n +$cnt 2>/dev/null 1>/dev/null
       cnt=cnt-1
@@ -203,7 +172,17 @@ cd () {
 ##		pushd $path 2>&1 1>/dev/null
 ##	fi
 	builtin cd "$path"
-##	local unused=$(git_get_remote_modif)
+##	local unused=$(git_remote_get_modif)
+}
+
+git_add_alias () {
+	CMD="git config --global alias.$1 $2"
+	echo $CMD && $CMD
+}
+
+git_show_config () {
+	CMD="git config --list"
+	echo $CMD && $CMD
 }
 
 git_get_branch () {
@@ -222,19 +201,29 @@ fi
 git_get_stash () {
 	unset RESULT
 	RESULT=$(git stash list 2> /dev/null)
-	if [ "$RESULT" ]; then
-		echo "("${RESULT%%:*}")"
-	else
-		echo
-	fi
+	echo ${RESULT%%:*}
 }
+#########################################
+# Copy modified files before a pull
+# (Avoiding difficult merge)
+#########################################
+git_dos2unix () {
+	LANG=en_GB git status | grep "modified" | while read file
+	do
+		file=${file#*:}
+		CMD="dos2unix.exe $file"
+		echo $CMD; $CMD
+	done
+	find . -iname "*"\-wip"*"
+}
+
 
 #########################################
 # Copy modified files before a pull
 # (Avoiding difficult merge)
 #########################################
-git_save () {
-	git status | grep "modifié" | while read file
+git_save_to_wip () {
+	LANG=en_GB git status | grep "modified" | while read file
 	do
 		file=${file#*:}
 		CMD="cp $file $file-wip"
@@ -265,24 +254,46 @@ git_get_local_modif () {
 	fi
 }
 
-git_get_remote_modif () {
+git_remote_count_commit () {
 	unset REMOTE AHEAD BEHIND
 	BRANCH=$(git_get_branch)
- 	AHEAD=$(git commit --dry-run 2>/dev/null | grep ahead)
- 	BEHIND=$(git commit --dry-run 2>/dev/null | grep behind)
+ 	AHEAD=$(LANG=en_GB git commit --dry-run 2>/dev/null | grep ahead)
+ 	BEHIND=$(LANG=en_GB git commit --dry-run 2>/dev/null | grep behind)
 	if [ "$AHEAD" ]; then
  		AHEAD=${AHEAD##*by }
  		AHEAD=${AHEAD%, *}
  		AHEAD=${AHEAD%. *}
-		echo "[$AHEAD un-pushed]"
+		echo -e $RED "[$AHEAD un-pushed]"
 	fi
 	if [ "$BEHIND" ]; then
  		BEHIND=${BEHIND##*by }
  		BEHIND=${BEHIND%, *}
  		BEHIND=${BEHIND%. *}
-		echo "[$BEHIND un-pulled]"
+		echo -e $RED "[$BEHIND un-pulled]"
 	fi
+	echo -e $ATTR_RESET
 ## 	echo "git_get_remote_modif" $(date +%T)
+}
+
+git_remote_test_pull() {
+	GITSTATUS=$(LANG=en_GB git status -uno | grep branch)
+	GITSTATUS2=${GITSTATUS##*is}
+	echo -e $GREEN ${GITSTATUS2##*and}
+	echo -e $ATTR_RESET
+}
+
+git_remote_show_unpulled() {
+	CMD="git fetch"
+	echo $CMD && $CMD
+	CMD="git log HEAD..origin/master"
+	echo $CMD && $CMD
+}
+git_remote() {
+	git_remote_count_commit
+	echo
+	git_remote_show_unpulled
+	echo
+	git_remote_test_pull
 }
 
 git_show_unpushed_commit () {
@@ -312,14 +323,14 @@ hexdump() {
 }
 
 kate() {
-    CMD="$(which kate) $(cygpath -m $@)"
-    echo $CMD&
+    CMD="$(which kate) $(conv_path_for_win $@)"
+    echo $CMD
 	$CMD&
 }
 
 edit() {
-    CMD="npp $(cygpath -w $@)&"
-    echo $CMD&
+    CMD="npp $(conv_path_for_win $@)&"
+    echo $CMD
 	$CMD&
 }
 
@@ -329,11 +340,20 @@ make() {
 	$CMD
 }
 
-meld() {
-    CMD="$(which meld) $(cygpath -pw $@)"
-    echo $CMD&
-	$CMD&
+npp() {
+    CMD="$(which notepadpp) $(conv_path_for_win $@)"
+    echo $CMD
+	$CMD 2>/dev/null&
 }
+
+
+# meld() {
+	# param="\"$@\""
+	# CMD="$(which meld) ${param//\\//}"
+	# CMD="$CMD"
+	# echo $CMD > $HOME/sh_meld.cmd
+	# $CMD
+# }
 
 gitps1_add_stash() {
 	GIT_STASH="[$(git_get_stash)]"
@@ -359,11 +379,17 @@ gitps1_rm_local_modif() {
 }
 
 gitps1_add_remote_modif() {
-	GIT_REMOTE_MODIF="[$(git_get_remote_modif)]: "
+	GIT_REMOTE_MODIF="[$(git_remote_get_modif)]: "
 }
 
-gitps1_rm_remote_modif() {
+gitps1_remote_rm_modif() {
 	unset GIT_REMOTE_MODIF
+}
+
+prompt_update() {
+	history -a
+#	export GIT_STASH=$(git_get_stash)
+#	echo "GIT_STASH=$GIT_STASH"
 }
 
 ps1_print() {
@@ -381,6 +407,15 @@ ps1_unset() {
   PS1="$PS1_PREFIX: "
 }
 
+replace() {
+	str=$1
+	search=$2
+	replace=$3
+	result=${str//$2/$3}
+	echo result=$result
+	echo $result
+}
+
 wbdb() {
 	local path=$(which $1)
 	shift
@@ -395,14 +430,14 @@ wcat() {
 wll() {
 	local path=$(which $1)
 	CMD="ls -halF --color=auto $path"; echo $CMD; $CMD
-	echo $(cygpath -wa $path)
+	echo $(conv_path_for_win $path)
 	echo
 }
 
 wedit() {
 	local path=$(which $1 2>/dev/null)
 	if [ "$?" -eq "0" ]; then
-		local path=$(cygpath.exe -w $(which $path))
+		local path=$(conv_path_for_win $(which $path))
 	else
 		path=$1
 	fi
@@ -435,20 +470,57 @@ esac
 ## 	echo "git-completion.bash not sourced..."
 ## fi
 
-cd ~/dev/scripts
+cd $ROOTDRIVE/c/Users/fpaut/dev/scripts
 git config core.fileMode false
-echo "dt-arm-firmware : "
-cat .git/config | grep -i filemode
-cd -
-cd ~/dev/STM32_Toolchain/dt-arm-firmware
+FILEMODE=$(cat .git/config | grep -i filemode)
+echo -e "my scripts\t: $FILEMODE"
+cd - 1>/dev/null
+cd $ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware
 git config core.fileMode false
-echo "dt-arm-firmware : "
-cat .git/config | grep -i filemode
-cd -
-cd ~/dev/STM32_Toolchain/dt-fwtools
+FILEMODE=$(cat .git/config | grep -i filemode)
+echo -e "dt-arm-firmware\t: $FILEMODE"
+cd - 1>/dev/null
+cd $ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain/dt-fwtools
 git config core.fileMode false
-echo "dt-fwtools : "
-cat .git/config | grep -i filemode
-cd -
+FILEMODE=$(cat .git/config | grep -i filemode)
+echo -e "dt-fwtools\t: $FILEMODE"
+cd - 1>/dev/null
 PS1_SVG="$PS1"
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color) color_prompt=yes;;
+esac
+
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+    else
+	color_prompt=
+    fi
+fi
+ 
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# Whenever displaying the prompt, write the previous line to disk
+export PROMPT_COMMAND=prompt_update
+## export PROMPT_COMMAND+="$(echo git_get_stash)"
+## export PROMPT_COMMAND+="\$(git_get_stash)"
+## Customize PS1
+#OK# PS1="$PS1[\$(git_get_stash]"
+
 
