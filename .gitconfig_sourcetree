@@ -1,0 +1,12 @@
+[difftool "sourcetree"]
+	cmd = 'C:/Program Files (x86)/Meld/Meld.exe' \"$LOCAL\" \"$REMOTE\"
+[mergetool "sourcetree"]
+	cmd = 'C:/Program Files (x86)/Meld/Meld.exe' \"$LOCAL\" \"$REMOTE\"\"$MERGED\"
+	trustExitCode = true
+[alias]
+	co = checkout
+	unstage = reset HEAD --
+	last = log -1 HEAD
+	br = branch
+	ci = commit
+	st = status
