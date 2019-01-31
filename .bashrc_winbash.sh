@@ -3,6 +3,10 @@ export BASH_STR="Ubuntu bash on Windows"
 export HOME_IN_WINDOWS="C:\Users\fpaut\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs\home\fpaut"
 export HOMEW="C:\Users\fpaut"
 export ROOTDRIVE="/mnt"
+
+alias rm='trash -v'
+
+
 conv_path_for_win()
 {
 	if [[ "$@" != "" ]]; then
@@ -16,11 +20,4 @@ conv_path_for_bash()
 		echo $(wslpath $@)
 	fi
 }
-
-meld() {
-	CMD="$(which meld) $@"
-	echo $CMD
-	$CMD
-}
-
 

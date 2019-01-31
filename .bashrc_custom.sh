@@ -49,7 +49,6 @@ fi
 # \rm will call the real rm not the alias.
 #
 # Interactive operation...
-alias rm='rm'
 # alias cp='cp -i'
 alias mv='mv -i'
 #
@@ -175,6 +174,13 @@ cd () {
 ##	local unused=$(git_remote_get_modif)
 }
 
+double_backslash()
+{
+	str=$1
+	echo $(echo $str |  sed 's,\\,/,g')
+}
+
+
 git_add_alias () {
 	CMD="git config --global alias.$1 $2"
 	echo $CMD && $CMD
@@ -217,6 +223,27 @@ git_dos2unix () {
 	find . -iname "*"\-wip"*"
 }
 
+git_unix2dos () {
+	LANG=en_GB git status | grep "modified" | while read file
+	do
+		file=${file#*:}
+		CMD="unix2dos.exe $file"
+		echo $CMD; $CMD
+	done
+	find . -iname "*"\-wip"*"
+}
+
+git_discard_file () {
+	file_pattern=$1
+	[[ "$file_pattern" == "" ]] && echo missing file pattern to discard as first parameter &&  return 1
+	LANG=en_GB git status | grep "modified"  | grep "$file_pattern" | while read file
+	do
+		file=${file#*:}
+		CMD="git checkout -- $file"
+		echo $CMD; $CMD
+	done
+}
+
 
 #########################################
 # Copy modified files before a pull
@@ -233,10 +260,13 @@ git_save_to_wip () {
 }
 
 #########################################
-# Delete temporay copied files before a pull
+# Delete file referenced by git following 
+# 'pattern'
 #########################################
-git_rm_wip () {
-	git status | grep --color=never "\-wip" | while read file
+git_rm_pattern () {
+	pattern=$1
+	[[ $pattern == "" ]] && echo missing pattern as parameter &&  return 1
+	git status | grep --color=never $pattern | while read file
 	do
 		CMD="rm $file"
 		echo $CMD; $CMD
@@ -285,7 +315,7 @@ git_remote_test_pull() {
 git_remote_show_unpulled() {
 	CMD="git fetch"
 	echo $CMD && $CMD
-	CMD="git log HEAD..origin/master"
+	CMD="git log HEAD..origin/master --name-status"
 	echo $CMD && $CMD
 }
 git_remote() {
@@ -336,6 +366,21 @@ edit() {
 
 make() {
     CMD="mingw32-make $@"
+    echo $CMD
+	$CMD
+}
+
+
+messageBox() {
+	msg="$1"
+    CMD="zenity --info --text=$msg"
+    echo $CMD
+	$CMD
+}
+
+notify() {
+	msg="$1"
+    CMD="notify-send $msg"
     echo $CMD
 	$CMD
 }
@@ -399,6 +444,17 @@ ps1_print() {
 alias gitps1_restore=ps1_restore
 ps1_restore() {
 	PS1=$PS1_SVG
+}
+ps1_prefix() {
+	IAM=$(whoami)
+
+	if [[ "$IAM" != "root" ]]; then
+		PREF_COLOR=$GREEN
+	else
+		PREF_COLOR=$RED
+	fi
+
+	PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w$ATTR_RESET> "
 }
 
 ps1_unset() {
@@ -508,16 +564,20 @@ if [ -n "$force_color_prompt" ]; then
 	color_prompt=
     fi
 fi
- 
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
+
+## if [ "$color_prompt" = yes ]; then
+##     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+## else
+##     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+## fi
+ps1_prefix
+PS1=$PS1_PREFIX
 unset color_prompt force_color_prompt
 
 # Whenever displaying the prompt, write the previous line to disk
 export PROMPT_COMMAND=prompt_update
+settitle $BASH_STR
+
 ## export PROMPT_COMMAND+="$(echo git_get_stash)"
 ## export PROMPT_COMMAND+="\$(git_get_stash)"
 ## Customize PS1

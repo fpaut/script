@@ -18,9 +18,3 @@ conv_path_for_bash()
 	fi
 }
 
-meld() {
-	CMD="$(which meld)	$(conv_path_for_win $@)"
-	echo $CMD
-	$CMD
-}
-

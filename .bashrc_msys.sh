@@ -16,11 +16,3 @@ conv_path_for_bash()
 		echo $(wslpath $@)
 	fi
 }
-
-meld() {
-	CMD="$(which meld) $@"
-	echo $CMD
-	$CMD
-}
-
-

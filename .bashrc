@@ -211,11 +211,17 @@ else
 	fi
 fi
 source $ROOTDRIVE/c/Users/fpaut/dev/scripts/s_bash_tools.sh
-source $ROOTDRIVE/c/Users/fpaut/dev/scripts/.bashrc_custom.sh
 def_font_attributes
+source $ROOTDRIVE/c/Users/fpaut/dev/scripts/.bashrc_custom.sh
+GIT=$(which git)
+if [[ "$GIT" != "" ]]; then
+$ROOTDRIVE/c/Users/fpaut/dev/scripts/git-aliases.sh
+fi
+
 
 alias cddev="cd $ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain"
-alias cddevODS="cd $ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware/ODS"
+alias cdfirmware="cd $ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware"
+alias cdtools="cd $ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain/dt-fwtools"
 
 export PATH=$PATH:$ROOTDRIVE/c/Users/fpaut/dev/scripts
 export PATH=$PATH:$ROOTDRIVE/c/Users/fpaut/bin/Debug
@@ -223,3 +229,5 @@ echo Bash HOME in Windows folder=$HOME
 echo Windows home HOMEW=$HOMEW
 echo BASH=$BASH_STR
 
+export DISPLAY=localhost:0.0
+export LIBGL_ALWAYS_INDIRECT=1
