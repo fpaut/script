@@ -5,6 +5,7 @@ export HOMEW="C:\Users\fpaut"
 export ROOTDRIVE="/mnt"
 
 alias rm='trash -v'
+alias trash-restore='restore-trash'
 
 
 conv_path_for_win()

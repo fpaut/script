@@ -1,0 +1,31 @@
+#!/bin/bash
+remove_LR()
+{
+	str=$1
+	echo $(echo $str |  sed 's/\r//g')
+}
+
+double_backslash()
+{
+	str=$1
+	echo $(echo $str |  sed 's,\\,/,g')
+}
+
+
+P1="$1"
+P2="$(pwd)/$2"
+P3="$3"
+P1=$(wslpath -w "$P1")
+P2=$(wslpath -w "$P2")
+[[ "$P3" != "" ]] && P3=$(wslpath -w "$P3")
+P1=$(double_backslash $(remove_LR $P1))
+P2=$(double_backslash $(remove_LR $P2))
+P3=$(double_backslash $(remove_LR $P3))
+echo "P1=$P1"
+echo "P2=$P2"
+echo "P3=$P3"
+CMD="/mnt/c/Program\ Files\ \(x86\)/Meld/Meld.exe "
+CMD="$CMD \"$P1\" \"$P2\""
+[[ "$P3" != "" ]] && CMD="$CMD \"$P3\""
+echo $CMD
+eval "$CMD"

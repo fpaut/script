@@ -1,8 +1,22 @@
+[user]
+	name = Frederic Paut
+	email = frederic.paut@diasys-technologies.com
+
 [difftool "sourcetree"]
 	cmd = 'C:/Program Files (x86)/Meld/Meld.exe' \"$LOCAL\" \"$REMOTE\"
 [mergetool "sourcetree"]
 	cmd = 'C:/Program Files (x86)/Meld/Meld.exe' \"$LOCAL\" \"$REMOTE\"\"$MERGED\"
 	trustExitCode = true
+[cola]
+	spellcheck = false
+	blameviewer = git gui blame
+[diff]
+	tool = meld
+[merge]
+	tool =  meld
+##	tool =  '/mnt/c/Program Files (x86)/Meld/Meld.exe' \"$LOCAL\" \"$REMOTE\"\"$MERGED\"
+[credential]
+	helper = wincred
 [alias]
 	co = checkout
 	unstage = reset HEAD --
@@ -10,3 +24,6 @@
 	br = branch
 	ci = commit
 	st = status
+[core]
+	autocrlf = true
+	filemode = false

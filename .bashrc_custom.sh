@@ -186,11 +186,6 @@ git_add_alias () {
 	echo $CMD && $CMD
 }
 
-git_show_config () {
-	CMD="git config --list"
-	echo $CMD && $CMD
-}
-
 git_get_branch () {
 	BRANCH=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1]/')
 	BRANCH=${BRANCH:1:$((${#BRANCH} - 2))}
@@ -214,7 +209,7 @@ git_get_stash () {
 # (Avoiding difficult merge)
 #########################################
 git_dos2unix () {
-	LANG=en_GB git status | grep "modified" | while read file
+	git status | grep "modified" | while read file
 	do
 		file=${file#*:}
 		CMD="dos2unix.exe $file"
@@ -224,7 +219,7 @@ git_dos2unix () {
 }
 
 git_unix2dos () {
-	LANG=en_GB git status | grep "modified" | while read file
+	git status | grep "modified" | while read file
 	do
 		file=${file#*:}
 		CMD="unix2dos.exe $file"
@@ -236,7 +231,7 @@ git_unix2dos () {
 git_discard_file () {
 	file_pattern=$1
 	[[ "$file_pattern" == "" ]] && echo missing file pattern to discard as first parameter &&  return 1
-	LANG=en_GB git status | grep "modified"  | grep "$file_pattern" | while read file
+	git status | grep "modified"  | grep "$file_pattern" | while read file
 	do
 		file=${file#*:}
 		CMD="git checkout -- $file"
@@ -250,7 +245,7 @@ git_discard_file () {
 # (Avoiding difficult merge)
 #########################################
 git_save_to_wip () {
-	LANG=en_GB git status | grep "modified" | while read file
+	git status | grep "modified" | while read file
 	do
 		file=${file#*:}
 		CMD="cp $file $file-wip"
@@ -260,16 +255,61 @@ git_save_to_wip () {
 }
 
 #########################################
+# same than 'git_save_to_wip' but for a 
+# specific revision
+#########################################
+git_save_to_wip_rev () {
+	rev=$1
+	branch=$(git branch | grep "\*")
+	branch=${branch#*\*}
+	git checkout $rev
+	git diff-tree --no-commit-id --name-only -r $rev | while read file
+	do
+		CMD="cp $file $file-wip"
+		echo $CMD; $CMD
+	done
+	find . -iname "*"\-wip"*"
+	git checkout $branch
+	echo "Now :"
+	echo "git checkout master"
+	echo "meld file file-wip"
+}
+
+#########################################
 # Delete file referenced by git following 
 # 'pattern'
 #########################################
 git_rm_pattern () {
 	pattern=$1
 	[[ $pattern == "" ]] && echo missing pattern as parameter &&  return 1
+	echo -e $GREEN"Following file will be removed."$ATTR_RESET
 	git status | grep --color=never $pattern | while read file
 	do
-		CMD="rm $file"
+		file=${file#*:}
+		CMD="$file "
 		echo $CMD; $CMD
+	done
+	echo -e $GREEN
+	read -e -i "N" -p "Ok? (y/N): "
+	echo -e $ATTR_RESET
+	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
+		git status | grep --color=never $pattern | while read file
+		do
+			file=${file#*:}
+			CMD="rm $file"
+			echo $CMD; $CMD
+		done
+	fi
+	
+}
+
+git_rm_check_pattern () {
+	pattern=$1
+	[[ $pattern == "" ]] && echo missing pattern as parameter &&  return 1
+	echo -e $GREEN"Following file have this pattern $pattern."$ATTR_RESET
+	git status | grep --color=never $pattern | while read file
+	do
+		echo $file
 	done
 }
 
@@ -287,8 +327,8 @@ git_get_local_modif () {
 git_remote_count_commit () {
 	unset REMOTE AHEAD BEHIND
 	BRANCH=$(git_get_branch)
- 	AHEAD=$(LANG=en_GB git commit --dry-run 2>/dev/null | grep ahead)
- 	BEHIND=$(LANG=en_GB git commit --dry-run 2>/dev/null | grep behind)
+ 	AHEAD=$(git commit --dry-run 2>/dev/null | grep ahead)
+ 	BEHIND=$(git commit --dry-run 2>/dev/null | grep behind)
 	if [ "$AHEAD" ]; then
  		AHEAD=${AHEAD##*by }
  		AHEAD=${AHEAD%, *}
@@ -306,7 +346,7 @@ git_remote_count_commit () {
 }
 
 git_remote_test_pull() {
-	GITSTATUS=$(LANG=en_GB git status -uno | grep branch)
+	GITSTATUS=$(git status -uno | grep branch)
 	GITSTATUS2=${GITSTATUS##*is}
 	echo -e $GREEN ${GITSTATUS2##*and}
 	echo -e $ATTR_RESET
@@ -324,6 +364,21 @@ git_remote() {
 	git_remote_show_unpulled
 	echo
 	git_remote_test_pull
+}
+
+git_show_config () {
+	which="$1"
+	[[ "$which" == "" ]] && echo 'local' or 'global' ? && return
+	if [[ "$1" == "local" ]]; then
+		echo "Local git config : "
+		ls -halF ./.git/config
+		CMD="git config --local --list"
+	else
+		echo "Global git config : "
+		ls -halF ~/.gitconfig
+		CMD="git config --global --list"
+	fi
+		echo $CMD && $CMD
 }
 
 git_show_unpushed_commit () {
