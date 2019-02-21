@@ -22,3 +22,13 @@ conv_path_for_bash()
 	fi
 }
 
+function ctrl_c() {
+	echo "SIGINT trapped!" 
+}
+
+echo "Remap CTRL+C on CTRL+X"
+stty intr \^x
+
+# trap ctrl-c and call ctrl_c()
+trap ctrl_c SIGINT
+

@@ -228,10 +228,10 @@ git_unix2dos () {
 	find . -iname "*"\-wip"*"
 }
 
-git_discard_file () {
+git_discard () {
 	file_pattern=$1
 	[[ "$file_pattern" == "" ]] && echo missing file pattern to discard as first parameter &&  return 1
-	git status | grep "modified"  | grep "$file_pattern" | while read file
+	git status | grep "$file_pattern" | while read file
 	do
 		file=${file#*:}
 		CMD="git checkout -- $file"
@@ -241,53 +241,19 @@ git_discard_file () {
 
 
 #########################################
-# Copy modified files before a pull
-# (Avoiding difficult merge)
-#########################################
-git_save_to_wip () {
-	git status | grep "modified" | while read file
-	do
-		file=${file#*:}
-		CMD="cp $file $file-wip"
-		echo $CMD; $CMD
-	done
-	find . -iname "*"\-wip"*"
-}
-
-#########################################
-# same than 'git_save_to_wip' but for a 
-# specific revision
-#########################################
-git_save_to_wip_rev () {
-	rev=$1
-	branch=$(git branch | grep "\*")
-	branch=${branch#*\*}
-	git checkout $rev
-	git diff-tree --no-commit-id --name-only -r $rev | while read file
-	do
-		CMD="cp $file $file-wip"
-		echo $CMD; $CMD
-	done
-	find . -iname "*"\-wip"*"
-	git checkout $branch
-	echo "Now :"
-	echo "git checkout master"
-	echo "meld file file-wip"
-}
-
-#########################################
 # Delete file referenced by git following 
 # 'pattern'
 #########################################
 git_rm_pattern () {
 	pattern=$1
+	echo "searching pattern '$pattern'"
 	[[ $pattern == "" ]] && echo missing pattern as parameter &&  return 1
 	echo -e $GREEN"Following file will be removed."$ATTR_RESET
-	git status | grep --color=never $pattern | while read file
+	git status | grep --color=never "$pattern" | while read file
 	do
 		file=${file#*:}
-		CMD="$file "
-		echo $CMD; $CMD
+		CMD=" $file "
+		echo $CMD
 	done
 	echo -e $GREEN
 	read -e -i "N" -p "Ok? (y/N): "
@@ -300,7 +266,6 @@ git_rm_pattern () {
 			echo $CMD; $CMD
 		done
 	fi
-	
 }
 
 git_rm_check_pattern () {
@@ -387,6 +352,55 @@ git_show_unpushed_commit () {
 	F_REMOTE_BRANCH=($(eval "git remote show $REMOTE | grep ' $BRANCH '  | grep 'merge'"))
 	REMOTE_BRANCH=${F_REMOTE_BRANCH[4]}
 	eval "git log $REMOTE/$REMOTE_BRANCH..HEAD"
+}
+
+#########################################
+# Compare a backup wip file, with the 
+# same "not wip" file
+#########################################
+git_wip_cmp () {
+	git status | grep "wip" | while read file
+	do
+		file1=${file#*:}
+		file2=${file%-wip*}
+		CMD="meld $file1 $file2"
+		echo $CMD; $CMD
+	done
+}
+
+#########################################
+# Copy modified files before a pull
+# (Avoiding difficult merge)
+#########################################
+git_wip_save () {
+	git status | grep "modified" | while read file
+	do
+		file=${file#*:}
+		CMD="cp $file $file-wip"
+		echo $CMD; $CMD
+	done
+	find . -iname "*"\-wip"*"
+}
+
+#########################################
+# same than 'git_wip_save' but for a 
+# specific revision
+#########################################
+git_wip_save_from_rev () {
+	rev=$1
+	branch=$(git branch | grep "\*")
+	branch=${branch#*\*}
+	git checkout $rev
+	git diff-tree --no-commit-id --name-only -r $rev | while read file
+	do
+		CMD="cp $file $file-wip"
+		echo $CMD; $CMD
+	done
+	find . -iname "*"\-wip"*"
+	git checkout $branch
+	echo "Now :"
+	echo "git checkout master"
+	echo "meld file file-wip"
 }
 
 gexport () {
@@ -637,5 +651,4 @@ settitle $BASH_STR
 ## export PROMPT_COMMAND+="\$(git_get_stash)"
 ## Customize PS1
 #OK# PS1="$PS1[\$(git_get_stash]"
-
 

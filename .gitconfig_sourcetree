@@ -27,3 +27,5 @@
 [core]
 	autocrlf = true
 	filemode = false
+[push]
+	default = matching
