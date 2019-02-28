@@ -1,6 +1,15 @@
 #!/bin/bash
-tarName="$1"
-shift
-tarList="$@"
-CMD="tar -cvf $tarName $tarList"
-echo $CMD; $CMD
+folder=$1
+output=$2
+echo "folder=$folder"
+echo "output=$output"
+if [[ "$output" != "" ]]; then
+	option="$output/$(basename $folder)"
+fi
+option=$option
+echo "option=$option"
+
+CMD="tar -czf - $folder/* | split -b 4M - \"$option-part\""
+echo $CMD
+eval $CMD
+
