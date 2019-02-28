@@ -268,7 +268,7 @@ git_rm_pattern () {
 	fi
 }
 
-git_rm_check_pattern () {
+git_rm_pattern_check () {
 	pattern=$1
 	[[ $pattern == "" ]] && echo missing pattern as parameter &&  return 1
 	echo -e $GREEN"Following file have this pattern $pattern."$ATTR_RESET
@@ -366,6 +366,13 @@ git_wip_cmp () {
 		CMD="meld $file1 $file2"
 		echo $CMD; $CMD
 	done
+}
+
+#########################################
+# Remove wip file
+#########################################
+git_wip_rm () {
+	git_rm_pattern "\-wip"
 }
 
 #########################################
