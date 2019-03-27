@@ -7,19 +7,36 @@ export ROOTDRIVE="/mnt"
 alias rm='trash -v'
 alias trash-restore='restore-trash'
 
+WSLPATH=$(which wslpath)
 
 conv_path_for_win()
 {
 	if [[ "$@" != "" ]]; then
-		echo $(wslpath -w $@)
+		echo $($WSLPATH -w $@)
 	fi
 }
 
 conv_path_for_bash()
 {
 	if [[ "$@" != "" ]]; then
-		echo $(wslpath $@)
+		echo $($WSLPATH $@)
 	fi
+}
+
+wslpath()
+{
+	case "$1" in
+		"" | "help" | "-help" | "--help")
+			echo "wslpath usage:"
+			echo "    -a    force result to absolute path format"
+			echo "    -u    translate from a Windows path to a WSL path (default)"
+			echo "    -w    translate from a WSL path to a Windows path"
+			echo "    -m    translate from a WSL path to a Windows path, with ‘/’ instead of ‘\\’"
+		;;
+		*)
+			$WSLPATH "$@"
+		;;
+	esac
 }
 
 function ctrl_c() {
