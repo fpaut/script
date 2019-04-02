@@ -4,7 +4,6 @@
 
 
 export PS1_SVG="$PS1"
-export MONITOR_PATH
 
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
@@ -201,6 +200,29 @@ git_cmd () {
 	echo $CMD && $CMD
 }
 
+git_diff_show_file(){
+	branch=$1
+	pattern=$2
+	git diff "$branch" | grep diff | grep "$pattern" | while read item
+	do
+		file=${item##* b/}
+		echo $file
+	done
+}
+
+git_diff_cmp(){
+	branch=$1
+	pattern=$2
+	git diff "$branch" | grep diff | grep "$pattern" | while read item
+	do
+		file=${item##* b/}
+		echo file
+		echo $file | hexdump
+		CMD="git difftool $branch -- $file"
+		echo $CMD && $CMD
+	done
+}
+
 git_get_branch () {
 	BRANCH=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1]/')
 	BRANCH=${BRANCH:1:$((${#BRANCH} - 2))}
@@ -246,10 +268,13 @@ git_unix2dos () {
 git_discard () {
 	file_pattern=$1
 	[[ "$file_pattern" == "" ]] && echo missing file pattern to discard as first parameter &&  return 1
-	git status | grep --color=never "$file_pattern" | grep  --color=never  -v "$WIP_PREFIX" | while read file
+	if [[ "$file_pattern" == "all" ]]; then
+		file_pattern=""
+	fi
+	git status | grep --color=never "$file_pattern" | grep ":" | grep  --color=never  -v "$WIP_PREFIX" | while read file
 	do
 		file=${file#*:}
-		CMD="git checkout -- $file"
+		[[ "$file" != "" ]] && CMD="git checkout -- $file"
 		echo $CMD; $CMD
 	done
 }
@@ -379,8 +404,18 @@ WIP_PREFIX="WIP"
 # Show wip file, with specific pattern
 #########################################
 git_wip_ls () {
-pattern=$1
-	git status | grep "$pattern" | grep "\-$WIP_PREFIX"
+	export WIP_LIST
+	pattern=$1
+	pattern="\-$WIP_PREFIX-$pattern"
+	git status | grep "$pattern" | while read file
+	do
+		f1=${file##*$WIP_PREFIX-}
+		f1=${file%.*}
+		wip=${f1##*-}
+		WIP_LIST=( "$WIP_LIST" "$wip"  )
+		echo WIP_LIST IN=${WIP_LIST[@]}
+	done
+	echo WIP_LIST OUT=${WIP_LIST[@]}
 }
 
 
@@ -406,17 +441,36 @@ git_wip_get_file_ext () {
 # same "not wip" file
 #########################################
 git_wip_cmp () {
+do_cmp=true
 pattern1=$1
 pattern2=$2
-	git status | grep --color=never "$pattern1" | grep --color=never "\-$WIP_PREFIX" | while read file
+	git status | grep --color=never "$pattern1" | grep --color=never "\-$WIP_PREFIX" | while read file_p1
 	do
-		file=${file#*:}
-		name=$(git_wip_get_file_name $file)
-		ext=$(git_wip_get_file_ext $file)
-		file2=$name.$ext
-		CMD="meld $file $file2"
-		echo $CMD
-		$CMD
+		file_p1=${file_p1#*:}
+		name=$(git_wip_get_file_name $file_p1)
+		ext=$(git_wip_get_file_ext $file_p1)
+		if [[ "$pattern2" == "" ]]; then
+			# No 2nd pattern, compare with filename.ext
+			file_p2=$name.$ext
+		else
+			# 2nd pattern exist, compare with filename-WIP-'pattern2'.ext
+			file_p2=$name-$WIP_PREFIX-$pattern2.$ext
+		fi
+		if [ ! -f "$file_p1" ]
+		then
+			echo "$file_p1 does not exist"
+			do_cmp=false
+		fi
+		if [ ! -f "$file_p2" ]
+		then
+			echo "$file_p2 does not exist"
+			do_cmp=false
+		fi
+		if [[ $do_cmp ]]; then
+			CMD="meld $file_p1 $file_p2&"
+			echo $CMD
+			$CMD
+		fi
 	done
 }
 
@@ -430,17 +484,49 @@ git_wip_rename() {
 	if [[ old_pattern == "" || "$new_pattern" == "" ]];then
 		echo "2 parameters requested (old pattern and new pattern)"
 	fi
-	new_pattern="\-$WIP_PREFIX-$new_pattern"
+	new_pattern="$WIP_PREFIX-$new_pattern"
 	git status | grep $old_pattern | grep "\-$WIP_PREFIX" | while read file
 	do
 		file=${file#*:}
-		name=${file%$WIP_PREFIX-*}
-		ext=${file##*.}
+		name=$(git_wip_get_file_name $file)
+		ext=$(git_wip_get_file_ext $file)
 		file1=$file
 		file2=$name-$new_pattern.$ext
 		CMD="mv $file $file2"
 		echo $CMD; $CMD
 	done
+}
+#########################################
+# Show wip file, with specific pattern
+#########################################
+git_wip_restore () {
+	pattern=$1
+	if [[ "$pattern" != "" ]];then
+		pattern="\-$WIP_PREFIX-$pattern"
+	fi
+	echo -e $GREEN"Following file will replace original."$ATTR_RESET
+	git status | grep "$pattern" | while read file
+	do
+		file=${file#*:}
+		name=$(git_wip_get_file_name $file)
+		ext=$(git_wip_get_file_ext $file)
+		CMD="copy $file -> $name.$ext"
+		echo $CMD
+	done
+	echo -e $GREEN
+	read -e -i "N" -p "Ok? (y/N): "
+	echo -e $ATTR_RESET
+	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
+		git status | grep "$pattern" | while read file
+		do
+			file=${file#*:}
+			name=$(git_wip_get_file_name $file)
+			ext=$(git_wip_get_file_ext $file)
+			CMD="cp $file $name.$ext"
+			echo $CMD
+			$CMD
+	done
+	fi
 }
 
 #########################################
@@ -449,7 +535,7 @@ git_wip_rename() {
 git_wip_rm () {
 	pattern=$1
 	if [[ "$pattern" != "" ]];then
-		pattern="$pattern"
+		pattern="\-$WIP_PREFIX-$pattern"
 	fi
 	git_rm_pattern "$pattern"
 }
@@ -511,11 +597,8 @@ grll() {
 }
 
 is_git_folder() {
-	if [[ "$MONITOR_PATH" != "$FOLDER_PATH" ]]; then
-		FOLDER_PATH=$MONITOR_PATH
-		isGitFolder=$(git branch 2>/dev/null)
-		echo $?
-	fi
+	repoGit=$(git rev-parse --git-dir 2>/dev/null)
+	[ -d .git ] || [[ "$repoGit" != "" ]] && echo "$repoGit"
 }
 
 hexdump() {
@@ -551,12 +634,13 @@ messageBox() {
 	$CMD
 }
 monitor_folder(){
-  while true
-  do
-    MONITOR_PATH=$(pwd)
-	echo "MONITOR_PATH=$MONITOR_PATH"
-    sleep 5
-  done
+	return
+	while true
+	do
+		MONITOR_PATH=$(pwd)
+		echo "MONITOR_PATH=$MONITOR_PATH"
+##		sleep 5
+	done
 }
 
 notify() {
@@ -574,10 +658,10 @@ npp() {
 
 
 meld() {
-	param="\"$@\""
-	CMD="$(which meld) ${param//\\//}"
+	param="$@"
+	CMD="$(which meld) $param 2>/dev/null"
 	echo $CMD > $HOME/sh_meld.cmd
-	$CMD
+	$HOME/sh_meld.cmd
 }
 
 gitps1_add_stash() {
@@ -613,9 +697,12 @@ gitps1_remote_rm_modif() {
 
 prompt_update() {
 	history -a
-	if [[ "$(is_git_folder)" == "0" ]]; then
-		BRANCH=$(git br | grep "*")
-		BRANCH=${BRANCH#* }
+	repoGit=$(is_git_folder)
+	if [[ "$repoGit" != "" ]]; then
+		BRANCH=$(cat $repoGit/HEAD)
+		BRANCH=${BRANCH##*heads/}
+	else
+		unset BRANCH
 	fi
 	ps1_prefix
 	PS1=$PS1_PREFIX
@@ -639,12 +726,10 @@ ps1_prefix()
 	else
 		PREF_COLOR=$RED
 	fi
-	if [[ "$(is_git_folder)" == "0" ]]; then
-		BRANCH=$(git br | grep "*")
-		BRANCH=${BRANCH#* }
-		PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w[$BRANCH]$ATTR_RESET> "
+	if [[ "$BRANCH" != "" ]]; then
+		PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w$CYAN\n[$BRANCH]$ATTR_RESET> "
 	else
-		PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w$ATTR_RESET> "
+		PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w\n$ATTR_RESET> "
 	fi
 }
 
@@ -762,11 +847,10 @@ fi
 ##     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 ## fi
 ps1_prefix
+PS1=$PS1_PREFIX
 unset color_prompt force_color_prompt
 
 # Whenever displaying the prompt, write the previous line to disk
-## monitor_folder&
-PID_monitor_folder=$!
 export PROMPT_COMMAND=prompt_update
 settitle $BASH_STR
 

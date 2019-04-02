@@ -221,7 +221,7 @@ fi
 
 alias cdd="cd $ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain"
 alias cdf="cd $ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware"
-alias cdscripts="cd $ROOTDRIVE/c/Users/fpaut/dev/scripts"
+alias cds="cd $ROOTDRIVE/c/Users/fpaut/dev/scripts"
 alias cdt="cd $ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain/dt-fwtools"
 
 export PATH=$PATH:$ROOTDRIVE/c/Users/fpaut/dev/scripts

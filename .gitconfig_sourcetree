@@ -24,6 +24,9 @@
 	br = branch
 	ci = commit
 	st = status
+	ss = stash save
+	sp = stash pop
+	sl = stash list
 [core]
 	autocrlf = true
 	filemode = false
