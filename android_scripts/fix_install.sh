@@ -1,4 +1,4 @@
-#!/system/bin/sh
+#!/bin/bash
 pattern=$1
 CMD="su -c find /data/data -iname \"*$pattern*\" | grep -v \"POUBELLE\""
 echo $CMD

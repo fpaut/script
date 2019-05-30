@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 set -u
 echo "Select repo tools (aosp or sp)"
 if [[ "$1" != "sp" && "$1" != "aosp" ]]; then

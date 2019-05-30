@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #usage: ./dlna-buildhead.sh
 #usage: ./dlna-buildhead.sh --build
 #usage: ./dlna-buildhead.sh components_list.txt

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 shopt -s expand_aliases
 alias errorHandler_on_error='ERR=$?; if [[ $ERR != 0 ]]; then errorHandler $ERR; fi'
 REPAIROS_IMG=$1

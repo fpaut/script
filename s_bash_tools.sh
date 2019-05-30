@@ -37,23 +37,23 @@ trap_handler_unset() {
 }
 
 def_font_attributes() {
-	ATTR_UNDERLINED="\e[4m"
+	export ATTR_UNDERLINED="\033[0;4m"
 
-	FONT_BOLD="\e[1m"
+	export FONT_BOLD="\033[0;1m"
 
-	BKG_RED="\e[41m"
-	BKG_GREEN="\e[42m"
-	BKG_BLUE="\e[44m"
+	export BKG_RED="\033[0;41m"
+	export BKG_GREEN="\033[0;42m"
+	export BKG_BLUE="\033[0;44m"
 
-	BLACK="\e[30m"
-	RED="\e[91m"
-	GREEN="\e[92m"
-	YELLOW="\e[93m"
-	BLUE="\e[34m"
-	CYAN="\e[96m"
-	WHITE="\e[97m"
+	export BLACK="\033[0;30m"
+	export RED="\033[0;91m"
+	export GREEN="\033[0;92m"
+	export YELLOW="\033[0;93m"
+	export BLUE="\033[0;34m"
+	export CYAN="\033[0;96m"
+	export WHITE="\033[0;97m"
 
-	ATTR_RESET="\e[0m"
+	export ATTR_RESET="\033[0;0m"
 }
 
 set_term_title() {
@@ -83,11 +83,8 @@ c_exec () {
 	if [ "$EXEC" = "0" ]; then
 		CMD="## $CMD"
 	fi
-	echo -e $FONT_BLUE"$CMD"$ATTR_RESET
-	OUT=$(eval "$CMD")
+	echo -e $BLUE"$CMD"$ATTR_RESET
+	export OUT=$(eval "$CMD")
 	ERR=$?
-	if [ "$OUT" != "" ]; then
-		echo $"$OUT"
-	fi
 	return $ERR
 }
