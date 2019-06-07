@@ -1,4 +1,4 @@
-# $ROOTDRIVE/c/Users/fpaut/.bashrc_custom : executed by bash(1) for non-login shells.
+# $ROOTDRIVE/d/Users/fpaut/.bashrc_custom : executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
@@ -73,7 +73,7 @@ alias ll='ls -l'                              # long list
 
 ########### Personnal Aliases ###########
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-alias bdb="bashdb -x $ROOTDRIVE/c/Users/fpaut/.bashdbinit"
+alias bdb="bashdb -x $ROOTDRIVE/d/Users/fpaut/.bashdbinit"
 alias ghistory='history | grep -i'
 alias glunch='lunch | grep -ni'
 alias gps='ps faux | grep -ni'
@@ -132,8 +132,8 @@ cd_func ()
   fi
 
   #
-  # '$ROOTDRIVE/c/Users/fpaut' has to be substituted by ${HOME}
-  [[ ${the_new_dir:0:1} == '$ROOTDRIVE/c/Users/fpaut' ]] && the_new_dir="${HOME}${the_new_dir:1}"
+  # '$ROOTDRIVE/d/Users/fpaut' has to be substituted by ${HOME}
+  [[ ${the_new_dir:0:1} == '$ROOTDRIVE/d/Users/fpaut' ]] && the_new_dir="${HOME}${the_new_dir:1}"
 
   #
   # Now change to the new dir and add to the top of the stack
@@ -150,7 +150,7 @@ cd_func ()
   for ((cnt=1; cnt <= 10; cnt++)); do
     x2=$(dirs +${cnt} 2>/dev/null)
     [[ $? -ne 0 ]] && return 0
-    [[ ${x2:0:1} == '$ROOTDRIVE/c/Users/fpaut' ]] && x2="${HOME}${x2:1}"
+    [[ ${x2:0:1} == '$ROOTDRIVE/d/Users/fpaut' ]] && x2="${HOME}${x2:1}"
     if [[ "${x2}" == "${the_new_dir}" ]]; then
       popd -n +$cnt 2>/dev/null 1>/dev/null
       cnt=cnt-1
@@ -802,17 +802,17 @@ esac
 ## 	echo "git-completion.bash not sourced..."
 ## fi
 
-cd $ROOTDRIVE/c/Users/fpaut/dev/scripts
+cd $ROOTDRIVE/d/Users/fpaut/dev/scripts
 git config core.fileMode false
 FILEMODE=$(cat .git/config | grep -i filemode)
 echo -e "my scripts\t: $FILEMODE"
 cd - 1>/dev/null
-cd $ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware
+cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware
 git config core.fileMode false
 FILEMODE=$(cat .git/config | grep -i filemode)
 echo -e "dt-arm-firmware\t: $FILEMODE"
 cd - 1>/dev/null
-cd $ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain/dt-fwtools
+cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-fwtools
 git config core.fileMode false
 FILEMODE=$(cat .git/config | grep -i filemode)
 echo -e "dt-fwtools\t: $FILEMODE"
