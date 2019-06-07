@@ -200,21 +200,19 @@ alias cd=cd_func
 if [ -e /cygdrive ]; then 
 	# Using Cygwin
 	export ROOTDRIVE="/cygdrive"
-	source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_custom.sh
 	source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_cygwin.sh
 else
 	if [ -e /mnt ]; then 
 		# Using Ubuntu bash for Windows
 		export ROOTDRIVE="/mnt"
-		source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_custom.sh
 		source $ROOTDRIVE/mnt/d/Users/fpaut/dev/scripts/.bashrc_winbash.sh
 	else
 		# Using msys
 		export ROOTDRIVE=""
-		source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_custom.sh
 		source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_msys.sh
 	fi
 fi
+	source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_custom.sh
 source $ROOTDRIVE/d/Users/fpaut/dev/scripts/s_bash_tools.sh
 def_font_attributes
 GIT=$(which git)

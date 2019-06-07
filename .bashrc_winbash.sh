@@ -1,8 +1,9 @@
 echo BASHRC_WINBASH
 export BASH_STR="Ubuntu bash on Windows"
 export HOME_IN_WINDOWS="C:\Users\fpaut\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs\home\fpaut"
-export HOMEW="C:\Users\fpaut"
 export ROOTDRIVE="/mnt"
+export HOMEW="$ROOTDRIVE/c/Users/fpaut"
+export HOME=$HOMEW
 
 alias rm='trash -v'
 alias trash-restore='restore-trash'

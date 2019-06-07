@@ -1,8 +1,10 @@
 echo BASHRC_CYGWIN
 export BASH_STR="CYGWIN bash on Windows"
 export HOME_IN_WINDOWS="C:\\cygwin64\\home\\fpaut"
-export HOMEW="/cygdrive/c/Users/fpaut"
 export ROOTDRIVE="/cygdrive"
+export HOMEW="$ROOTDRIVE/d/Users/fpaut"
+export HOME=$HOMEW
+
 conv_path_for_win()
 {
 	if [[ "$@" != "" ]]; then
