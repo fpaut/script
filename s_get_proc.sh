@@ -1,2 +1,2 @@
-#! /bin/sh
+#!/bin/bash
 echo $(($(getconf _NPROCESSORS_ONLN)+1))

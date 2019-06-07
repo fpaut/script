@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 FILE=$@
 SIZE=$(stat -c %s $FILE)
 echo "FILE=$FILE"

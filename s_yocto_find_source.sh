@@ -1,4 +1,4 @@
-# !/bin/sh
+#!/bin/bash
 source s_def_fonts_attributes.sh
 echo "Finds the source code"
 pkgname=$1

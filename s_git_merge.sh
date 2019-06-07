@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 REBASE_FINISHED=0
 if [ false = true ]; then
 	AUTOMERGE=""

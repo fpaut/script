@@ -1,4 +1,4 @@
-# !/bin/sh
+#!/bin/bash
 source s_def_fonts_attributes.sh
 echo "Clean and build again a package"
 pkgname=$1

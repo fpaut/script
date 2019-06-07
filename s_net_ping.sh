@@ -1,6 +1,6 @@
 #!/bin/bash
 # To work with "indicator-sysmonitor"
-TIMEOUT=5
+TIMEOUT=10
 
 HOST=$1
 FILE="dummy.txt"
