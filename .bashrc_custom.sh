@@ -180,6 +180,7 @@ double_backslash()
 	str=$1
 	echo $(echo $str |  sed 's,\\,/,g')
 }
+export -f double_backslash
 
 
 git_add_alias () {

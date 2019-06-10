@@ -16,6 +16,7 @@ conv_path_for_win()
 		echo $($WSLPATH -w $@)
 	fi
 }
+export -f conv_path_for_win
 
 conv_path_for_bash()
 {
@@ -23,6 +24,7 @@ conv_path_for_bash()
 		echo $($WSLPATH $@)
 	fi
 }
+export -f conv_path_for_bash
 
 wslpath()
 {
@@ -39,6 +41,7 @@ wslpath()
 		;;
 	esac
 }
+export -f wslpath
 
 function ctrl_c() {
 	echo "SIGINT trapped!" 

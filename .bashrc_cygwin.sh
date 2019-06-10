@@ -11,7 +11,7 @@ conv_path_for_win()
 		echo $(cygpath -w $@)
 	fi
 }
-
+export -f conv_path_for_win
 
 conv_path_for_bash()
 {
@@ -19,4 +19,5 @@ conv_path_for_bash()
 		echo $(cygpath $@)
 	fi
 }
+export -f conv_path_for_bash
 
