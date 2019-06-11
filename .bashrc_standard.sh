@@ -212,7 +212,7 @@ else
 		source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_msys.sh
 	fi
 fi
-	source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_custom.sh
+source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_custom.sh
 source $ROOTDRIVE/d/Users/fpaut/dev/scripts/s_bash_tools.sh
 def_font_attributes
 GIT=$(which git)

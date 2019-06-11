@@ -658,6 +658,13 @@ npp() {
 	$CMD 2>/dev/null&
 }
 
+############################################################
+## Background 
+############################################################
+GITMON_FILE="$HOME/.gitmonitor"
+git_monitor() {
+	echo git_monitor
+}
 
 gitps1_add_stash() {
 	GIT_STASH="[$(git_get_stash)]"
@@ -690,15 +697,43 @@ gitps1_remote_rm_modif() {
 	unset GIT_REMOTE_MODIF
 }
 
+prompt_update_gitAheadBehind() {
+	isGit=$1
+	unset GIT_AHEAD
+	unset GIT_BEHIND
+	if [[ "$isGit" ]]; then
+		local_remote=$(eval git rev-list --left-right --count "$BRANCH...origin/$BRANCH 2>/dev/null")
+		GIT_AHEAD=${local_remote:0:1}
+		GIT_BEHIND=$(echo ${local_remote:1} | sed 's/ //g')
+	fi
+}
+
+prompt_update_gitBranch() {
+	isGit=$1
+	unset BRANCH
+	if [[ "$isGit" ]]; then
+		BRANCH=$(cat $repoGit/HEAD)
+		BRANCH=${BRANCH##*heads/}
+	fi
+}
+
+prompt_update_gitStash() {
+	isGit=$1
+	unset GIT_STASH
+	if [[ "$isGit" ]]; then
+		if [[ -e "$repoGit/logs/refs/stash" ]]; then
+			GIT_STASH=$(cat $repoGit/logs/refs/stash | wc -l 2>/dev/null)
+		fi
+	fi
+}
+
+
 prompt_update() {
 	history -a
 	repoGit=$(is_git_folder)
-	if [[ "$repoGit" != "" ]]; then
-		BRANCH=$(cat $repoGit/HEAD)
-		BRANCH=${BRANCH##*heads/}
-	else
-		unset BRANCH
-	fi
+	prompt_update_gitBranch $repoGit
+	prompt_update_gitAheadBehind $repoGit
+	prompt_update_gitStash $repoGit
 	ps1_prefix
 	PS1=$PS1_PREFIX
 }
@@ -716,16 +751,25 @@ ps1_prefix()
 {
 	IAM=$(whoami)
 
+	PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w\n"
 	if [[ "$IAM" != "root" ]]; then
 		PREF_COLOR=$GREEN
 	else
 		PREF_COLOR=$RED
 	fi
 	if [[ "$BRANCH" != "" ]]; then
-		PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w$CYAN\n[$BRANCH]$ATTR_RESET> "
-	else
-		PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w\n$ATTR_RESET> "
+		PS1_PREFIX=$PS1_PREFIX"$CYAN[$BRANCH]$ATTR_RESET"
 	fi
+	if [[ "$GIT_AHEAD" != "" &&  "$GIT_AHEAD" != "0" ]]; then
+		PS1_PREFIX=$PS1_PREFIX"$BLUE[L:$GIT_AHEAD]$ATTR_RESET"
+	fi
+	if [[ "$GIT_BEHIND" != "" &&  "$GIT_BEHIND" != "0" ]]; then
+		PS1_PREFIX=$PS1_PREFIX"$BLUE[R:$GIT_BEHIND]$ATTR_RESET"
+	fi
+	if [[ "$GIT_STASH" != "" ]]; then
+		PS1_PREFIX=$PS1_PREFIX"$RED[stash x $GIT_STASH]$ATTR_RESET"
+	fi
+	PS1_PREFIX=$PS1_PREFIX"$ATTR_RESET> "
 }
 
 ps1_unset() {

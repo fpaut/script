@@ -1,8 +1,8 @@
 echo BASHRC_MSYS
 export BASH_STR="MSYS on Windows"
-export HOME_IN_WINDOWS="C:\Users\fpaut"
+export HOME_IN_WINDOWS="D:\Users\fpaut"
 export ROOTDRIVE=""
-export HOMEW="$ROOTDRIVE/c/Users/fpaut"
+export HOMEW="$ROOTDRIVE/d/Users/fpaut"
 export HOME=$HOMEW
 
 conv_path_for_win()
