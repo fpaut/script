@@ -238,11 +238,6 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
 
-git_get_stash () {
-	unset RESULT
-	RESULT=$(git stash list 2> /dev/null)
-	echo ${RESULT%%:*}
-}
 #########################################
 # Copy modified files before a pull
 # (Avoiding difficult merge)
@@ -304,7 +299,7 @@ git_rm_pattern () {
 		git status | grep --color=never $pattern | while read file
 		do
 			file=${file#*:}
-			CMD="trash $file"
+			CMD="rm $file"
 			echo $CMD;
 			$CMD
 		done
@@ -666,29 +661,6 @@ git_monitor() {
 	echo git_monitor
 }
 
-gitps1_add_stash() {
-	GIT_STASH="[$(git_get_stash)]"
-}
-
-gitps1_rm_stash() {
-	unset GIT_STASH
-}
-gitps1_add_branch() {
-	GIT_BRANCH="[ $(git_get_branch) ]: "
-}
-
-gitps1_rm_branch() {
-	unset GIT_BRANCH
-}
-
-gitps1_add_local_modif() {
-	GIT_LOCAL_MODIF="[$(git_get_local_modif)]: "
-}
-
-gitps1_rm_local_modif() {
-	unset GIT_LOCAL_MODIF
-}
-
 gitps1_add_remote_modif() {
 	GIT_REMOTE_MODIF="[$(git_remote_get_modif)]: "
 }
@@ -697,7 +669,7 @@ gitps1_remote_rm_modif() {
 	unset GIT_REMOTE_MODIF
 }
 
-prompt_update_gitAheadBehind() {
+gitps1_update_aheadBehind() {
 	isGit=$1
 	unset GIT_AHEAD
 	unset GIT_BEHIND
@@ -708,7 +680,7 @@ prompt_update_gitAheadBehind() {
 	fi
 }
 
-prompt_update_gitBranch() {
+gitps1_update_branch() {
 	isGit=$1
 	unset BRANCH
 	if [[ "$isGit" ]]; then
@@ -717,12 +689,19 @@ prompt_update_gitBranch() {
 	fi
 }
 
-prompt_update_gitStash() {
+gitps1_update_stash() {
 	isGit=$1
 	unset GIT_STASH
+	unset GIT_STASH_BRANCH
 	if [[ "$isGit" ]]; then
 		if [[ -e "$repoGit/logs/refs/stash" ]]; then
+			## 'Global' Stash (wathever the branch)
 			GIT_STASH=$(cat $repoGit/logs/refs/stash | wc -l 2>/dev/null)
+			## Stash specific to a branch (GIT_STASH_BRANCH)
+			GIT_STASH_BRANCH=$(cat $repoGit/logs/refs/stash | grep $BRANCH | wc -l 2>/dev/null)
+			if [[ "$GIT_STASH_BRANCH" == "0" ]]; then
+				unset GIT_STASH_BRANCH
+			fi
 		fi
 	fi
 }
@@ -731,9 +710,9 @@ prompt_update_gitStash() {
 prompt_update() {
 	history -a
 	repoGit=$(is_git_folder)
-	prompt_update_gitBranch $repoGit
-	prompt_update_gitAheadBehind $repoGit
-	prompt_update_gitStash $repoGit
+	gitps1_update_branch $repoGit
+	gitps1_update_aheadBehind $repoGit
+	gitps1_update_stash $repoGit
 	ps1_prefix
 	PS1=$PS1_PREFIX
 }
@@ -766,8 +745,14 @@ ps1_prefix()
 	if [[ "$GIT_BEHIND" != "" &&  "$GIT_BEHIND" != "0" ]]; then
 		PS1_PREFIX=$PS1_PREFIX"$BLUE[R:$GIT_BEHIND]$ATTR_RESET"
 	fi
+	## Stash specific to a branch (GIT_STASH_BRANCH)
 	if [[ "$GIT_STASH" != "" ]]; then
-		PS1_PREFIX=$PS1_PREFIX"$RED[stash x $GIT_STASH]$ATTR_RESET"
+		## 'Global' Stash (wathever the branch)
+		if [[ "$GIT_STASH_BRANCH" != "" ]]; then
+			PS1_PREFIX=$PS1_PREFIX"$RED[stash x $GIT_STASH_BRANCH]$ATTR_RESET"
+		else
+			PS1_PREFIX=$PS1_PREFIX"$CYAN[stash]$ATTR_RESET"
+		fi
 	fi
 	PS1_PREFIX=$PS1_PREFIX"$ATTR_RESET> "
 }
