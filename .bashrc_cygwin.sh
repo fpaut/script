@@ -1,4 +1,5 @@
-echo BASHRC_CYGWIN
+echo
+echo In BASHRC_CYGWIN
 export BASH_STR="CYGWIN bash on Windows"
 export HOME_IN_WINDOWS="C:\\cygwin64\\home\\fpaut"
 export ROOTDRIVE="/cygdrive"
@@ -23,3 +24,4 @@ conv_path_for_bash()
 }
 export -f conv_path_for_bash
 
+echo Out of BASHRC_CYGWIN

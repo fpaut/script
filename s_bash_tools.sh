@@ -53,6 +53,10 @@ def_font_attributes() {
 	export CYAN="\033[0;96m"
 	export WHITE="\033[0;97m"
 
+	export DIMMED="\033[2m"
+	export BLINK="\033[5m"
+	
+
 	export ATTR_RESET="\033[0;0m"
 }
 

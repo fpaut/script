@@ -1,4 +1,5 @@
-echo BASHRC_STANDARD
+echo
+echo In BASHRC_STANDARD
 # To the extent possible under law, the author(s) have dedicated all 
 # copyright and related and neighboring rights to this software to the 
 # public domain worldwide. This software is distributed without any warranty. 
@@ -220,6 +221,8 @@ if [[ "$GIT" != "" ]]; then
 $ROOTDRIVE/d/Users/fpaut/dev/scripts/git-aliases.sh
 fi
 
+source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_diasys.sh
+
 
 alias cdd="cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain"
 alias cdf="cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware"
@@ -240,3 +243,4 @@ export LIBGL_ALWAYS_INDIRECT=1
 ## Eclipse Workspace
 export ECLIPSE_PATH_WS="$ROOTDRIVE/d/Users/fpaut/dev/eclipse-workspace"
 export ECLIPSE_PATH_TOOL="$ECLIPSE_PATH_WS/.metadata/.plugins/org.eclipse.debug.core/.launches"
+echo Out of BASHRC_STANDARD

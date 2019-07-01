@@ -1,4 +1,5 @@
-echo BASHRC_WINBASH
+echo
+echo In BASHRC_WINBASH
 export BASH_STR="Ubuntu bash on Windows"
 export HOME_IN_WINDOWS="C:\Users\fpaut\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs\home\fpaut"
 export ROOTDRIVE="/mnt"
@@ -53,3 +54,4 @@ stty intr \^x
 # trap ctrl-c and call ctrl_c()
 trap ctrl_c SIGINT
 
+echo Out of BASHRC_WINBASH

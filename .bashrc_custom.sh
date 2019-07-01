@@ -1,4 +1,5 @@
-echo BASHRC_CUSTOM
+echo
+echo In BASHRC_CUSTOM
 # $HOME/.bashrc_custom : executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -76,6 +77,7 @@ alias ll='ls -l'                              # long list
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 alias bdb="bashdb -x $HOME/.bashdbinit"
 alias ghistory='history | grep -i'
+alias git='LANG=en_GB git'
 alias glunch='lunch | grep -ni'
 alias gps='ps faux | grep -ni'
 alias gmount='mount | grep -ni'
@@ -751,7 +753,7 @@ ps1_prefix()
 		if [[ "$GIT_STASH_BRANCH" != "" ]]; then
 			PS1_PREFIX=$PS1_PREFIX"$RED[stash x $GIT_STASH_BRANCH]$ATTR_RESET"
 		else
-			PS1_PREFIX=$PS1_PREFIX"$CYAN[stash]$ATTR_RESET"
+			PS1_PREFIX=$PS1_PREFIX"$BLINK[stash]$ATTR_RESET"
 		fi
 	fi
 	PS1_PREFIX=$PS1_PREFIX"$ATTR_RESET> "
@@ -883,3 +885,4 @@ settitle $BASH_STR
 ## Customize PS1
 #OK# PS1="$PS1[\$(git_get_stash]"
 
+echo Out of BASHRC_CUSTOM
