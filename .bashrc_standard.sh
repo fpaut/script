@@ -220,6 +220,7 @@ GIT=$(which git)
 if [[ "$GIT" != "" ]]; then
 $ROOTDRIVE/d/Users/fpaut/dev/scripts/git-aliases.sh
 fi
+source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_git.sh
 
 source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_diasys.sh
 

@@ -5,7 +5,7 @@ alias cdl="cd $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/logs/$(date +%Y%m%d
 alias cdd="cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain"
 alias cdf="cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware"
 alias cdfsm="cdf && cd ODS/FSM/Cycles"
-alias cmlog='set -- $(ls -t $(date +%H)*) && file=$1 && file=${file%.*} && rm -f *_filtered.LOG &&  ecat $file.LOG "MEAS_CYCLE|\<MISC\>" "Incubator|Magnet|Separator|Probe|Diluter| ms " > "$file"_filtered.LOG && npp "$file"_filtered.LOG'
+##alias cmlog='set -- $(ls -t $(date +%H)*) && file=$1 && file=${file%.*} && rm -f *_filtered.LOG &&  ecat $file.LOG "MEAS_CYCLE|\<MISC\>" "Incubator|Magnet|Separator|Probe|Diluter| ms " > "$file"_filtered.LOG && npp "$file"_filtered.LOG'
 alias cds="cd $ROOTDRIVE/d/Users/fpaut/dev/scripts"
 alias cdt="cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-fwtools"
 
@@ -30,6 +30,21 @@ copy_bin_to_medios-hp()
 	CMD="cp ODS/LEDappli/bin/LEDappli.bin /cygdrive/m/dev/binFirmware/LEDAppli/"; echo $CMD; $CMD
 	CMD="cp ODS/vcp/bin405/vcp.bin /cygdrive/m/dev/binFirmware/LEDAppli/"; echo $CMD; $CMD
 	cd -
+}
+
+cmlog()
+{
+	file=$1
+	file=${file%.*}
+	if [[ "$file" == "" ]]; then
+		set -- $(ls -t $(date +%H)*)
+		file=$1
+		file=${file%.*}
+	fi
+	echo FILE=$file
+	rm -f *_filtered.LOG
+	ecat $file.LOG "MEAS_CYCLE|\<MISC\>" "Incubator|Magnet|Separator|Probe|Diluter| ms " > "$file"_filtered.LOG
+	npp "$file"_filtered.LOG
 }
 
 deg_to_step()
