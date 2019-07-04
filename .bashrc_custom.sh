@@ -184,6 +184,23 @@ double_backslash()
 }
 export -f double_backslash
 
+###################################################
+## filtered cat using pattern and excluded pattern
+ecat() {
+	filename="$1"
+	pattern="$2"
+	expattern="$3"
+	if [[ "$@" == "" ]]; then
+		echo ${FUNCNAME[0]} \"#1\" \"#2\" \"#3\" 
+		echo "#1 filename"
+		echo "#2 patterns (separate with '|' eg.:\"pattern1|pattern2|...\") (could be 'options+patterns')"
+		echo "#3 pattern to exclude (separate with '|' eg.:\"exclude1|exclude2|...\") (could be 'options+patterns')"
+		return 1
+	fi
+	CMD="grep -E \"$pattern\" $filename | grep -Ev \"$expattern\""
+	echo $CMD
+	eval $CMD
+}
 
 git_add_alias () {
 	CMD="git config --global alias.$1 $2"
@@ -276,6 +293,32 @@ git_discard () {
 		[[ "$file" != "" ]] && CMD="git checkout -- $file"
 		echo $CMD; $CMD
 	done
+}
+
+git_reset () {
+	file_pattern=$1
+	[[ "$file_pattern" == "" ]] && echo missing file pattern to discard as first parameter &&  return 1
+	if [[ "$file_pattern" == "all" ]]; then
+		file_pattern=""
+	fi
+	echo -e $GREEN"Following file will be reseted to HEAD."$ATTR_RESET
+	git status | grep --color=never "$file_pattern" | grep ":" | grep  --color=never  -v "$WIP_PREFIX" | while read file
+	do
+		file=${file#*:}
+		CMD=" $file "
+		echo $CMD
+	done
+	echo -e $GREEN
+	read -e -i "N" -p "Ok? (y/N): "
+	echo -e $ATTR_RESET
+	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
+		git status | grep --color=never "$file_pattern" | grep ":" | grep  --color=never  -v "$WIP_PREFIX" | while read file
+		do
+			file=${file#*:}
+			[[ "$file" != "" ]] && CMD="git reset HEAD -- $file"
+			echo $CMD; $CMD
+		done
+	fi
 }
 
 
