@@ -38,3 +38,4 @@ BASHRC_STD="$ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_standard.sh"
 # [ "$ROOTDRIVE" ] && source $BASHRC_STD
 source $BASHRC_STD
 echo Out of BASHRC
+export LESSCHARSET=utf-8

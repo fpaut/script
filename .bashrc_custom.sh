@@ -161,6 +161,12 @@ cd_func ()
 
   return 0
 }
+/* Simple bash calculator */
+calc()
+{
+	formula="$1"
+	echo $(($formula))
+}
 
 cd () {
 	local path="$@"

@@ -27,8 +27,8 @@ step_to_deg()
 copy_bin_to_medios-hp()
 {
 	cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware
-	CMD="cp ODS/LEDappli/bin/LEDappli.bin /cygdrive/m/dev/binFirmware/LEDAppli/"; echo $CMD; $CMD
-	CMD="cp ODS/vcp/bin405/vcp.bin /cygdrive/m/dev/binFirmware/LEDAppli/"; echo $CMD; $CMD
+	CMD="cp ODS/LEDappli/bin/LEDappli.bin /cygdrive/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
+	CMD="cp ODS/vcp/bin405/vcp.bin /cygdrive/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
 	cd -
 }
 
@@ -62,6 +62,21 @@ step_to_deg()
 }
 
 
+cd $HOME/dev/scripts
+git config core.fileMode false
+FILEMODE=$(cat .git/config | grep -i filemode)
+echo -e "my scripts\t: $FILEMODE"
+cd - 1>/dev/null
+cd $HOME/dev/STM32_Toolchain/dt-arm-firmware
+git config core.fileMode false
+FILEMODE=$(cat .git/config | grep -i filemode)
+echo -e "dt-arm-firmware\t: $FILEMODE"
+cd - 1>/dev/null
+cd $HOME/dev/STM32_Toolchain/dt-fwtools
+git config core.fileMode false
+FILEMODE=$(cat .git/config | grep -i filemode)
+echo -e "dt-fwtools\t: $FILEMODE"
+cd - 1>/dev/null
 
 
 echo Out of BASHRC_DIASYS
