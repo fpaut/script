@@ -6,7 +6,7 @@ export ROOTDRIVE="/cygdrive"
 export HOMEW="$ROOTDRIVE/d/Users/fpaut"
 export HOME=$HOMEW
 
-alias sudo="cygstart --action=runas '$@'"
+alias sudo="cygstart --action=runas "
 
 conv_path_for_win()
 {

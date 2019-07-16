@@ -9,29 +9,6 @@ alias cdfsm="cdf && cd ODS/FSM/Cycles"
 alias cds="cd $ROOTDRIVE/d/Users/fpaut/dev/scripts"
 alias cdt="cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-fwtools"
 
-deg_to_step()
-{
-	deg=$1
-	echo $(( $(($((600 * $deg)) / 360)) )) steps
-	echo $(( $(($((600 * $deg)) / 360)) * 4)) 1/4 steps
-}
-
-step_to_deg()
-{
-	step=$1
-	echo $(( $(($step * 360)) / 600 ))° if steps is 1/1 steps
-	echo $(($(($step * 360)) / $((600 * 4)) ))° if steps is 1/4 steps
-}
-
-
-copy_bin_to_medios-hp()
-{
-	cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware
-	CMD="cp ODS/LEDappli/bin/LEDappli.bin /cygdrive/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
-	CMD="cp ODS/vcp/bin405/vcp.bin /cygdrive/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
-	cd -
-}
-
 cmlog()
 {
 	file=$1
@@ -52,6 +29,32 @@ deg_to_step()
 	deg=$1
 	echo $(( $(($((600 * $deg)) / 360)) )) steps
 	echo $(( $(($((600 * $deg)) / 360)) * 4)) 1/4 steps
+}
+
+
+copy_bin_to_medios_hp()
+{
+	cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware
+	CMD="cp ODS/LEDappli/bin/LEDappli.bin /cygdrive/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
+	CMD="cp ODS/vcp/bin405/vcp.bin /cygdrive/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
+	cd -
+}
+
+copy_rawIpClient_to_medios_hp()
+{
+	cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/
+	CMD="cp -f dt-fwtools/RuntimeFolderRelease/RawIpClient.exe /cygdrive/m/dev/rawIpClientScripts/"; echo $CMD; $CMD
+	cd - 1>/dev/null
+}
+
+copy_rawIpClientScript_to_medios_hp()
+{
+	cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/
+	CMD="rm -rf /cygdrive/m/dev/rawIpClientScripts/*"; echo $CMD; $CMD
+	CMD="cp -rf ./rawIpClientScripts/* /cygdrive/m/dev/rawIpClientScripts"; echo $CMD; $CMD
+	CMD="cp -f dt-fwtools/RuntimeFolderRelease/RawIpClient.exe /cygdrive/m/dev/rawIpClientScripts/"; echo $CMD; $CMD
+	CMD="rm -f /cygdrive/m/dev/rawIpClientScripts/Update_RawIpClient.ps1"; echo $CMD; $CMD
+	cd - 1>/dev/null
 }
 
 step_to_deg()

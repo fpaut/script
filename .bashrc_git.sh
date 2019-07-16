@@ -204,6 +204,8 @@ pattern2=$2
 	do
 		name=${file_p1%$pattern1*}
 		ext=${file_p1#*.}
+		echo "name=$name"
+		echo "ext=$ext"
 		if [[ "$pattern2" == "" ]]; then
 			# No 2nd pattern, compare with filename.ext
 			file_p2=$name.$ext
@@ -227,6 +229,8 @@ pattern2=$2
 			echo "For pattern $pattern1 / $pattern2, files are identical ($(basename "$name.$ext"))"
 			do_cmp=false
 		fi
+		echo "file_p1=$file_p1"
+		echo "file_p2=$file_p2"
 		if [[ "$do_cmp" != "false" ]]; then
 			CMD="meld $file_p1 $file_p2 1>&2 2>/dev/null&"
 			echo $CMD
@@ -354,7 +358,8 @@ git_st_save () {
 		name=${file%.*}
 		ext=${file##*.}
 		CMD="cp $file $name$pattern.$ext"
-		echo $CMD; $CMD
+		echo $CMD; 
+		$CMD
 	done
 	find . -iname "*"-$pattern"*"
 	echo -e $GREEN
@@ -364,6 +369,33 @@ git_st_save () {
 		git_discard all
 	fi
 }
+
+#########################################
+# same than 'git_wip_save' but for a 
+# specific revision
+#########################################
+git_st_save_from_rev () {
+	rev=$1
+	pattern="$2"
+	if [[ "$pattern" == "" ]];then
+		echo "PATTERN=rev"
+		echo "Rev=$rev"
+		pattern="$rev"
+	fi
+	echo "PATTERN="$pattern
+	branch=$(git branch | grep "\*")
+	branch=${branch#*\*}
+	git show --pretty="" --name-only $rev | while read file
+	do
+		name=${file%.*};
+		ext=${file#*.};
+		CMD="git show $rev:$file > $name-$pattern.$ext"
+		echo $CMD; eval "$CMD"
+	done
+	ls -halF | grep $pattern
+}
+
+
 
 ####################################################################################################################################################################
 ## "WIP section" Utilities functions to manipulate Work In Progress files combined with GIT
@@ -526,33 +558,6 @@ git_wip_save () {
 		echo $CMD; $CMD
 	done
 	find . -iname "*"-$pattern"*"
-}
-
-#########################################
-# same than 'git_wip_save' but for a 
-# specific revision
-#########################################
-git_wip_save_from_rev () {
-	rev=$1
-	pattern="$2"
-	if [[ "$pattern" != "" ]];then
-		pattern="\-$WIP_PREFIX-$pattern"
-	fi
-	branch=$(git branch | grep "\*")
-	branch=${branch#*\*}
-	git checkout $rev
-	git diff-tree --no-commit-id --name-only -r $rev | while read file
-	do
-		name=${file%.*};
-		ext=${file#*.};
-		CMD="cp $file $name-$pattern.$ext"
-		echo $CMD; $CMD
-	done
-	find . -iname "*"\-$WIP_PREFIX"*"
-	git checkout $branch
-	echo "Now :"
-	echo "git checkout master"
-	echo "meld file $name-$pattern.$ext"
 }
 
 is_git_folder() {

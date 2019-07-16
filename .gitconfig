@@ -1,0 +1,53 @@
+[user]
+	name = Frederic Paut
+	email = frederic.paut@diasys-technologies.com
+
+[difftool "sourcetree"]
+	cmd = ''C:/Program Files (x86)/Meld/Meld.exe'' \"$LOCAL\" \"$REMOTE\"
+	trustExitCode = true
+[mergetool "sourcetree"]
+	cmd = ''C:/Program Files (x86)/Meld/Meld.exe'' \"$LOCAL\" \"$REMOTE\"\"$MERGED\"
+	trustExitCode = true
+[cola]
+	spellcheck = false
+	blameviewer = git gui blame
+[diff]
+	tool = "meld"
+[merge]
+	tool = "meld"
+	
+[difftool "meld"]
+	cmd = '"/c/Program Files/Meld/Meld.exe" $PWD/$LOCAL $PWD/$REMOTE'
+	
+[mergetool "meld"]
+	cmd = '\"/c/Program Files (x86)/Meld/meld.exe\" $PWD/$LOCAL $PWD/$BASE $PWD/$REMOTE --output=$PWD/$MERGED'
+	
+[credential]
+	helper = wincred
+[alias]
+	co = checkout
+	unstage = reset HEAD --
+	last = log -1 HEAD
+	br = branch
+	ci = commit
+	dt = difftool -y
+	lg = log -30 --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	mg = merge --strategy-option theirs
+	mt = mergetool -y
+	st = "!bash -c 'echo -e \"\\033[0;44mOnly tracked files! (stu for untracked)\\033[0;0m\"' && git status -s | grep -v "??""
+	stu = "!bash -c 'echo -e \"\\033[0;44mOnly untracked files! (st for tracked)\\033[0;0m\"' && git status -s | grep "??""
+	ss = "!bash -c 'vers=$(git status | grep version.c); if [[ \"$vers\" != \"\"  ]]; then echo Files version found. Discarding...; git checkout -- *version.c; git stash save; else echo No Files version version; git stash save; fi'"
+	sp = stash pop
+	sl = stash list
+	sw = stash show
+	sd = stash drop
+[core]
+	autocrlf = true
+	filemode = false
+	excludesfile = 
+[push]
+	default = matching
+[gui]
+	historybrowser = C:/Users/fpaut/AppData/Local/git-cola/Python/python.exe C:/Users/fpaut/AppData/Local/git-cola/bin/git-cola-script.py dag --repo C:/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware
+	recentrepo = D:/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware
+	encoding = utf-8
