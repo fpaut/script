@@ -162,7 +162,7 @@ cd_func ()
   return 0
 }
 ## Simple bash calculator
-calc()
+c()
 {
 	formula=${@}
 	echo evaluate "$formula"
@@ -206,6 +206,14 @@ ecat() {
 	echo $CMD
 	eval $CMD
 }
+
+get_caller() {
+	var="$(ps | grep "$PID" | head -n 2)"
+	caller=$(echo -e "${var##*/}")
+	echo SCRIPT CALLED FORM \'$caller\'
+	which $caller
+}
+
 
 
 gexport () {

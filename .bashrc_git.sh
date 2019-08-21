@@ -378,9 +378,9 @@ git_st_save_from_rev () {
 	rev=$1
 	pattern="$2"
 	if [[ "$pattern" == "" ]];then
+		pattern="$rev"
 		echo "PATTERN=rev"
 		echo "Rev=$rev"
-		pattern="$rev"
 	fi
 	echo "PATTERN="$pattern
 	branch=$(git branch | grep "\*")

@@ -34,8 +34,9 @@
 	lg = log -30 --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 	mg = merge --strategy-option theirs
 	mt = mergetool -y
-	st = "!bash -c 'echo -e \"\\033[0;44mOnly tracked files! (stu for untracked)\\033[0;0m\"' && git status -s | grep -v "??""
-	stu = "!bash -c 'echo -e \"\\033[0;44mOnly untracked files! (st for tracked)\\033[0;0m\"' && git status -s | grep "??""
+	st = "!bash -c 'echo -e \"\\033[0;44mOnly tracked files! (stu for untracked files, sta for all)\\033[0;0m\"' && git status -s | grep -v "??""
+	sta = "!bash -c 'echo -e \"\\033[0;44mNormal git status\\033[0;0m\"' && git status"
+	stu = "!bash -c 'echo -e \"\\033[0;44mOnly untracked files! (st for tracked files, sta for all)\\033[0;0m\"' && git status -s | grep "??""
 	ss = "!bash -c 'vers=$(git status | grep version.c); if [[ \"$vers\" != \"\"  ]]; then echo Files version found. Discarding...; git checkout -- *version.c; git stash save; else echo No Files version version; git stash save; fi'"
 	sp = stash pop
 	sl = stash list
