@@ -37,27 +37,27 @@ trap_handler_unset() {
 }
 
 def_font_attributes() {
-	export ATTR_UNDERLINED="\033[0;4m"
+	export ATTR_UNDERLINED="\[\033[0;4m\]"
 
-	export FONT_BOLD="\033[0;1m"
+	export FONT_BOLD="\[\033[0;1m\]"
 
-	export BKG_RED="\033[0;41m"
-	export BKG_GREEN="\033[0;42m"
-	export BKG_BLUE="\033[0;44m"
+	export BKG_RED="\[\033[0;41m\]"
+	export BKG_GREEN="\[\033[0;42m\]"
+	export BKG_BLUE="\[\033[0;44m\]"
 
-	export BLACK="\033[0;30m"
-	export RED="\033[0;91m"
-	export GREEN="\033[0;92m"
-	export YELLOW="\033[0;93m"
-	export BLUE="\033[0;34m"
-	export CYAN="\033[0;96m"
-	export WHITE="\033[0;97m"
+	export BLACK="\[\033[0;30m\]"
+	export RED="\[\033[0;91m\]"
+	export GREEN="\[\033[0;92m\]"
+	export YELLOW="\[\033[0;93m\]"
+	export BLUE="\[\033[0;34m\]"
+	export CYAN="\[\033[0;96m\]"
+	export WHITE="\[\033[0;97m\]"
 
-	export DIMMED="\033[2m"
-	export BLINK="\033[5m"
+	export DIMMED="\[\033[2m\]"
+	export BLINK="\[\033[5m\]"
 	
 
-	export ATTR_RESET="\033[0;0m"
+	export ATTR_RESET="\[\033[0;0m\]"
 }
 
 set_term_title() {
