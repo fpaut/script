@@ -4,6 +4,7 @@ echo In BASHRC_DIASYS
 FIRMWARE_PATH="$ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware"
 TOOLS_PATH="$ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-fwtools"
 
+
 alias cdl="cd $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/logs/$(date +%Y%m%d)"
 alias cdd="cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain"
 alias cdf="cd $FIRMWARE_PATH"
@@ -11,6 +12,7 @@ alias cdfsm="cdf && cd ODS/FSM/Cycles"
 ##alias cmlog='set -- $(ls -t $(date +%H)*) && file=$1 && file=${file%.*} && rm -f *_filtered.LOG &&  ecat $file.LOG "MEAS_CYCLE|\<MISC\>" "Incubator|Magnet|Separator|Probe|Diluter| ms " > "$file"_filtered.LOG && npp "$file"_filtered.LOG'
 alias cds="cd $ROOTDRIVE/d/Users/fpaut/dev/scripts"
 alias cdt="cd $TOOLS_PATH"
+alias jenkins_CLI="java -jar jenkins-cli.jar -auth pautf:QtxS1204+ -s http://FRSOFTWARE02:8080/"
 
 cmlog()
 {

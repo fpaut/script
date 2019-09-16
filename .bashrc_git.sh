@@ -64,14 +64,13 @@ git_dos2unix () {
 	find . -iname "*"\-wip"*"
 }
 
-git_unix2dos () {
-	git status | grep "modified" | grep -v "\-wip" | while read file
-	do
-		file=${file#*:}
-		CMD="unix2dos.exe $file"
-		echo $CMD; $CMD
-	done
-	find . -iname "*"\-wip"*"
+################################################################
+## Restore global ~/.git config overwritten by sourcetree
+gitconfig_restore()
+{
+	CMD="cp $HOME/dev/scripts/.gitconfig $HOME"
+	echo $CMD
+	$CMD
 }
 
 git_discard () {
@@ -132,6 +131,12 @@ git_remote_count_commit () {
 	BRANCH=$(git_get_branch)
  	AHEAD=$(git commit --dry-run 2>/dev/null | grep ahead)
  	BEHIND=$(git commit --dry-run 2>/dev/null | grep behind)
+	if [[ ""$AHEAD"" == "" ]]; then
+		AHEAD="0"
+	fi
+	if [[ ""$BEHIND"" == "" ]]; then
+		BEHIND="0"
+	fi
 	if [ "$AHEAD" ]; then
  		AHEAD=${AHEAD##*by }
  		AHEAD=${AHEAD%, *}
@@ -157,9 +162,9 @@ git_remote_test_pull() {
 
 git_remote_show_unpulled() {
 	CMD="git fetch"
-	echo $CMD && $CMD
-	CMD="git log HEAD..origin/master --name-status"
-	echo $CMD && $CMD
+	$CMD
+	CMD="git log HEAD..origin/$BRANCH --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+	eval "$CMD"
 }
 git_remote() {
 	git_remote_count_commit
@@ -167,6 +172,37 @@ git_remote() {
 	git_remote_show_unpulled
 	echo
 	git_remote_test_pull
+}
+
+
+git_save_file_from_rev() {
+	rev=$1
+	file=$2
+
+	if [[ "$rev" == "" ]]; then
+		echo "No revision provided (Parameter #1)"
+	fi
+	if [[ "$file" == "" ]]; then
+		echo "No filename provided (Parameter #2)"
+	fi
+	if [[ "$rev" == "" || "$file" == "" ]]; then
+		return 1
+	fi
+	path=$(dirname $file)
+	filename=$(basename $file)
+	name=${filename%.*}
+	ext=${filename#*.}
+	
+## 	echo "Path="$path
+## 	echo "Name="$name
+## 	echo "Ext="$ext
+	
+	output_name="$name"
+	output_name+="_$rev.$ext"
+## 	echo "output_name="$output_name
+	CMD="git show $rev:$file > $path/$output_name"
+	echo $CMD
+	eval "$CMD"
 }
 
 git_show_config () {
@@ -396,6 +432,16 @@ git_st_save_from_rev () {
 }
 
 
+git_unix2dos () {
+	git status | grep "modified" | grep -v "\-wip" | while read file
+	do
+		file=${file#*:}
+		CMD="unix2dos.exe $file"
+		echo $CMD; $CMD
+	done
+	find . -iname "*"\-wip"*"
+}
+
 
 ####################################################################################################################################################################
 ## "WIP section" Utilities functions to manipulate Work In Progress files combined with GIT
@@ -611,7 +657,7 @@ gitps1_update_stash() {
 			## 'Global' Stash (wathever the branch)
 			GIT_STASH=$(cat $repoGit/logs/refs/stash | wc -l 2>/dev/null)
 			## Stash specific to a branch (GIT_STASH_BRANCH)
-			GIT_STASH_BRANCH=$(cat $repoGit/logs/refs/stash | grep $BRANCH | wc -l 2>/dev/null)
+			GIT_STASH_BRANCH=$(cat $repoGit/logs/refs/stash | grep -w $BRANCH | wc -l 2>/dev/null)
 			if [[ "$GIT_STASH_BRANCH" == "0" ]]; then
 				unset GIT_STASH_BRANCH
 			fi

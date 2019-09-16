@@ -10,6 +10,7 @@ alias sudo="cygstart --action=runas "
 alias wps="ps -W"
 alias wgps="ps -W | grep "
 alias wkill="taskkill /pid "
+alias wtop="wmic process get ProcessId,Name,UserModeTime,KernelModeTime /EVERY:1"
 
 conv_path_for_win()
 {
