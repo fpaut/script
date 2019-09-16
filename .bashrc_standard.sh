@@ -214,7 +214,8 @@ else
 	fi
 fi
 source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_custom.sh
-source $ROOTDRIVE/d/Users/fpaut/dev/scripts/s_bash_tools.sh
+source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bash_tools.sh
+source $ROOTDRIVE/d/Users/fpaut/dev/scripts/git-completion.bash
 def_font_attributes
 GIT=$(which git)
 if [[ "$GIT" != "" ]]; then
