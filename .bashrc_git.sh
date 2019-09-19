@@ -1,6 +1,10 @@
 echo
 echo In BASHRC_GIT
+####################################################################################################################################################################
+## "GIT 'CONFIGURATION' section (in bash command line, different from .gitconfig)
+####################################################################################################################################################################
 alias git='LANG=en_GB git'
+GIT_DIFFTOOL="meld"
 
 git_add_alias () {
 	CMD="git config --global alias.$1 $2"
@@ -227,13 +231,21 @@ git_show_unpushed_commit () {
 	REMOTE_BRANCH=${F_REMOTE_BRANCH[4]}
 	eval "git log $REMOTE/$REMOTE_BRANCH..HEAD"
 }
+####################################################################################################################################################################
+## "GIT STASH" section : Utilities functions to manipulate files present in git stash list
+####################################################################################################################################################################
+git_sh_cmp() {
+	echo
+}
+
+
 
 ####################################################################################################################################################################
 ## "GIT STATUS" section : Utilities functions to manipulate files present in git status list
 ####################################################################################################################################################################
 
 git_st_cmp () {
-do_cmp=true
+do_cmp=false
 pattern1=$1
 pattern2=$2
 	git status | grep --color=never "$pattern1" | while read file_p1
@@ -252,25 +264,35 @@ pattern2=$2
 		if [ ! -f "$file_p1" ]
 		then
 			echo "$file_p1 does not exist"
-			do_cmp=false
 		fi
 		if [ ! -f "$file_p2" ]
 		then
 			echo "$file_p2 does not exist"
-			do_cmp=false
 		fi
-		diff $file_p1 $file_p2 1>/dev/null
-		if [ "$?" == "0" ]
-		then
-			echo "For pattern $pattern1 / $pattern2, files are identical ($(basename "$name.$ext"))"
-			do_cmp=false
-		fi
+		file_p1=$(conv_path_for_win $file_p1)
+		file_p1=$(double_backslash "$file_p1")
+		file_p2=$(conv_path_for_win $file_p2)
+		file_p2=$(double_backslash "$file_p2")
 		echo "file_p1=$file_p1"
 		echo "file_p2=$file_p2"
-		if [[ "$do_cmp" != "false" ]]; then
-			CMD="meld $file_p1 $file_p2 1>&2 2>/dev/null&"
-			echo $CMD
-			$CMD
+		CMD="diff $file_p1 $file_p2 1>/dev/null"
+		echo $CMD; eval $CMD
+		case  "$?" in
+			"0")
+				echo -e "$GREEN For pattern $pattern1 / $pattern2, files are identical ($(basename "$name.$ext")) $ATTR_RESET"
+			;;
+			"1")
+				echo -e "$BLUE For pattern $pattern1 / $pattern2, files are differents ($(basename "$name.$ext")) $ATTR_RESET"
+				do_cmp=true
+			;;
+			"2")
+			echo -e "$RED Error on diff command ! (Files not found?) $ATTR_RESET"
+			echo -e "$RED $CMD $ATTR_RESET"
+			;;
+		esac
+		if [[ "$do_cmp" != "false" ]]; then		
+			CMD="$GIT_DIFFTOOL $file_p1 $file_p2 1>/dev/null 2>/dev/null&"
+			echo $CMD; eval $CMD
 		fi
 	done
 }
