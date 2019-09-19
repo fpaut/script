@@ -182,10 +182,17 @@ cd () {
 	builtin cd "$path"
 }
 
+backslash_to_slash()
+{
+	str="$1"
+	echo $(echo $str |  sed 's,\\,/,g')
+}
+export -f backslash_to_slash
+
 double_backslash()
 {
-	str=$1
-	echo $(echo $str |  sed 's,\\,/,g')
+	str="$1"
+	echo $(echo $str |  sed 's,\\,\\\\,g')
 }
 export -f double_backslash
 
