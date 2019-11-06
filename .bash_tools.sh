@@ -4,6 +4,13 @@ alias exit_on_error='err=$?; [[ "$err" != "0" ]] && exit $err'
 alias return_on_error='err=$?; [[ "$err" != "0" ]] && return $err'
 SIG_LIST="EXIT SIGTSTP SIGTTIN SIGTTOU"
 
+backslash_to_slash()
+{
+	str="$1"
+	echo $(echo $str |  sed 's,\\,/,g')
+}
+export -f backslash_to_slash
+
 backtrace() {
   local frame=0
   echo "DIE"
@@ -15,6 +22,13 @@ backtrace() {
   echo "$*"
 #  exit 1
 }
+
+double_backslash()
+{
+	str="$1"
+	echo $(echo $str |  sed 's,\\,\\\\,g')
+}
+export -f double_backslash
 
 trap_handler_cb() {
 	# Backup exit status if you're interested...
@@ -37,27 +51,29 @@ trap_handler_unset() {
 }
 
 def_font_attributes() {
-	export ATTR_UNDERLINED="\[\033[0;4m\]"
+	export ATTR_UNDERLINED="\e[0;4m"
 
-	export FONT_BOLD="\[\033[0;1m\]"
+	export FONT_BOLD="\e[0;1m"
 
-	export BKG_RED="\[\033[0;41m\]"
-	export BKG_GREEN="\[\033[0;42m\]"
-	export BKG_BLUE="\[\033[0;44m\]"
+	export BKG_RED="\e[0;41m"
+	export BKG_GREEN="\e[0;42m"
+	export BKG_BLUE="\e[0;44m"
 
-	export BLACK="\[\033[0;30m\]"
-	export RED="\[\033[0;91m\]"
-	export GREEN="\[\033[0;92m\]"
-	export YELLOW="\[\033[0;93m\]"
-	export BLUE="\[\033[0;34m\]"
-	export CYAN="\[\033[0;96m\]"
-	export WHITE="\[\033[0;97m\]"
+	export BLACK="\e[0;30m"
+	export RED="\e[0;91m"
+	export GREEN="\e[0;92m"
+	export YELLOW="\e[0;93m"
+##	export BLUE="\e[0;34m"
+	export BLUE="\e[34m"
+	export CYAN="\e[0;96m"
+	export WHITE="\e[0;97m"
 
-	export DIMMED="\[\033[2m\]"
-	export BLINK="\[\033[5m\]"
+	export DIMMED="\e[2m"
+	export BLINK="\e[5m"
 	
 
-	export ATTR_RESET="\[\033[0;0m\]"
+##	export ATTR_RESET="\e[0;0m"
+	export ATTR_RESET="\e[m"
 }
 
 set_term_title() {

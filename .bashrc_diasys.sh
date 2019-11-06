@@ -39,9 +39,61 @@ deg_to_step()
 
 copy_bin_to_medios_hp()
 {
+	p1=$1
+	
+	if [[ "$p1" == "" ]]; then
+		echo "First parameter could contains ledappli, vcp, vcpGB, vcppmt, incubator, separator hydro1, hydro2, measmeca, pmt"
+		echo "For many target, use '\"' like"
+		echo "${FUNCNAME[0]} \"ledappli vcp vcpGB vcppmt incubator separator hydro1 hydro2 measmeca pmt\""
+		return 1
+	fi
+		
+	
 	cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware
-	CMD="cp ODS/LEDappli/bin/LEDappli.bin /cygdrive/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
-	CMD="cp ODS/vcp/bin405/vcp.bin /cygdrive/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
+	
+	if [[ "$(contains ledappli "$p1")" == "1" ]]; then
+		CMD="cp ODS/LEDappli/bin/LEDappli.bin /cygdrive/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
+		CMD="cp ODS/LEDappli/bin/LEDappli.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/IA.bin"; echo $CMD; $CMD
+	fi
+	
+	if [[ "$(contains vcp "$p1")" == "1" ]]; then
+		CMD="cp ODS/vcp/bin405/vcp.bin /cygdrive/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
+	fi
+	
+	if [[ "$(contains incubator "$p1")" == "1" ]]; then
+		CMD="cp  ODS/StepMotor/bin/INCUBATOR.bin /cygdrive/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/INCUBATOR.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/INCUB.bin"; echo $CMD; $CMD
+		
+	fi
+	if [[ "$(contains separator "$p1")" == "1" ]]; then
+		CMD="cp  ODS/StepMotor/bin/SEPARATOR.bin /cygdrive/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/SEPARATOR.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/SEPAR.bin"; echo $CMD; $CMD
+	fi
+	if [[ "$(contains measmeca "$p1")" == "1" ]]; then
+		CMD="cp  ODS/StepMotor/bin/MEASMECA.bin /cygdrive/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/MEASMECA.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/MEASM.bin"; echo $CMD; $CMD
+	fi
+	if [[ "$(contains hydro1 "$p1")" == "1" ]]; then
+		CMD="cp  ODS/StepMotor/bin/HYDRO1.bin /cygdrive/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/HYDRO1.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/HYDRO1.bin"; echo $CMD; $CMD
+	fi
+	if [[ "$(contains hydro2 "$p1")" == "1" ]]; then
+		CMD="cp  ODS/StepMotor/bin/HYDRO2.bin /cygdrive/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/HYDRO2.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/HYDRO2.bin"; echo $CMD; $CMD
+	fi
+	if [[ "$(contains pmt "$p1")" == "1" ]]; then
+		CMD="cp  ODS/PMTboardAppli/bin/PMTboardAppli.bin /cygdrive/m/dev/binFirmware/binGB/PMT.bin"; echo $CMD; $CMD
+		CMD="cp  ODS/PMTboardAppli/bin/PMTboardAppli.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/PMT.bin"; echo $CMD; $CMD
+	fi
+	if [[ "$(contains vcpGB "$p1")" == "1" ]]; then
+		CMD="cp ODS/vcp/bin405/vcp.bin /cygdrive/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+##		CMD="cp ODS/vcp/bin405/vcp.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/"; echo $CMD; $CMD
+	fi
+	if [[ "$(contains vcppmt "$p1")" == "1" ]]; then
+		CMD="cp ODS/vcp/binpmt/vcp.bin /cygdrive/m/dev/binFirmware/binGB/vcppmt.bin"; echo $CMD; $CMD
+##		CMD="cp ODS/vcp/binpmt/vcp.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/"; echo $CMD; $CMD
+	fi
+	
 	cd -
 }
 
@@ -60,6 +112,12 @@ copy_rawIpClientScript_to_medios_hp()
 	CMD="cp -f dt-fwtools/RuntimeFolderRelease/RawIpClient.exe /cygdrive/m/dev/rawIpClientScripts/"; echo $CMD; $CMD
 	CMD="rm -f /cygdrive/m/dev/rawIpClientScripts/Update_RawIpClient.ps1"; echo $CMD; $CMD
 	cd - 1>/dev/null
+}
+
+copy_web_pages_to_medios_hp()
+{
+	CMD="cp -vr /cygdrive/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware/Combo/Simul/Files/1/www/* /cygdrive/m/ComboMaster/emulated-disk/Files/1/www/"
+	echo $CMD; $CMD
 }
 
 get_version()

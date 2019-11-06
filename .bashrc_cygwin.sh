@@ -48,4 +48,12 @@ killall()
 	
 }
 
+# Starting X Server
+X=$(ps fax | grep "xinit")
+if [[ "$X" == "" ]]; then
+	echo "Starting X Server..."
+	startxwin >/dev/null 2>&1 &
+	export DISPLAY=:0.0
+fi
+
 echo Out of BASHRC_CYGWIN

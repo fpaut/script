@@ -161,12 +161,21 @@ cd_func ()
 
   return 0
 }
-## Simple bash calculator
+
+## Convert HEX to DEX
+0x() 
+{ 
+	val=$1
+	printf "%d\n" 0x$val
+}
+
+## Simple bash calculator (need bash calculator 'bc' tool)
 c()
 {
+	decimal_digit=4
 	formula=${@}
-	echo evaluate "$formula"
-	eval echo $(($formula))
+	formula_str="scale=$decimal_digit; $formula"
+	echo "$formula_str" | bc -l
 }
 
 cd () {
@@ -181,20 +190,6 @@ cd () {
 ##	fi
 	builtin cd "$path"
 }
-
-backslash_to_slash()
-{
-	str="$1"
-	echo $(echo $str |  sed 's,\\,/,g')
-}
-export -f backslash_to_slash
-
-double_backslash()
-{
-	str="$1"
-	echo $(echo $str |  sed 's,\\,\\\\,g')
-}
-export -f double_backslash
 
 ###################################################
 ## filtered cat using pattern and excluded pattern
@@ -212,6 +207,36 @@ ecat() {
 	CMD="grep -E \"$pattern\" $filename | grep -Ev \"$expattern\""
 	echo $CMD
 	eval $CMD
+}
+
+# Return filename+extension of a provided path+filename (eg.: "/home/user/toto.txt.doc" return "toto.txt.doc")
+file_get_fullname()
+{
+	file=$1
+	echo $(basename $file)
+}
+
+# Return path of provided path+filename (eg.: "/home/user/toto.txt.doc" return "/home/user")
+file_get_path()
+{
+	file=$1
+	echo $(dirname $file)
+}
+
+# Return only name of the filename provided (eg.: "/home/user/toto.txt.doc" return "toto.txt")
+file_get_name()
+{
+	file=$1
+	filename=$(file_get_fullname $file)
+	echo ${filename%.*}
+}
+
+# Return only extension of the filename provided (eg.: "/home/user/toto.txt.doc" return "doc")
+file_get_ext()
+{
+	file=$1
+	filename=$(file_get_fullname $file)
+	echo ${filename##*.}
 }
 
 get_caller() {
@@ -348,7 +373,7 @@ ps1_unset() {
   PS1="$PS1_PREFIX: "
 }
 
-replace() {
+str_replace() {
 	str=$1
 	search=$2
 	replace=$3
@@ -356,6 +381,7 @@ replace() {
 	echo result=$result
 	echo $result
 }
+export -f str_replace
 
 wbdb() {
 	local path=$(which $1)

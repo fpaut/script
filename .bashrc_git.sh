@@ -59,7 +59,7 @@ git_get_branch () {
 # (Avoiding difficult merge)
 #########################################
 git_dos2unix () {
-	git status | grep "modified" | grep -v "\-wip" | while read file
+	git status -s | grep "modified" | grep -v "\-wip" | while read file
 	do
 		file=${file#*:}
 		CMD="dos2unix.exe $file"
@@ -83,8 +83,9 @@ git_discard () {
 	if [[ "$file_pattern" == "all" ]]; then
 		file_pattern=""
 	fi
-	git status | grep --color=never "$file_pattern" | grep ":" | grep  --color=never  -v "$WIP_PREFIX" | while read file
+	git status -s | grep --color=never "$file_pattern" | grep  --color=never  -v "$WIP_PREFIX" | while read file
 	do
+		file=${file##* }
 		file=${file#*:}
 		[[ "$file" != "" ]] && CMD="git checkout -- $file"
 		echo $CMD; $CMD
@@ -98,7 +99,7 @@ git_reset () {
 		file_pattern=""
 	fi
 	echo -e $GREEN"Following file will be reseted to HEAD."$ATTR_RESET
-	git status | grep --color=never "$file_pattern" | grep ":" | grep  --color=never  -v "$WIP_PREFIX" | while read file
+	git status -s | grep --color=never "$file_pattern" | grep ":" | grep  --color=never  -v "$WIP_PREFIX" | while read file
 	do
 		file=${file#*:}
 		CMD=" $file "
@@ -108,7 +109,7 @@ git_reset () {
 	read -e -i "N" -p "Ok? (y/N): "
 	echo -e $ATTR_RESET
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
-		git status | grep --color=never "$file_pattern" | grep ":" | grep  --color=never  -v "$WIP_PREFIX" | while read file
+		git status -s | grep --color=never "$file_pattern" | grep ":" | grep  --color=never  -v "$WIP_PREFIX" | while read file
 		do
 			file=${file#*:}
 			[[ "$file" != "" ]] && CMD="git reset HEAD -- $file"
@@ -178,8 +179,39 @@ git_remote() {
 	git_remote_test_pull
 }
 
+git_save_files_from_rev() {
+	rev=$1
+	pattern=$2
+	
+	if [[ "$rev" == "" && "$pattern" == "" ]]; then
+		echo "#1 is the revision id (mandatory)"
+		echo "#2 is the pattern to use while saving files (optionnal)"
+		return 1
+	fi
+	
+	if [[ "$pattern" == "" ]]; then
+		pattern="REV-$rev"
+	fi
+	
+	 git diff-tree --no-commit-id --name-only -r $rev | while read file
+	 do
+		path=$(file_get_path $file)
+		name=$(file_get_name $file)
+		ext=$(file_get_ext $file)
+		
+		echo file=$file
+		echo path=$path
+		echo name=$name
+		echo ext=$ext
+		
+		newFile=$path/$name\_$pattern.$ext
+		echo newFile=$newFile
+		
+		git show $rev:$file > $newFile
+	 done
+}
 
-git_save_file_from_rev() {
+git_save_one_file_from_rev() {
 	rev=$1
 	file=$2
 
@@ -234,8 +266,42 @@ git_show_unpushed_commit () {
 ####################################################################################################################################################################
 ## "GIT STASH" section : Utilities functions to manipulate files present in git stash list
 ####################################################################################################################################################################
-git_sh_cmp() {
-	echo
+git_sh_cmp() 
+{
+	STASH="$1"
+	git stash show $STASH | grep "|"  | while read file
+	do 
+		file=${file%% |*}
+		CMD="git difftool -y $STASH -- $file"
+		echo $CMD
+		$CMD
+	done
+}
+
+
+git_sh_save() {
+	stash=$1
+	pattern=$2
+	if [[ "$stash" == "" ||  "$pattern" == "" ]]; then
+		echo "Parameters :"
+		echo " #1 : Stash ref"
+		echo " #2 : pattern for adding to save"
+		return 1
+	fi
+	echo pattern=$pattern
+	pattern=$(echo $pattern |  sed 's, ,_,g')
+	echo pattern=$pattern
+	LANG=en_GB git stash show $stash | grep "|" | while read file
+	do 
+		file=${file%% |*}; 
+		file=$(echo $file |  sed 's, ,,g')
+		name=${file%.*}
+		ext=${file##*.}
+		echo name=$name
+		echo ext=$ext
+		echo $file will become $name$pattern.$ext;
+		 git show $stash:$file > $name$pattern.$ext
+	done
 }
 
 
@@ -248,24 +314,27 @@ git_st_cmp () {
 do_cmp=false
 pattern1=$1
 pattern2=$2
-	git status | grep --color=never "$pattern1" | while read file_p1
+	git status -s | grep --color=never "$pattern1" | while read file_p1
 	do
-		name=${file_p1%$pattern1*}
-		ext=${file_p1#*.}
+		do_cmp=false
+		file_p1=${file_p1##* }
+		path=$(file_get_path $file_p1)
+		name=$(file_get_name $file_p1)
+		ext=$(file_get_ext $file_p1)
 		echo "name=$name"
 		echo "ext=$ext"
 		if [[ "$pattern2" == "" ]]; then
 			# No 2nd pattern, compare with filename.ext
-			file_p2=$name.$ext
+			file_p2=${file_p1%%$pattern1*}.$ext
 		else
 			# 2nd pattern exist, compare with filename'pattern2'.ext
-			file_p2=$name$pattern2.$ext
+			file_p2=$path/$name$pattern2.$ext
 		fi
-		if [ ! -f "$file_p1" ]
+		if [[ ! -f "$file_p1" ]]
 		then
 			echo "$file_p1 does not exist"
 		fi
-		if [ ! -f "$file_p2" ]
+		if [[ ! -f "$file_p2" ]]
 		then
 			echo "$file_p2 does not exist"
 		fi
@@ -279,10 +348,11 @@ pattern2=$2
 		echo $CMD; eval $CMD
 		case  "$?" in
 			"0")
-				echo -e "$GREEN For pattern $pattern1 / $pattern2, files are identical ($(basename "$name.$ext")) $ATTR_RESET"
+				echo -e "$GREEN $file_p1 is identical to $file_p2$ATTR_RESET"
+				do_cmp=false
 			;;
 			"1")
-				echo -e "$BLUE For pattern $pattern1 / $pattern2, files are differents ($(basename "$name.$ext")) $ATTR_RESET"
+				echo -e "$BLUE $file_p1 is different to $file_p2 $ATTR_RESET"
 				do_cmp=true
 			;;
 			"2")
@@ -308,8 +378,9 @@ git_st_rename() {
 		echo "2 parameters requested (old pattern and new pattern)"
 	fi
 	new_pattern="$new_pattern"
-	git status | grep $old_pattern | while read file
+	git status -s | grep $old_pattern | while read file
 	do
+		file=${file##* }
 		file=${file#*:}
 		name=${file%$pattern1*}
 		ext=${file#*.}
@@ -330,8 +401,9 @@ git_st_restore () {
 		return 1
 	fi
 	echo -e $GREEN"Following file will replace original."$ATTR_RESET
-	git status | grep "$pattern" | while read file
+	git status -s | grep "$pattern" | while read file
 	do
+		file=${file##* }
 		file=${file#*:}
 		name=${file%$pattern*}
 		ext=${file#*.}
@@ -342,7 +414,7 @@ git_st_restore () {
 	read -e -i "N" -p "Ok? (y/N): "
 	echo -e $ATTR_RESET
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
-		git status | grep "$pattern" | while read file
+		git status -s | grep "$pattern" | while read file
 		do
 			file=${file#*:}
 			name=${file%$pattern*}
@@ -355,7 +427,7 @@ git_st_restore () {
 	read -e -i "N" -p "Remove Backup ($pattern)? (y/N): "
 	echo -e $ATTR_RESET
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
-		git status | grep "$pattern" | while read file
+		git status -s | grep "$pattern" | while read file
 		do
 			file=${file#*:}			
 			CMD="rm $file"
@@ -370,35 +442,47 @@ git_st_restore () {
 # 'pattern'
 #########################################
 git_st_rm () {
+	local found=false
 	pattern=$1
 	echo "searching pattern '$pattern'"
 	[[ $pattern == "" ]] && echo missing pattern as parameter &&  return 1
 	echo -e $GREEN"Following file will be removed."$ATTR_RESET
-	git status | grep  --color=never "$pattern" | while read file
+	test=$(
+	git status -s | grep  --color=never "$pattern" | while read file
 	do
+		file=${file##* }
 		file=${file#*:}
 		CMD=" $file "
 		echo $CMD
+		found=true
 	done
-	echo -e $GREEN
-	read -e -i "N" -p "Ok? (y/N): "
-	echo -e $ATTR_RESET
-	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
-		git status | grep --color=never $pattern | while read file
-		do
-			file=${file#*:}
-			CMD="rm $file"
-			echo $CMD;
-			$CMD
-		done
+	)
+	echo -e "$test"
+	if [[ "$test" != "" ]]; then
+		echo -e $GREEN
+		read -e -i "N" -p "Ok? (y/N): "
+		echo -e $ATTR_RESET
+		if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
+			git status -s | grep --color=never $pattern | while read file
+			do
+				file=${file##* }
+				file=${file#*:}
+				CMD="rm -rf \"$file\""
+				echo $CMD;
+				eval $CMD
+			done
+		fi
+	else
+		echo -e $GREEN"No file found!"$ATTR_RESET
+		echo -e $GREEN"file=$file"$ATTR_RESET
 	fi
 }
 
 git_st_rm_check () {
 	pattern=$1
 	[[ $pattern == "" ]] && echo missing pattern as parameter &&  return 1
-	echo -e $GREEN"Following file have this pattern $pattern."$ATTR_RESET
-	git status | grep --color=never $pattern | grep  --color=never -v "$WIP_PREFIX" | while read file
+	echo -e $GREEN"Following file contains pattern '$pattern'."$ATTR_RESET
+	git status -s | grep --color=never $pattern | grep  --color=never -v "$WIP_PREFIX" | while read file
 	do
 		echo $file
 	done
@@ -410,8 +494,10 @@ git_st_rm_check () {
 #########################################
 git_st_save () {
 	pattern="$1"
-	git status | grep "modified" | while read file
+	pattern=$(echo $pattern |  sed 's, ,_,g')
+	git status -s | grep "M " | while read file
 	do
+		file=${file##* }
 		file=${file#*:}
 		name=${file%.*}
 		ext=${file##*.}
@@ -453,9 +539,46 @@ git_st_save_from_rev () {
 	ls -halF | grep $pattern
 }
 
+#########################################
+# Execute parameterized command on file
+# found with "git status" command, 
+# filtered with parameter 'pattern'
+#########################################
+git_stp () {
+	pattern="$1"
+	cmd="$2"
+	if [[ "$pattern" == "" || "$cmd" == "" ]]; then
+		echo "'pattern' must be the 1st parameter (and could be combined with logical operand. Eg.:"\.c|\.h""
+		echo "'command' must be the 2nd parameter"
+		return 1
+	fi
+	echo "searching pattern '$pattern'"
+	echo -e $GREEN"Found following files :"$ATTR_RESET
+	git status -s | egrep  --color=never "$pattern" | while read file
+	do
+		file=${file##* }
+		file=${file#*:}
+		CMD=" $file "
+		echo $CMD
+	done
+	echo -e $GREEN
+	read -e -i "N" -p "Execute '$cmd', Ok? (y/N): "
+	echo -e $ATTR_RESET
+	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
+		git status -s | egrep --color=never "$pattern" | while read file
+		do
+			file=${file##* }
+			file=${file#*:}
+			CMD="$cmd \"$file\""
+			echo "$CMD"
+			eval "$CMD"
+		done
+	fi
+}
+
 
 git_unix2dos () {
-	git status | grep "modified" | grep -v "\-wip" | while read file
+	git status -s | grep "modified" | grep -v "\-wip" | while read file
 	do
 		file=${file#*:}
 		CMD="unix2dos.exe $file"
@@ -477,7 +600,7 @@ git_wip_ls () {
 	export WIP_LIST
 	pattern=$1
 	pattern="\-$WIP_PREFIX-$pattern"
-	git status | grep "$pattern" | while read file
+	git status -s | grep "$pattern" | while read file
 	do
 		f1=${file##*$WIP_PREFIX-}
 		f1=${file%.*}
@@ -514,7 +637,7 @@ git_wip_cmp () {
 do_cmp=true
 pattern1=$1
 pattern2=$2
-	git status | grep --color=never "$pattern1" | grep --color=never "\-$WIP_PREFIX" | while read file_p1
+	git status -s | grep --color=never "$pattern1" | grep --color=never "\-$WIP_PREFIX" | while read file_p1
 	do
 		file_p1=${file_p1#*:}
 		name=$(git_wip_get_file_name $file_p1)
@@ -555,7 +678,7 @@ git_wip_rename() {
 		echo "2 parameters requested (old pattern and new pattern)"
 	fi
 	new_pattern="$WIP_PREFIX-$new_pattern"
-	git status | grep $old_pattern | grep "\-$WIP_PREFIX" | while read file
+	git status -s | grep $old_pattern | grep "\-$WIP_PREFIX" | while read file
 	do
 		file=${file#*:}
 		name=$(git_wip_get_file_name $file)
@@ -575,7 +698,7 @@ git_wip_restore () {
 		pattern="\-$WIP_PREFIX-$pattern"
 	fi
 	echo -e $GREEN"Following file will replace original."$ATTR_RESET
-	git status | grep "$pattern" | while read file
+	git status -s | grep "$pattern" | while read file
 	do
 		file=${file#*:}
 		name=$(git_wip_get_file_name $file)
@@ -587,7 +710,7 @@ git_wip_restore () {
 	read -e -i "N" -p "Ok? (y/N): "
 	echo -e $ATTR_RESET
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
-		git status | grep "$pattern" | while read file
+		git status -s | grep "$pattern" | while read file
 		do
 			file=${file#*:}
 			name=$(git_wip_get_file_name $file)
@@ -617,7 +740,7 @@ git_wip_rm () {
 git_wip_save () {
 	pattern="$1"
 	pattern="-$WIP_PREFIX-"$pattern
-	git status | grep "modified" | while read file
+	git status -s | grep "modified" | while read file
 	do
 		file=${file#*:}
 		name=${file%.*}
