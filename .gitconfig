@@ -5,7 +5,7 @@
 	spellcheck = false
 	blameviewer = git gui blame
 [diff]
-	tool = "WinMerge"
+	tool = meld
 [merge]
 	tool = "WinMerge"
 [credential]

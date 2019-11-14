@@ -201,39 +201,30 @@ alias cd=cd_func
 if [ -e /cygdrive ]; then 
 	# Using Cygwin
 	export ROOTDRIVE="/cygdrive"
-	source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_cygwin.sh
+	source $SCRIPTS_PATH/.bashrc_cygwin.sh
 else
 	if [ -e /mnt ]; then 
 		# Using Ubuntu bash for Windows
 		export ROOTDRIVE="/mnt"
-		source $ROOTDRIVE/mnt/d/Users/fpaut/dev/scripts/.bashrc_winbash.sh
+		source $SCRIPTS_PATH/.bashrc_winbash.sh
 	else
 		# Using msys
 		export ROOTDRIVE=""
-		source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_msys.sh
+		source $SCRIPTS_PATH/.bashrc_msys.sh
 	fi
 fi
-source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_custom.sh
-source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bash_tools.sh
-source $ROOTDRIVE/d/Users/fpaut/dev/scripts/git-completion.bash
+source $SCRIPTS_PATH/.bashrc_custom.sh
+source $SCRIPTS_PATH/.bash_tools.sh
+source $SCRIPTS_PATH/git-completion.bash
 def_font_attributes
 GIT=$(which git)
 if [[ "$GIT" != "" ]]; then
-$ROOTDRIVE/d/Users/fpaut/dev/scripts/git-aliases.sh
+$SCRIPTS_PATH/git-aliases.sh
 fi
-source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_git.sh
+source $SCRIPTS_PATH/.bashrc_git.sh
 
-source $ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_diasys.sh
-
-
-alias cdd="cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain"
-alias cdf="cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware"
-alias cdfsm="cdf && cd ODS/FSM/Cycles"
-alias cds="cd $ROOTDRIVE/d/Users/fpaut/dev/scripts"
-alias cdt="cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-fwtools"
-
-export PATH=$PATH:$ROOTDRIVE/d/Users/fpaut/dev/scripts
-export PATH=$PATH:$ROOTDRIVE/d/Users/fpaut/bin/Debug
+export PATH=$PATH:$SCRIPTS_PATH
+export PATH=$PATH:$ROOTDRIVE/c/Users/fpaut/bin/Debug
 export PATH=$PATH:$HOME/bin
 echo Bash HOME in Windows folder=$HOME
 echo Windows home HOMEW=$HOMEW
@@ -243,6 +234,6 @@ export DISPLAY=localhost:0.0
 export LIBGL_ALWAYS_INDIRECT=1
 
 ## Eclipse Workspace
-export ECLIPSE_PATH_WS="$ROOTDRIVE/d/Users/fpaut/dev/eclipse-workspace"
+export ECLIPSE_PATH_WS="$DEV_PATH/eclipse-workspace"
 export ECLIPSE_PATH_TOOL="$ECLIPSE_PATH_WS/.metadata/.plugins/org.eclipse.debug.core/.launches"
 echo Out of BASHRC_STANDARD

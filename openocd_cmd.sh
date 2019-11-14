@@ -12,9 +12,9 @@ double_backslash()
 	echo $(echo $str |  sed 's,\\,/,g')
 }
 
-OPENOCD="$ROOTDRIVE/d/Users/fpaut/bin/Openocd/OpenOCD-20180728/bin/openocd.exe"
-CFG_LINK=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/d/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/interface/stlink.cfg"))
-CFG_BOARD=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/d/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/target/stm32f4x.cfg"))
+OPENOCD="$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728/bin/openocd.exe"
+CFG_LINK=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/interface/stlink.cfg"))
+CFG_BOARD=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/target/stm32f4x.cfg"))
 
 echo CFG_LINK	= $CFG_LINK
 echo CFG_BOARD	= $CFG_BOARD

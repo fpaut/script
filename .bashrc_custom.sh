@@ -162,11 +162,18 @@ cd_func ()
   return 0
 }
 
-## Convert HEX to DEX
+## Convert HEX to DEC
 0x() 
 { 
 	val=$1
 	printf "%d\n" 0x$val
+}
+
+## Convert DEC to HEX
+_x() 
+{ 
+	val=$1
+	printf "%x\n" $val
 }
 
 ## Simple bash calculator (need bash calculator 'bc' tool)
@@ -236,7 +243,11 @@ file_get_ext()
 {
 	file=$1
 	filename=$(file_get_fullname $file)
-	echo ${filename##*.}
+	if [[ $filename == *"."* ]]; then
+		echo ${filename##*.}
+	else
+		return
+	fi
 }
 
 get_caller() {

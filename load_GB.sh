@@ -10,19 +10,19 @@ if [[ "$appli" == "" ]]; then
 	exit 1
 fi
 
-OPENOCD="$ROOTDRIVE/d/Users/fpaut/bin/Openocd/OpenOCD-20180728/bin/openocd.exe"
+OPENOCD="$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728/bin/openocd.exe"
 ## OLIMEX ## 
-CFG_LINK=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/d/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/interface/ftdi/olimex-arm-usb-tiny-h.cfg"))
+CFG_LINK=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/interface/ftdi/olimex-arm-usb-tiny-h.cfg"))
 ## OLIMEX: JTAG/SWD ## 
-CFG_BOARD=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/d/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/interface/ftdi/olimex-arm-jtag-swd.cfg"))
+CFG_BOARD=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/interface/ftdi/olimex-arm-jtag-swd.cfg"))
 
 ## STLINK / NUCLEO ## 
-CFG_LINK=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/d/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/interface/stlink.cfg"))
-CFG_BOARD=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/d/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/target/stm32f4x.cfg"))
+CFG_LINK=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/interface/stlink.cfg"))
+CFG_BOARD=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/target/stm32f4x.cfg"))
 
 
-VCP_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware/ODS/vcp/bin405/$vcp")))
-APPLI_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware/ODS/StepMotor/bin/$appli")))
+VCP_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware/ODS/vcp/bin405/$vcp")))
+APPLI_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$ROOTDRIVE/c/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware/ODS/StepMotor/bin/$appli")))
 
 echo CFG_LINK	= $CFG_LINK
 echo CFG_BOARD	= $CFG_BOARD

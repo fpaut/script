@@ -8,7 +8,7 @@ export HOME=$HOMEW
 
 alias rm='trash -v'
 alias trash-restore='restore-trash'
-WSLPATH=$(which wslpath)
+export WSLPATH=$(which wslpath)
 
 conv_path_for_win()
 {

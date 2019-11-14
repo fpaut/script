@@ -23,6 +23,13 @@ backtrace() {
 #  exit 1
 }
 
+debug_log() {
+	string=$@
+	if [[ "$DEBUG_BASH" != "" ]]; then
+		echo $string
+	fi
+}
+
 double_backslash()
 {
 	str="$1"

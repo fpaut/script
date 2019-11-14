@@ -27,15 +27,49 @@ echo In BASHRC
 # If not running interactively, don't do anything
 [[ "$-" != *i* ]] && return
 
+
+## Attempt to determine in which subsystem this terminal rub
+## (Cygwin, WSL, MSYS, or real linux)
+get_term_env()
+{
+	# Is it Cygwin
+	[[ $(which cygpath.exe) ]] && echo cygwin && return 0
+	[[ $(which wslpath) ]] && echo wsl && return 0
+	
+	return 1
+}
+
+
 unset ROOTDRIVE
-# Cygwin
-if [[ -e "/cygdrive" ]]; then
-	ROOTDRIVE="/cygdrive"
-fi
-# Using Ubuntu bash for Windows
-[[ -e "/mnt" ]] && ROOTDRIVE="/mnt"
-BASHRC_STD="$ROOTDRIVE/d/Users/fpaut/dev/scripts/.bashrc_standard.sh"
+	case $(get_term_env) in
+		cygwin)
+			echo CYGWIN!!!
+			ROOTDRIVE="/cygdrive"
+			source ~/bin/scripts/.bashrc_cygwin.sh
+		;;
+		wsl)
+			echo WSL!!!
+			ROOTDRIVE="/mnt"
+			source ~/bin/scripts/.bashrc_winbash.sh
+		;;
+		*)
+			echo "ENV is $(get_term_env)"
+		;;
+		
+	esac
+		
+	source $ROOTDRIVE/t/bin/scripts/.bashrc_diasys.sh
 # [ "$ROOTDRIVE" ] && source $BASHRC_STD
-source $BASHRC_STD
+source $SCRIPTS_PATH/.bashrc_standard.sh
+
+case $(get_company) in
+	diasys)
+		gitconfig_restore
+	;;
+	*)
+		echo "Unknown company, or no bash specificities"
+	;;
+esac
+
 echo Out of BASHRC
 export LESSCHARSET=utf-8

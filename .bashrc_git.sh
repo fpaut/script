@@ -16,7 +16,7 @@ git_cmd () {
 	rev2=$2
 	if [[ "$rev1" == "" ]]; then
 		echo One revision at least is needed
-		exit 1
+		return 1
 	fi
 	if [[ "$rev2" == "" ]]; then
 		rev2="HEAD"
@@ -72,7 +72,8 @@ git_dos2unix () {
 ## Restore global ~/.git config overwritten by sourcetree
 gitconfig_restore()
 {
-	CMD="cp $HOME/dev/scripts/.gitconfig $HOME"
+	echo SCRIPTS_PATH=$SCRIPTS_PATH
+	CMD="cp $SCRIPTS_PATH/.gitconfig $HOME"
 	echo $CMD
 	$CMD
 }
@@ -380,14 +381,22 @@ git_st_rename() {
 	new_pattern="$new_pattern"
 	git status -s | grep $old_pattern | while read file
 	do
-		file=${file##* }
-		file=${file#*:}
-		name=${file%$pattern1*}
-		ext=${file#*.}
+		file=${file##* }	## Remove 'status' provided by "git status -s"
+		name=$(file_get_name $file)
+		ext=$(file_get_ext $file)
+		# Remove pattern
+		name=${name%$old_pattern*}
 		file1=$file
 		file2=$name$new_pattern.$ext
-		CMD="mv $file $file2"
-		echo $CMD; $CMD
+		
+		debug_log "file=$file"
+		debug_log "name=$name"
+		debug_log "old_pattern=$old_pattern"
+		debug_log "name without pattern=$name"
+		debug_log "New name=$file2"
+
+		CMD="mv \"$file\" \"$file2\""
+		echo $CMD; eval "$CMD"
 	done
 }
 
@@ -544,7 +553,7 @@ git_st_save_from_rev () {
 # found with "git status" command, 
 # filtered with parameter 'pattern'
 #########################################
-git_stp () {
+git_st_exe () {
 	pattern="$1"
 	cmd="$2"
 	if [[ "$pattern" == "" || "$cmd" == "" ]]; then
@@ -613,23 +622,6 @@ git_wip_ls () {
 
 
 #########################################
-# Get name of a 'wip' file
-#########################################
-git_wip_get_file_name () {
-	file=$1
-	echo  ${file%-$WIP_PREFIX*}
-}
-
-#########################################
-# Get extension of a 'wip' file
-#########################################
-git_wip_get_file_ext () {
-	file=$1
-	echo ${file##*.}
-}
-
-
-#########################################
 # Compare a backup wip file, with the 
 # same "not wip" file
 #########################################
@@ -640,8 +632,8 @@ pattern2=$2
 	git status -s | grep --color=never "$pattern1" | grep --color=never "\-$WIP_PREFIX" | while read file_p1
 	do
 		file_p1=${file_p1#*:}
-		name=$(git_wip_get_file_name $file_p1)
-		ext=$(git_wip_get_file_ext $file_p1)
+		name=$(file_get_name $file_p1)
+		ext=$(file_get_ext $file_p1)
 		if [[ "$pattern2" == "" ]]; then
 			# No 2nd pattern, compare with filename.ext
 			file_p2=$name.$ext
@@ -681,8 +673,8 @@ git_wip_rename() {
 	git status -s | grep $old_pattern | grep "\-$WIP_PREFIX" | while read file
 	do
 		file=${file#*:}
-		name=$(git_wip_get_file_name $file)
-		ext=$(git_wip_get_file_ext $file)
+		name=$(file_get_name $file)
+		ext=$(file_get_ext $file)
 		file1=$file
 		file2=$name-$new_pattern.$ext
 		CMD="mv $file $file2"
@@ -701,8 +693,8 @@ git_wip_restore () {
 	git status -s | grep "$pattern" | while read file
 	do
 		file=${file#*:}
-		name=$(git_wip_get_file_name $file)
-		ext=$(git_wip_get_file_ext $file)
+		name=$(file_get_name $file)
+		ext=$(file_get_ext $file)
 		CMD="copy $file -> $name.$ext"
 		echo $CMD
 	done
@@ -713,8 +705,8 @@ git_wip_restore () {
 		git status -s | grep "$pattern" | while read file
 		do
 			file=${file#*:}
-			name=$(git_wip_get_file_name $file)
-			ext=$(git_wip_get_file_ext $file)
+			name=$(file_get_name $file)
+			ext=$(file_get_ext $file)
 			CMD="cp $file $name.$ext"
 			echo $CMD
 			$CMD

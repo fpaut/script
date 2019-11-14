@@ -4,11 +4,11 @@
 ;##################################################################
 
 $F7::
-    Process, Exist, ConEmu.exe
+    Process, Exist, ConEmu64.exe
     {
         If ! errorLevel
         {
-            Run, "C:\Program Files\ConEmu\ConEmu.exe"
+            Run, "C:\Program Files\ConEmu\ConEmu64.exe"
         }
         else
         {

@@ -1,16 +1,18 @@
 echo
 echo In BASHRC_DIASYS
 
-FIRMWARE_PATH="$ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware"
-TOOLS_PATH="$ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-fwtools"
+DEV_PATH="$ROOTDRIVE/e/fpaut/dev"
+SCRIPTS_PATH="$ROOTDRIVE/t/bin/scripts"
+FIRMWARE_PATH="$DEV_PATH/STM32_Toolchain/dt-arm-firmware"
+TOOLS_PATH="$DEV_PATH/STM32_Toolchain/dt-fwtools"
 
 
 alias cdl="cd $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/logs/$(date +%Y%m%d)"
-alias cdd="cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain"
+alias cdd="cd $DEV_PATH"
 alias cdf="cd $FIRMWARE_PATH"
 alias cdfsm="cdf && cd ODS/FSM/Cycles"
 ##alias cmlog='set -- $(ls -t $(date +%H)*) && file=$1 && file=${file%.*} && rm -f *_filtered.LOG &&  ecat $file.LOG "MEAS_CYCLE|\<MISC\>" "Incubator|Magnet|Separator|Probe|Diluter| ms " > "$file"_filtered.LOG && npp "$file"_filtered.LOG'
-alias cds="cd $ROOTDRIVE/d/Users/fpaut/dev/scripts"
+alias cds="cd $SCRIPTS_PATH"
 alias cdt="cd $TOOLS_PATH"
 alias jenkins_CLI="java -jar jenkins-cli.jar -auth pautf:QtxS1204+ -s http://FRSOFTWARE02:8080/"
 
@@ -99,14 +101,14 @@ copy_bin_to_medios_hp()
 
 copy_rawIpClient_to_medios_hp()
 {
-	cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/
+	cd $DEV_PATH/STM32_Toolchain/
 	CMD="cp -f dt-fwtools/RuntimeFolderRelease/RawIpClient.exe /cygdrive/m/dev/rawIpClientScripts/"; echo $CMD; $CMD
 	cd - 1>/dev/null
 }
 
 copy_rawIpClientScript_to_medios_hp()
 {
-	cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/
+	cd $DEV_PATH/STM32_Toolchain/
 	CMD="rm -rf /cygdrive/m/dev/rawIpClientScripts/*"; echo $CMD; $CMD
 	CMD="cp -rf ./rawIpClientScripts/* /cygdrive/m/dev/rawIpClientScripts"; echo $CMD; $CMD
 	CMD="cp -f dt-fwtools/RuntimeFolderRelease/RawIpClient.exe /cygdrive/m/dev/rawIpClientScripts/"; echo $CMD; $CMD
@@ -116,8 +118,13 @@ copy_rawIpClientScript_to_medios_hp()
 
 copy_web_pages_to_medios_hp()
 {
-	CMD="cp -vr /cygdrive/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware/Combo/Simul/Files/1/www/* /cygdrive/m/ComboMaster/emulated-disk/Files/1/www/"
+	CMD="cp -vr $DEV_PATH/STM32_Toolchain/dt-arm-firmware/Combo/Simul/Files/1/www/* /cygdrive/m/ComboMaster/emulated-disk/Files/1/www/"
 	echo $CMD; $CMD
+}
+
+get_company()
+{
+	echo diasys
 }
 
 get_version()
@@ -136,17 +143,17 @@ step_to_deg()
 }
 
 
-cd $HOME/dev/scripts
+cd $SCRIPTS_PATH
 git config core.fileMode false
 FILEMODE=$(cat .git/config | grep -i filemode)
 echo -e "my scripts\t: $FILEMODE"
 cd - 1>/dev/null
-cd $HOME/dev/STM32_Toolchain/dt-arm-firmware
+cd $DEV_PATH/STM32_Toolchain/dt-arm-firmware
 git config core.fileMode false
 FILEMODE=$(cat .git/config | grep -i filemode)
 echo -e "dt-arm-firmware\t: $FILEMODE"
 cd - 1>/dev/null
-cd $HOME/dev/STM32_Toolchain/dt-fwtools
+cd $DEV_PATH/STM32_Toolchain/dt-fwtools
 git config core.fileMode false
 FILEMODE=$(cat .git/config | grep -i filemode)
 echo -e "dt-fwtools\t: $FILEMODE"
