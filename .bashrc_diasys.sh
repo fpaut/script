@@ -6,6 +6,10 @@ SCRIPTS_PATH="$ROOTDRIVE/t/bin/scripts"
 FIRMWARE_PATH="$DEV_PATH/STM32_Toolchain/dt-arm-firmware"
 TOOLS_PATH="$DEV_PATH/STM32_Toolchain/dt-fwtools"
 
+export DISPLAY=localhost:0.0
+export LIBGL_ALWAYS_INDIRECT=1
+
+
 
 alias cdl="cd $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/logs/$(date +%Y%m%d)"
 alias cdd="cd $DEV_PATH"

@@ -198,6 +198,27 @@ cd () {
 	builtin cd "$path"
 }
 
+backslash_to_slash()
+{
+	str="$1"
+	echo $(echo $str |  sed 's,\\,/,g')
+}
+export -f backslash_to_slash
+
+beep()
+{
+	CMD="play -q -n synth 0.1 sin 880 || echo -e "\a""
+	echo $CMD; eval "$CMD"
+}
+
+
+double_backslash()
+{
+	str="$1"
+	echo $(echo $str |  sed 's,\\,\\\\,g')
+}
+export -f double_backslash
+
 ###################################################
 ## filtered cat using pattern and excluded pattern
 ecat() {
@@ -277,11 +298,11 @@ hexdump() {
 	eval "$HD -e '$OPTIONS1' -e '$OPTIONS2' $@"
 }
 
-kate() {
-    CMD="$(which kate) $(conv_path_for_win $@)"
-    echo $CMD
-	$CMD&
-}
+## kate() {
+##     CMD="$(which kate) $(conv_path_for_win $@)"
+##     echo $CMD
+##     eval "$CMD"&
+## }
 
 edit() {
     CMD="npp $(conv_path_for_win $@)&"
@@ -289,11 +310,11 @@ edit() {
 	$CMD&
 }
 
-make() {
-    CMD="mingw32-make $@"
-    echo $CMD
-	$CMD
-}
+## make() {
+##     CMD="mingw32-make $@"
+ ##    echo $CMD
+## 	$CMD
+## }
 
 
 messageBox() {

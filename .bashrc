@@ -36,6 +36,7 @@ get_term_env()
 	[[ $(which cygpath.exe) ]] && echo cygwin && return 0
 	[[ $(which wslpath) ]] && echo wsl && return 0
 	
+	echo linuxBash && return 0
 	return 1
 }
 
@@ -52,24 +53,38 @@ unset ROOTDRIVE
 			ROOTDRIVE="/mnt"
 			source ~/bin/scripts/.bashrc_winbash.sh
 		;;
+		linuxBash)
+			echo Linux Bash!!!
+			ROOTDRIVE="/"
+			source ~/bin/scripts/.bashrc_linuxbash.sh
+		;;
 		*)
 			echo "ENV is $(get_term_env)"
 		;;
 		
 	esac
 		
-	source $ROOTDRIVE/t/bin/scripts/.bashrc_diasys.sh
-# [ "$ROOTDRIVE" ] && source $BASHRC_STD
-source $SCRIPTS_PATH/.bashrc_standard.sh
-
-case $(get_company) in
-	diasys)
+	
+case $(hostname) in
+	WSTMONDT019)
+		echo DIASYS machine
+		source $ROOTDRIVE/t/bin/scripts/.bashrc_diasys.sh
 		gitconfig_restore
 	;;
+	user-HP-ENVY-TS-15-Notebook-PC)
+		echo Personal machine
+		SCRIPTS_PATH="/home/user/bin/scripts"
+	;;
 	*)
-		echo "Unknown company, or no bash specificities"
+		echo "Unknown machine, or no bash specificities"
 	;;
 esac
+# [ "$ROOTDRIVE" ] && source $BASHRC_STD
+source $SCRIPTS_PATH/.bashrc_standard.sh
+echo ROOTDRIVE=$ROOTDRIVE
+echo HOME=$HOME
+echo SCRIPTS=$SCRIPTS
+
 
 echo Out of BASHRC
 export LESSCHARSET=utf-8

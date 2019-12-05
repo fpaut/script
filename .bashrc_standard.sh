@@ -198,20 +198,20 @@ cd_func ()
 
 
 alias cd=cd_func
-if [ -e /cygdrive ]; then 
+if [ -d /cygdrive ]; then 
 	# Using Cygwin
 	export ROOTDRIVE="/cygdrive"
 	source $SCRIPTS_PATH/.bashrc_cygwin.sh
 else
-	if [ -e /mnt ]; then 
+##	if [ -d /mnt ]; then 
 		# Using Ubuntu bash for Windows
-		export ROOTDRIVE="/mnt"
-		source $SCRIPTS_PATH/.bashrc_winbash.sh
-	else
+##		export ROOTDRIVE="/mnt"
+##		source $SCRIPTS/.bashrc_winbash.sh
+##	else
 		# Using msys
 		export ROOTDRIVE=""
-		source $SCRIPTS_PATH/.bashrc_msys.sh
-	fi
+##		source $SCRIPTS/.bashrc_msys.sh
+##	fi
 fi
 source $SCRIPTS_PATH/.bashrc_custom.sh
 source $SCRIPTS_PATH/.bash_tools.sh
@@ -229,9 +229,6 @@ export PATH=$PATH:$HOME/bin
 echo Bash HOME in Windows folder=$HOME
 echo Windows home HOMEW=$HOMEW
 echo BASH=$BASH_STR
-
-export DISPLAY=localhost:0.0
-export LIBGL_ALWAYS_INDIRECT=1
 
 ## Eclipse Workspace
 export ECLIPSE_PATH_WS="$DEV_PATH/eclipse-workspace"
