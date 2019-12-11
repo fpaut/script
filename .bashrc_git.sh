@@ -3,7 +3,6 @@ echo In BASHRC_GIT
 ####################################################################################################################################################################
 ## "GIT 'CONFIGURATION' section (in bash command line, different from .gitconfig)
 ####################################################################################################################################################################
-alias git='LANG=en_GB git'
 GIT_DIFFTOOL="meld"
 
 git_add_alias () {
@@ -24,6 +23,20 @@ git_cmd () {
 	CMD="git diff $rev1 $rev2"
 	echo $CMD && $CMD
 }
+
+git_branch_delete()
+{
+	branch=$1
+	if [[ "$branch" == "" ]]; then
+		echo "First parameter is the branch name (origin/'branch name')"
+		return 1
+	fi
+	CMD="git branch -D $branch"
+	echo $CMD && $CMD
+	CMD="git push origin --delete $branch"
+	echo $CMD && $CMD
+}
+
 
 git_diff_show_file(){
 	branch=$1
@@ -72,7 +85,6 @@ git_dos2unix () {
 ## Restore global ~/.git config overwritten by sourcetree
 gitconfig_restore()
 {
-	echo SCRIPTS_PATH=$SCRIPTS_PATH
 	CMD="cp $SCRIPTS_PATH/.gitconfig $HOME"
 	echo $CMD
 	$CMD
@@ -84,7 +96,7 @@ git_discard () {
 	if [[ "$file_pattern" == "all" ]]; then
 		file_pattern=""
 	fi
-	git status -s | grep --color=never "$file_pattern" | grep  --color=never  -v "$WIP_PREFIX" | while read file
+	git status -s | grep --color=never "$file_pattern" | grep  --color=never  -v "?? " | while read file
 	do
 		file=${file##* }
 		file=${file#*:}
@@ -131,6 +143,33 @@ git_get_local_modif () {
 		echo "[$LOCAL]"
 	fi
 }
+
+git_patch_create()
+{
+	rev=$1
+	patchName=$2
+	if [[ "$rev" == "" ]]; then
+		echo "First parameter is the revision"
+		echo "Second parameter (optional) is the patch name (stdout otherwise)"
+		return 1
+	fi
+	if [[ "$patchName" == "" ]]; then
+		git format-patch $rev --stdout
+	else
+		git format-patch $rev --stdout > $patchName
+	fi
+}
+
+git_patch_apply()
+{
+	patchName=$1
+	if [[ "$patchName" == "" ]]; then
+		echo "First parameter is the patch name"
+		return 1
+	fi
+	git am $patchName
+}
+
 
 git_remote_count_commit () {
 	unset REMOTE AHEAD BEHIND
@@ -225,10 +264,9 @@ git_save_one_file_from_rev() {
 	if [[ "$rev" == "" || "$file" == "" ]]; then
 		return 1
 	fi
-	path=$(dirname $file)
-	filename=$(basename $file)
-	name=${filename%.*}
-	ext=${filename#*.}
+	path=$(file_get_path $file)
+	name=$(file_get_name $file)
+	ext=$(file_get_ext $file)
 	
 ## 	echo "Path="$path
 ## 	echo "Name="$name
@@ -322,14 +360,24 @@ pattern2=$2
 		path=$(file_get_path $file_p1)
 		name=$(file_get_name $file_p1)
 		ext=$(file_get_ext $file_p1)
-		echo "name=$name"
-		echo "ext=$ext"
+## 		echo "name=$name"
+##		echo "ext=$ext"
 		if [[ "$pattern2" == "" ]]; then
-			# No 2nd pattern, compare with filename.ext
-			file_p2=${file_p1%%$pattern1*}.$ext
+			if [[ "$ext" == "" ]]; then
+				# No 2nd pattern and no extension, compare with filename
+				file_p2=${file_p1%%$pattern1*}
+			else
+				# No 2nd pattern but extension, compare with filename
+				file_p2=${file_p1%%$pattern1*}.$ext
+			fi
 		else
-			# 2nd pattern exist, compare with filename'pattern2'.ext
-			file_p2=$path/$name$pattern2.$ext
+			if [[ "$ext" == "" ]]; then
+				# 2nd pattern but no extension, compare with filename
+				file_p2=$path/$name$pattern2
+			else
+				# 2nd pattern and extension exist, compare with filename'pattern2'.ext
+				file_p2=$path/$name$pattern2.$ext
+			fi
 		fi
 		if [[ ! -f "$file_p1" ]]
 		then
@@ -339,25 +387,25 @@ pattern2=$2
 		then
 			echo "$file_p2 does not exist"
 		fi
-		file_p1=$(conv_path_for_win $file_p1)
-		file_p1=$(double_backslash "$file_p1")
-		file_p2=$(conv_path_for_win $file_p2)
-		file_p2=$(double_backslash "$file_p2")
-		echo "file_p1=$file_p1"
-		echo "file_p2=$file_p2"
+##		file_p1=$(conv_path_for_win $file_p1)
+##		file_p1=$(double_backslash "$file_p1")
+##		file_p2=$(conv_path_for_win $file_p2)
+##		file_p2=$(double_backslash "$file_p2")
+##		echo "file_p1=$file_p1"
+##		echo "file_p2=$file_p2"
 		CMD="diff $file_p1 $file_p2 1>/dev/null"
 		echo $CMD; eval $CMD
 		case  "$?" in
 			"0")
-				echo -e "$GREEN $file_p1 is identical to $file_p2$ATTR_RESET"
+				echo -e "$GREEN $file_p1 IDENTICAL to $file_p2$ATTR_RESET"
 				do_cmp=false
 			;;
 			"1")
-				echo -e "$BLUE $file_p1 is different to $file_p2 $ATTR_RESET"
+				echo -e "$BLUE $file_p1 is DIFFERENT to $file_p2 $ATTR_RESET"
 				do_cmp=true
 			;;
 			"2")
-			echo -e "$RED Error on diff command ! (Files not found?) $ATTR_RESET"
+			echo -e "$RED ERROR on diff command ! (Files not found?) $ATTR_RESET"
 			echo -e "$RED $CMD $ATTR_RESET"
 			;;
 		esac
@@ -415,7 +463,7 @@ git_st_restore () {
 		file=${file##* }
 		file=${file#*:}
 		name=${file%$pattern*}
-		ext=${file#*.}
+		ext=$(file_get_ext $file)
 		CMD="copy $file -> $name.$ext"
 		echo $CMD
 	done
@@ -425,8 +473,9 @@ git_st_restore () {
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
 		git status -s | grep "$pattern" | while read file
 		do
-			file=${file#*:}
+			file=${file##* }
 			name=${file%$pattern*}
+			ext=$(file_get_ext $file)
 			CMD="cp $file $name.$ext"
 			echo $CMD
 			$CMD
@@ -438,7 +487,7 @@ git_st_restore () {
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
 		git status -s | grep "$pattern" | while read file
 		do
-			file=${file#*:}			
+			file=${file#*:}
 			CMD="rm $file"
 			echo $CMD
 			$CMD
@@ -508,11 +557,18 @@ git_st_save () {
 	do
 		file=${file##* }
 		file=${file#*:}
-		name=${file%.*}
-		ext=${file##*.}
-		CMD="cp $file $name$pattern.$ext"
-		echo $CMD; 
-		$CMD
+		path=$(file_get_path $file)
+		name=$(file_get_name $file)
+		ext=$(file_get_ext $file)
+		if [[ "$name.$ext" != "version.c"  ]]; 
+		then 	
+			[[ "$ext" == "" ]] && CMD="cp $path/$name $path/$name$pattern"
+			[[ "$ext" != "" ]] && CMD="cp $path/$name.$ext $path/$name$pattern.$ext"
+			echo $CMD; 
+			$CMD
+		else
+			echo Files version found. Ignoring...
+		fi
 	done
 	find . -iname "*"-$pattern"*"
 	echo -e $GREEN
@@ -804,5 +860,10 @@ gitps1_update_stash() {
 
 alias gitps1_restore=ps1_restore
 
+source $SCRIPTS_PATH/git-completion.bash
+GIT=$(which git)
+if [[ "$GIT" != "" ]]; then
+	$SCRIPTS_PATH/git-aliases.sh
+fi
 
 echo Out of BASHRC_GIT

@@ -198,37 +198,6 @@ cd_func ()
 
 
 alias cd=cd_func
-if [ -d /cygdrive ]; then 
-	# Using Cygwin
-	export ROOTDRIVE="/cygdrive"
-	source $SCRIPTS_PATH/.bashrc_cygwin.sh
-else
-##	if [ -d /mnt ]; then 
-		# Using Ubuntu bash for Windows
-##		export ROOTDRIVE="/mnt"
-##		source $SCRIPTS/.bashrc_winbash.sh
-##	else
-		# Using msys
-		export ROOTDRIVE=""
-##		source $SCRIPTS/.bashrc_msys.sh
-##	fi
-fi
-source $SCRIPTS_PATH/.bashrc_custom.sh
-source $SCRIPTS_PATH/.bash_tools.sh
-source $SCRIPTS_PATH/git-completion.bash
-def_font_attributes
-GIT=$(which git)
-if [[ "$GIT" != "" ]]; then
-$SCRIPTS_PATH/git-aliases.sh
-fi
-source $SCRIPTS_PATH/.bashrc_git.sh
-
-export PATH=$PATH:$SCRIPTS_PATH
-export PATH=$PATH:$ROOTDRIVE/c/Users/fpaut/bin/Debug
-export PATH=$PATH:$HOME/bin
-echo Bash HOME in Windows folder=$HOME
-echo Windows home HOMEW=$HOMEW
-echo BASH=$BASH_STR
 
 ## Eclipse Workspace
 export ECLIPSE_PATH_WS="$DEV_PATH/eclipse-workspace"

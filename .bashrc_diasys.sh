@@ -1,8 +1,8 @@
 echo
 echo In BASHRC_DIASYS
 
-DEV_PATH="$ROOTDRIVE/e/fpaut/dev"
-SCRIPTS_PATH="$ROOTDRIVE/t/bin/scripts"
+DEV_PATH="$HOME/dev"
+SCRIPTS_PATH="$HOME/bin/scripts"
 FIRMWARE_PATH="$DEV_PATH/STM32_Toolchain/dt-arm-firmware"
 TOOLS_PATH="$DEV_PATH/STM32_Toolchain/dt-fwtools"
 

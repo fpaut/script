@@ -27,7 +27,6 @@ echo In BASHRC
 # If not running interactively, don't do anything
 [[ "$-" != *i* ]] && return
 
-
 ## Attempt to determine in which subsystem this terminal rub
 ## (Cygwin, WSL, MSYS, or real linux)
 get_term_env()
@@ -39,7 +38,6 @@ get_term_env()
 	echo linuxBash && return 0
 	return 1
 }
-
 
 unset ROOTDRIVE
 	case $(get_term_env) in
@@ -63,13 +61,11 @@ unset ROOTDRIVE
 		;;
 		
 	esac
-		
 	
 case $(hostname) in
 	WSTMONDT019)
 		echo DIASYS machine
-		source $ROOTDRIVE/t/bin/scripts/.bashrc_diasys.sh
-		gitconfig_restore
+		source ~/bin/scripts/.bashrc_diasys.sh
 	;;
 	user-HP-ENVY-TS-15-Notebook-PC)
 		echo Personal machine
@@ -79,12 +75,32 @@ case $(hostname) in
 		echo "Unknown machine, or no bash specificities"
 	;;
 esac
-# [ "$ROOTDRIVE" ] && source $BASHRC_STD
+
 source $SCRIPTS_PATH/.bashrc_standard.sh
+
+GIT=$(which git)
+if [[ "$GIT" != "" ]]; then
+$SCRIPTS_PATH/git-aliases.sh
+fi
+source $SCRIPTS_PATH/.bashrc_git.sh
+source $SCRIPTS_PATH/.bashrc_custom.sh
+source $SCRIPTS_PATH/.bash_tools.sh
+source $SCRIPTS_PATH/git-completion.bash
+def_font_attributes
+
+export PATH=$PATH:$SCRIPTS_PATH
+export PATH=$PATH:$ROOTDRIVE/c/Users/fpaut/bin/Debug
+export PATH=$PATH:$HOME/bin
+
 echo ROOTDRIVE=$ROOTDRIVE
 echo HOME=$HOME
-echo SCRIPTS=$SCRIPTS
+echo Bash HOME in Windows folder=$HOME
+echo Windows home HOMEW=$HOMEW
+echo BASH=$BASH_STR
+echo SCRIPTS_PATH=$SCRIPTS_PATH
 
+
+gitconfig_restore
 
 echo Out of BASHRC
 export LESSCHARSET=utf-8
