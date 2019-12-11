@@ -55,49 +55,49 @@ copy_bin_to_medios_hp()
 	fi
 		
 	
-	cd $ROOTDRIVE/d/Users/fpaut/dev/STM32_Toolchain/dt-arm-firmware
+	cd $DEV_PATH/STM32_Toolchain/dt-arm-firmware
 	
 	if [[ "$(contains ledappli "$p1")" == "1" ]]; then
-		CMD="cp ODS/LEDappli/bin/LEDappli.bin /cygdrive/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
-		CMD="cp ODS/LEDappli/bin/LEDappli.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/IA.bin"; echo $CMD; $CMD
+		CMD="cp ODS/LEDappli/bin/LEDappli.bin $ROOTDRIVE/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
+		CMD="cp ODS/LEDappli/bin/LEDappli.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/IA.bin"; echo $CMD; $CMD
 	fi
 	
 	if [[ "$(contains vcp "$p1")" == "1" ]]; then
-		CMD="cp ODS/vcp/bin405/vcp.bin /cygdrive/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
+		CMD="cp ODS/vcp/bin405/vcp.bin $ROOTDRIVE/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
 	fi
 	
 	if [[ "$(contains incubator "$p1")" == "1" ]]; then
-		CMD="cp  ODS/StepMotor/bin/INCUBATOR.bin /cygdrive/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  ODS/StepMotor/bin/INCUBATOR.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/INCUB.bin"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/INCUBATOR.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/INCUBATOR.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/INCUB.bin"; echo $CMD; $CMD
 		
 	fi
 	if [[ "$(contains separator "$p1")" == "1" ]]; then
-		CMD="cp  ODS/StepMotor/bin/SEPARATOR.bin /cygdrive/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  ODS/StepMotor/bin/SEPARATOR.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/SEPAR.bin"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/SEPARATOR.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/SEPARATOR.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/SEPAR.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains measmeca "$p1")" == "1" ]]; then
-		CMD="cp  ODS/StepMotor/bin/MEASMECA.bin /cygdrive/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  ODS/StepMotor/bin/MEASMECA.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/MEASM.bin"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/MEASMECA.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/MEASMECA.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/MEASM.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains hydro1 "$p1")" == "1" ]]; then
-		CMD="cp  ODS/StepMotor/bin/HYDRO1.bin /cygdrive/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  ODS/StepMotor/bin/HYDRO1.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/HYDRO1.bin"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/HYDRO1.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/HYDRO1.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/HYDRO1.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains hydro2 "$p1")" == "1" ]]; then
-		CMD="cp  ODS/StepMotor/bin/HYDRO2.bin /cygdrive/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  ODS/StepMotor/bin/HYDRO2.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/HYDRO2.bin"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/HYDRO2.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  ODS/StepMotor/bin/HYDRO2.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/HYDRO2.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains pmt "$p1")" == "1" ]]; then
-		CMD="cp  ODS/PMTboardAppli/bin/PMTboardAppli.bin /cygdrive/m/dev/binFirmware/binGB/PMT.bin"; echo $CMD; $CMD
-		CMD="cp  ODS/PMTboardAppli/bin/PMTboardAppli.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/PMT.bin"; echo $CMD; $CMD
+		CMD="cp  ODS/PMTboardAppli/bin/PMTboardAppli.bin $ROOTDRIVE/m/dev/binFirmware/binGB/PMT.bin"; echo $CMD; $CMD
+		CMD="cp  ODS/PMTboardAppli/bin/PMTboardAppli.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/PMT.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains vcpGB "$p1")" == "1" ]]; then
-		CMD="cp ODS/vcp/bin405/vcp.bin /cygdrive/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-##		CMD="cp ODS/vcp/bin405/vcp.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/"; echo $CMD; $CMD
+		CMD="cp ODS/vcp/bin405/vcp.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+##		CMD="cp ODS/vcp/bin405/vcp.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains vcppmt "$p1")" == "1" ]]; then
-		CMD="cp ODS/vcp/binpmt/vcp.bin /cygdrive/m/dev/binFirmware/binGB/vcppmt.bin"; echo $CMD; $CMD
-##		CMD="cp ODS/vcp/binpmt/vcp.bin /cygdrive/m/ComboMaster/emulated-disk/Files/0/firmware/"; echo $CMD; $CMD
+		CMD="cp ODS/vcp/binpmt/vcp.bin $ROOTDRIVE/m/dev/binFirmware/binGB/vcppmt.bin"; echo $CMD; $CMD
+##		CMD="cp ODS/vcp/binpmt/vcp.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/"; echo $CMD; $CMD
 	fi
 	
 	cd -
@@ -106,23 +106,23 @@ copy_bin_to_medios_hp()
 copy_rawIpClient_to_medios_hp()
 {
 	cd $DEV_PATH/STM32_Toolchain/
-	CMD="cp -f dt-fwtools/RuntimeFolderRelease/RawIpClient.exe /cygdrive/m/dev/rawIpClientScripts/"; echo $CMD; $CMD
+	CMD="cp -f dt-fwtools/RuntimeFolderRelease/RawIpClient.exe $ROOTDRIVE/m/dev/rawIpClientScripts/"; echo $CMD; $CMD
 	cd - 1>/dev/null
 }
 
 copy_rawIpClientScript_to_medios_hp()
 {
 	cd $DEV_PATH/STM32_Toolchain/
-	CMD="rm -rf /cygdrive/m/dev/rawIpClientScripts/*"; echo $CMD; $CMD
-	CMD="cp -rf ./rawIpClientScripts/* /cygdrive/m/dev/rawIpClientScripts"; echo $CMD; $CMD
-	CMD="cp -f dt-fwtools/RuntimeFolderRelease/RawIpClient.exe /cygdrive/m/dev/rawIpClientScripts/"; echo $CMD; $CMD
-	CMD="rm -f /cygdrive/m/dev/rawIpClientScripts/Update_RawIpClient.ps1"; echo $CMD; $CMD
+	CMD="rm -rf $ROOTDRIVE/m/dev/rawIpClientScripts/*"; echo $CMD; $CMD
+	CMD="cp -rf ./rawIpClientScripts/* $ROOTDRIVE/m/dev/rawIpClientScripts"; echo $CMD; $CMD
+	CMD="cp -f dt-fwtools/RuntimeFolderRelease/RawIpClient.exe $ROOTDRIVE/m/dev/rawIpClientScripts/"; echo $CMD; $CMD
+	CMD="rm -f $ROOTDRIVE/m/dev/rawIpClientScripts/Update_RawIpClient.ps1"; echo $CMD; $CMD
 	cd - 1>/dev/null
 }
 
 copy_web_pages_to_medios_hp()
 {
-	CMD="cp -vr $DEV_PATH/STM32_Toolchain/dt-arm-firmware/Combo/Simul/Files/1/www/* /cygdrive/m/ComboMaster/emulated-disk/Files/1/www/"
+	CMD="cp -vr $DEV_PATH/STM32_Toolchain/dt-arm-firmware/Combo/Simul/Files/1/www/* $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/1/www/"
 	echo $CMD; $CMD
 }
 
