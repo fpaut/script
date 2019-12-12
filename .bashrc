@@ -70,6 +70,7 @@ case $(hostname) in
 	user-HP-ENVY-TS-15-Notebook-PC)
 		echo Personal machine
 		SCRIPTS_PATH="/home/user/bin/scripts"
+		source $HOME/bin/scripts/.bashrc_perso.sh
 	;;
 	*)
 		echo "Unknown machine, or no bash specificities"
