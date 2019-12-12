@@ -146,6 +146,16 @@ step_to_deg()
 	echo $(($(($step * 360)) / $((600 * 4)) ))° if steps is 1/4 steps
 }
 
+wedit() {
+	local path=$(which $1 2>/dev/null)
+	if [ "$?" -eq "0" ]; then
+		local path=$(conv_path_for_win $(which $1))
+	else
+		path=$1
+	fi
+	CMD="npp $path"; echo $CMD; $CMD
+}
+
 
 cd $SCRIPTS_PATH
 git config core.fileMode false

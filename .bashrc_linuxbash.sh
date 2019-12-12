@@ -24,4 +24,15 @@ function ctrl_c() {
     echo
 }
 
+wedit() {
+	local path=$1
+	if [ "$?" -eq "0" ]; then
+		local path=$(conv_path_for_win $path)
+	else
+		path=$1
+	fi
+	CMD="kate $path"; echo $CMD; $CMD
+}
+
+
 echo Out of BASHRC_LINUXBASH

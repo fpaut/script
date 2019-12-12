@@ -433,16 +433,6 @@ wll() {
 	echo
 }
 
-wedit() {
-	local path=$(which $1 2>/dev/null)
-	if [ "$?" -eq "0" ]; then
-		local path=$(conv_path_for_win $(which $1))
-	else
-		path=$1
-	fi
-	CMD="npp $path"; echo $CMD; $CMD
-}
-
 export PATH=$HOME/bin/scripts:$PATH
 export PATH=/usr/local/bin:$PATH
 HOSTNAME=$(hostname)
