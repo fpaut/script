@@ -83,6 +83,7 @@ GIT=$(which git)
 if [[ "$GIT" != "" ]]; then
 $SCRIPTS_PATH/git-aliases.sh
 fi
+source $SCRIPTS_PATH/.bashrc_aliases.sh
 source $SCRIPTS_PATH/.bashrc_git.sh
 source $SCRIPTS_PATH/.bashrc_custom.sh
 source $SCRIPTS_PATH/.bash_tools.sh

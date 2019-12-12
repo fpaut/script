@@ -1,0 +1,43 @@
+[user]
+	name = Frederic Paut
+	email = frederic.paut@diasys-technologies.com
+
+[difftool "sourcetree"]
+	cmd = 'C:/Program Files (x86)/Meld/Meld.exe' \"$LOCAL\" \"$REMOTE\"
+[mergetool "sourcetree"]
+	cmd = 'C:/Program Files (x86)/Meld/Meld.exe' \"$LOCAL\" \"$REMOTE\"\"$MERGED\"
+	trustExitCode = true
+[cola]
+	spellcheck = false
+	blameviewer = git gui blame
+[diff]
+	tool = meld
+[merge]
+	tool =  meld
+##	tool =  '/mnt/c/Program Files (x86)/Meld/Meld.exe' \"$LOCAL\" \"$REMOTE\"\"$MERGED\"
+[credential]
+	helper = wincred
+[alias]
+	co = checkout
+	unstage = reset HEAD --
+	last = log -1 HEAD
+	br = branch
+	ci = commit
+	dt = difftool -y
+	lg = log -30 --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	mg = merge --strategy-option theirs
+	mt = mergetool -y
+	sd = "!bash -c 'repoGit=$(git rev-parse --git-dir 2>/dev/null); BRANCH=$(cat $repoGit/HEAD); BRANCH=${BRANCH##*/}; BSTASH=$(git stash list | grep $BRANCH); BSTASH=${BSTASH%%:*}; if [[ \"$BSTASH\" != \"\" ]]; then git stash drop $BSTASH; else echo No Stash for branch \\\"$BRANCH\\\"; fi'"
+	sl = stash list
+	sp = "!bash -c 'repoGit=$(git rev-parse --git-dir 2>/dev/null); BRANCH=$(cat $repoGit/HEAD); BRANCH=${BRANCH##*/}; BSTASH=$(git stash list | grep $BRANCH); BSTASH=${BSTASH%%:*}; if [[ \"$BSTASH\" != \"\" ]]; then git stash pop $BSTASH; else echo No Stash for branch \\\"$BRANCH\\\"; fi'"
+	ss = "!bash -c 'STASH_NAME=\"$0 on $(date)\"; vers=$(git status | grep version.c); if [[ \"$vers\" != \"\"  ]]; then echo Files version found. Discarding...; git checkout -- *version.c; git stash save $STASH_NAME; else echo No Files version version; git stash save $STASH_NAME; fi'"
+	st = status
+	sta = "!bash -c 'echo -e \"\\033[0;44mNormal git status\\033[0;0m\"' && git status"
+##	std = "!bash -c 'repoGit=$(git rev-parse --git-dir 2>/dev/null); BRANCH=$(cat $repoGit/HEAD); BRANCH=${BRANCH##*/}; BSTASH=$(git stash list | grep $BRANCH); BSTASH=${BSTASH%%:*}; if [[ \"$BSTASH\" != \"\" ]]; then echo $BSTASH; else echo No Stash for branch \\\"$BRANCH\\\"; fi'"
+	stu = "!bash -c 'echo -e \"\\033[0;44mOnly untracked files! (st for tracked files, sta for all)\\033[0;0m\"' && git status -s | grep "??""
+	sw = stash show
+[core]
+	autocrlf = true
+	filemode = false
+[push]
+	default = matching
