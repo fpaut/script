@@ -43,5 +43,5 @@ alias su='su --preserve-environment'
 alias tailf="tail --retry --follow=name"
 alias trash-restore='restore-trash'
 alias xopen="xdg-open"
-alias sudo="sudo -E "
+alias sudo="sudo env PATH=$PATH "
 echo Out of BASHRC_ALIASES

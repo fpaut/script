@@ -25,7 +25,10 @@ function ctrl_c() {
 }
 
 wedit() {
-	local path=$1
+	local path=$(which $1)
+	if [[ "$path" == "" ]]; then
+            path="$1"
+        fi
 	if [ "$?" -eq "0" ]; then
 		local path=$(conv_path_for_win $path)
 	else
