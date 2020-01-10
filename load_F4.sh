@@ -9,13 +9,13 @@ if [[ "$1" == "" ]]; then
 fi
 
 
-OPENOCD="$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728/bin/openocd.exe"
-CFG_LINK=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728/share/openocd/scripts/interface/stlink.cfg"))
-CFG_BOARD=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728/share/openocd/scripts/target/stm32f4x.cfg"))
-VCP_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$ROOTDRIVE/e/fpaut/dev/STM32_Toolchain/dt-arm-firmware/ODS/vcp/bin405/vcp.bin")))
-APPLI_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$ROOTDRIVE/e/fpaut/dev/STM32_Toolchain/dt-arm-firmware/ODS/LEDappli/bin/LEDappli.bin")))
-RNDIS_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$ROOTDRIVE/e/fpaut/dev/STM32_Toolchain/dt-arm-firmware/ODS/RNDIS/bin/rndis.bin")))
-RNDIS_APPLI=$(double_backslash $(double_backslash $(conv_path_for_win "$ROOTDRIVE/e/fpaut/dev/STM32_Toolchain/dt-arm-firmware/ODS/RNDIS/bin/rndis_appli.bin")))
+OPENOCD="$ROOTDRIVE/e/Tools/Openocd/OpenOCD-20180728/bin/openocd.exe"
+CFG_LINK=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/e/Tools/Openocd/OpenOCD-20180728/share/openocd/scripts/interface/stlink.cfg"))
+CFG_BOARD=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/e/Tools/Openocd/OpenOCD-20180728/share/openocd/scripts/target/stm32f4x.cfg"))
+VCP_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$ROOTDRIVE/e/dev/STM32_Toolchain/dt-arm-firmware/ODS/vcp/bin405/vcp.bin")))
+APPLI_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$ROOTDRIVE/e/dev/STM32_Toolchain/dt-arm-firmware/ODS/LEDappli/bin/LEDappli.bin")))
+RNDIS_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$ROOTDRIVE/e/dev/STM32_Toolchain/dt-arm-firmware/ODS/RNDIS/bin/rndis.bin")))
+RNDIS_APPLI=$(double_backslash $(double_backslash $(conv_path_for_win "$ROOTDRIVE/e/dev/STM32_Toolchain/dt-arm-firmware/ODS/RNDIS/bin/rndis_appli.bin")))
 
 echo CFG_LINK	= $CFG_LINK
 echo CFG_BOARD	= $CFG_BOARD

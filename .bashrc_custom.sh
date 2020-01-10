@@ -37,6 +37,42 @@ if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
+# If not running interactively, don't do anything
+[[ "$-" != *i* ]] && return
+
+# Shell Options
+#
+# See man bash for more options...
+#
+# Don't wait for job termination notification
+# set -o notify
+#
+# Don't use ^D to exit
+# set -o ignoreeof
+#
+# Use case-insensitive filename globbing
+# shopt -s nocaseglob
+#
+# Make bash append rather than overwrite the history on disk
+shopt -s histappend
+#
+# When changing directory small typos can be ignored by bash
+# for example, cd /vr/lgo/apaache would find /var/log/apache
+# shopt -s cdspell
+
+# History Options
+#
+# Don't put duplicate lines in the history.
+# export HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
+#
+# Ignore some controlling instructions
+# HISTIGNORE is a colon-delimited list of patterns which should be excluded.
+# The '&' is a special pattern which suppresses duplicate entries.
+export HISTIGNORE=$'[ \t]*:&:[fb]g:exit'
+export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls' # Ignore the ls command as well
+#
+# Whenever displaying the prompt, write the previous line to disk
+export PROMPT_COMMAND="history -a"s
 # Aliases
 #
 # Some people use a different file for aliases
@@ -54,7 +90,7 @@ fi
 # alias cp='cp -i'
 alias mv='mv -i'
 #
-# Default to human readable figure
+# Default to human readable figures
 alias df='df -h'
 alias du='du -h'
 #
@@ -86,7 +122,6 @@ alias l='ls -CF'
 alias la='ls -A'
 alias ll='ls -halF'
 alias su='su --preserve-environment'
-## alias sudo='cygstart --action=runas'
 alias tailf="tail --retry --follow=name"
 alias xopen="xdg-open"
 # History control
@@ -134,8 +169,8 @@ cd_func ()
   fi
 
   #
-  # '$HOME/' has to be substituted by ${HOME}
-  [[ ${the_new_dir:0:1} == '$HOME/' ]] && the_new_dir="${HOME}${the_new_dir:1}"
+  # '~' has to be substituted by ${HOME}
+  [[ ${the_new_dir:0:1} == '~' ]] && the_new_dir="${HOME}${the_new_dir:1}"
 
   #
   # Now change to the new dir and add to the top of the stack
@@ -152,7 +187,7 @@ cd_func ()
   for ((cnt=1; cnt <= 10; cnt++)); do
     x2=$(dirs +${cnt} 2>/dev/null)
     [[ $? -ne 0 ]] && return 0
-    [[ ${x2:0:1} == '$HOME/' ]] && x2="${HOME}${x2:1}"
+    [[ ${x2:0:1} == '~' ]] && x2="${HOME}${x2:1}"
     if [[ "${x2}" == "${the_new_dir}" ]]; then
       popd -n +$cnt 2>/dev/null 1>/dev/null
       cnt=cnt-1
@@ -338,12 +373,6 @@ notify() {
     CMD="notify-send $msg"
     echo $CMD
 	$CMD
-}
-
-npp() {
-    CMD="$(which notepadpp) $(conv_path_for_win $@)"
-    echo $CMD
-	$CMD 2>/dev/null&
 }
 
 ############################################################

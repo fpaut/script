@@ -3,8 +3,8 @@ echo In BASHRC_CYGWIN
 export BASH_STR="CYGWIN bash on Windows"
 export HOME_IN_WINDOWS="C:\\cygwin64\\home\\fpaut"
 export ROOTDRIVE="/cygdrive"
-export HOMEW="$ROOTDRIVE/c/Users/fpaut"
-export HOME=$HOMEW
+export HOMEW="$(cygpath.exe -w $HOME)"
+
 
 alias sudo="cygstart --action=runas "
 alias wps="ps -W"

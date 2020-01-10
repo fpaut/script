@@ -1,8 +1,9 @@
 echo
 echo In BASHRC_DIASYS
 
-DEV_PATH="$HOME/dev"
-SCRIPTS_PATH="$HOME/bin/scripts"
+DEV_PATH="$ROOTDRIVE/e/dev/"
+BIN_PATH="$ROOTDRIVE/e/Tools/bin"
+SCRIPTS_PATH="$BIN_PATH/scripts"
 FIRMWARE_PATH="$DEV_PATH/STM32_Toolchain/dt-arm-firmware"
 TOOLS_PATH="$DEV_PATH/STM32_Toolchain/dt-fwtools"
 
@@ -11,28 +12,43 @@ export LIBGL_ALWAYS_INDIRECT=1
 
 
 
-alias cdl="cd $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/logs/$(date +%Y%m%d)"
 alias cdd="cd $DEV_PATH"
 alias cdf="cd $FIRMWARE_PATH"
 alias cdfsm="cdf && cd ODS/FSM/Cycles"
-##alias cmlog='set -- $(ls -t $(date +%H)*) && file=$1 && file=${file%.*} && rm -f *_filtered.LOG &&  ecat $file.LOG "MEAS_CYCLE|\<MISC\>" "Incubator|Magnet|Separator|Probe|Diluter| ms " > "$file"_filtered.LOG && npp "$file"_filtered.LOG'
+alias cdlog="cd /mnt/m/ComboMaster/emulated-disk/Files/0/logs/$(eval echo $(date +%Y)$(date +%m)$(date +%d))"
 alias cds="cd $SCRIPTS_PATH"
 alias cdt="cd $TOOLS_PATH"
+
 alias jenkins_CLI="java -jar jenkins-cli.jar -auth pautf:QtxS1204+ -s http://FRSOFTWARE02:8080/"
+
 
 cmlog()
 {
+	cdlog 
 	file=$1
-	file=${file%.*}
-	if [[ "$file" == "" ]]; then
-		set -- $(ls -t $(date +%H)*)
-		file=$1
-		file=${file%.*}
+	if [[ "$PATTERN" == "" ]]; 
+	then 
+		echo "Please, define PATTERN like PATTERN=\"MEAS_CYCLE|PROBE\""
+		echo "You can define EXPATTERN to exlude some traces like EXPATTERN=\"\<MISC\>\""
+		echo "A filename can be provided as first parameter"
+		return
+	else 
+		# Get last file created in current folder
+		set -- $(ls -t *) 
+		# Update filename if not provided
+		[[ "$file" == "" ]] &&  file=$1
+##		rm ./filtered_$file
+		if [[ "$EXPATTERN" == "" ]]; 
+		then
+			CMD="cat $file | egrep \"$PATTERN\" > ./filtered_$file"
+		else
+			CMD="cat $file | egrep \"$PATTERN\" | egrep -v \"$EXPATTERN\" > ./filtered_$file"
+		fi
+		echo $CMD && eval $CMD
+		CMD="npp ./filtered_$file; "
+		echo $CMD && eval $CMD
 	fi
-	echo FILE=$file
-	rm -f *_filtered.LOG
-	ecat $file.LOG "MEAS_CYCLE|\<MISC\>" "Incubator|Magnet|Separator|Probe|Diluter| ms " > "$file"_filtered.LOG
-	npp "$file"_filtered.LOG
+	cd -
 }
 
 deg_to_step()
@@ -130,6 +146,12 @@ get_company()
 {
 	echo diasys
 }
+npp() {
+## exec /mnt/e/Tools/Notepad++/notepad++.exe "$@"
+    CMD="/mnt/e/Tools/Notepad++/notepad++.exe $(double_backslash $(conv_path_for_win $@))"
+    echo $CMD
+	eval "$CMD" 2>/dev/null&
+}
 
 get_version()
 {
@@ -148,11 +170,6 @@ step_to_deg()
 
 wedit() {
 	local path=$(which $1 2>/dev/null)
-	if [ "$?" -eq "0" ]; then
-		local path=$(conv_path_for_win $(which $1))
-	else
-		path=$1
-	fi
 	CMD="npp $path"; echo $CMD; $CMD
 }
 
@@ -173,5 +190,16 @@ FILEMODE=$(cat .git/config | grep -i filemode)
 echo -e "dt-fwtools\t: $FILEMODE"
 cd - 1>/dev/null
 
+MOUNTED=$(wslpath M:\\ 2>&1 | grep mnt)
+mustBeMount=1
+if [[ "$?" != "0" ]]; then
+	echo -e "MEDIOS-HP shared folder doesn't exists in Windows"
+fi
+	
+if [[ "$mustBeMount" == "1" ]]; then
+	echo -e "Mounting MEDIOS-HP in /mnt/m"
+	CMD="sudo mount -t drvfs M: /mnt/m"
+	$CMD
+fi
 
 echo Out of BASHRC_DIASYS

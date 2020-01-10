@@ -553,7 +553,7 @@ git_st_rm_check () {
 git_st_save () {
 	pattern="$1"
 	pattern=$(echo $pattern |  sed 's, ,_,g')
-	git status -s | grep "M " | while read file
+	git status -s | egrep "A |M " | while read file
 	do
 		file=${file##* }
 		file=${file#*:}

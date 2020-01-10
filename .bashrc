@@ -39,22 +39,44 @@ get_term_env()
 	return 1
 }
 
+check_var()
+{
+	var="$1"
+	content=$(eval echo "$""$var")
+	
+	if [[ "$content" == "" ]];then
+		echo -e $RED"$var not defined"$ATTR_RESET
+	else
+		echo -e $var"=$GREEN"$content$ATTR_RESET
+	fi
+}
+
+
+check_var_V1()
+{
+	echo 0 - 
+	echo 1 - "$1"
+	echo 2 - $(eval echo "$""$1")
+##	echo 3 - $(eval "$""$1")
+}
+
+
 unset ROOTDRIVE
 	case $(get_term_env) in
 		cygwin)
 			echo CYGWIN!!!
 			ROOTDRIVE="/cygdrive"
-			source ~/bin/scripts/.bashrc_cygwin.sh
+			source $HOME/bin/scripts/.bashrc_cygwin.sh
 		;;
 		wsl)
 			echo WSL!!!
 			ROOTDRIVE="/mnt"
-			source ~/bin/scripts/.bashrc_winbash.sh
+			source $HOME/bin/scripts/.bashrc_winbash.sh
 		;;
 		linuxBash)
 			echo Linux Bash!!!
 			ROOTDRIVE="/"
-			source ~/bin/scripts/.bashrc_linuxbash.sh
+			source $HOME/bin/scripts/.bashrc_linuxbash.sh
 		;;
 		*)
 			echo "ENV is $(get_term_env)"
@@ -92,15 +114,14 @@ def_font_attributes
 
 export PATH=$PATH:$SCRIPTS_PATH
 export PATH=$PATH:$ROOTDRIVE/c/Users/fpaut/bin/Debug
-export PATH=$PATH:$HOME/bin
+export PATH=$PATH:$BIN_PATH
 
-echo ROOTDRIVE=$ROOTDRIVE
-echo HOME=$HOME
-echo Bash HOME in Windows folder=$HOME
-echo Windows home HOMEW=$HOMEW
-echo BASH=$BASH_STR
-echo SCRIPTS_PATH=$SCRIPTS_PATH
-
+check_var ROOTDRIVE
+check_var HOME
+check_var HOMEW
+check_var BASH
+check_var SCRIPTS_PATH
+echo Windows home =$HOMEW
 
 gitconfig_restore
 
