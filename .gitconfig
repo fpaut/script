@@ -41,3 +41,9 @@
 	filemode = false
 [push]
 	default = matching
+[color]
+  ui = auto
+ [color "status"]
+  added = blue
+  changed = green
+  untracked = cyan
