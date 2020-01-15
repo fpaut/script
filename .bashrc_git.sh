@@ -360,15 +360,16 @@ pattern2=$2
 		path=$(file_get_path $file_p1)
 		name=$(file_get_name $file_p1)
 		ext=$(file_get_ext $file_p1)
+		name=${name%%$pattern1*}
 ## 		echo "name=$name"
 ##		echo "ext=$ext"
 		if [[ "$pattern2" == "" ]]; then
 			if [[ "$ext" == "" ]]; then
 				# No 2nd pattern and no extension, compare with filename
-				file_p2=${file_p1%%$pattern1*}
+				file_p2=$path/$name
 			else
 				# No 2nd pattern but extension, compare with filename
-				file_p2=${file_p1%%$pattern1*}.$ext
+				file_p2=$path/$name.$ext
 			fi
 		else
 			if [[ "$ext" == "" ]]; then
@@ -379,6 +380,7 @@ pattern2=$2
 				file_p2=$path/$name$pattern2.$ext
 			fi
 		fi
+##		echo "file_p2=$file_p2"
 		if [[ ! -f "$file_p1" ]]
 		then
 			echo "$file_p1 does not exist"
