@@ -211,14 +211,23 @@ _x()
 	printf "%x\n" $val
 }
 
-## Simple bash calculator (need bash calculator 'bc' tool)
-c()
+## Simple bash calculator, float version (need bash calculator 'bc' tool)
+cf()
 {
 	decimal_digit=4
-	formula=${@}
+	formula="${@}"
 	formula_str="scale=$decimal_digit; $formula"
 	echo "$formula_str" | bc -l
 }
+
+## Simple bash calculator, integer version (need bash calculator 'bc' tool)
+ci()
+{
+	formula="${@}"
+	formula_str="$formula"
+	echo "$formula_str" | bc
+}
+alias c=ci
 
 cd () {
 	local path="$@"
@@ -233,26 +242,11 @@ cd () {
 	builtin cd "$path"
 }
 
-backslash_to_slash()
-{
-	str="$1"
-	echo $(echo $str |  sed 's,\\,/,g')
-}
-export -f backslash_to_slash
-
 beep()
 {
 	CMD="play -q -n synth 0.1 sin 880 || echo -e "\a""
 	echo $CMD; eval "$CMD"
 }
-
-
-double_backslash()
-{
-	str="$1"
-	echo $(echo $str |  sed 's,\\,\\\\,g')
-}
-export -f double_backslash
 
 ###################################################
 ## filtered cat using pattern and excluded pattern
@@ -401,31 +395,31 @@ ps1_prefix()
 {
 	IAM=$(whoami)
 
-	PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w\n"
 	if [[ "$IAM" != "root" ]]; then
-		PREF_COLOR=$GREEN
+		PREF_COLOR=$PS1_GREEN
 	else
-		PREF_COLOR=$RED
+		PREF_COLOR=$PS1_RED
 	fi
+	PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w"
 	if [[ "$BRANCH" != "" ]]; then
-		PS1_PREFIX=$PS1_PREFIX"$CYAN[$BRANCH]$ATTR_RESET"
+		PS1_PREFIX=$PS1_PREFIX"$PS1_CYAN\n[$BRANCH]$PS1_ATTR_RESET"
 	fi
 	if [[ "$GIT_AHEAD" != "" &&  "$GIT_AHEAD" != "0" ]]; then
-		PS1_PREFIX=$PS1_PREFIX"$BLUE[L:$GIT_AHEAD]$ATTR_RESET"
+		PS1_PREFIX=$PS1_PREFIX"$PS1_BLUE[L:$GIT_AHEAD]$PS1_ATTR_RESET"
 	fi
 	if [[ "$GIT_BEHIND" != "" &&  "$GIT_BEHIND" != "0" ]]; then
-		PS1_PREFIX=$PS1_PREFIX"$BLUE[R:$GIT_BEHIND]$ATTR_RESET"
+		PS1_PREFIX=$PS1_PREFIX"$PS1_BLUE[R:$GIT_BEHIND]$PS1_ATTR_RESET"
 	fi
 	## Stash specific to a branch (GIT_STASH_BRANCH)
 	if [[ "$GIT_STASH" != "" ]]; then
 		## 'Global' Stash (wathever the branch)
 		if [[ "$GIT_STASH_BRANCH" != "" ]]; then
-			PS1_PREFIX=$PS1_PREFIX"$RED[stash x $GIT_STASH_BRANCH]$ATTR_RESET"
+			PS1_PREFIX=$PS1_PREFIX"$PS1_RED[stash x $GIT_STASH_BRANCH]$PS1_ATTR_RESET"
 		else
-			PS1_PREFIX=$PS1_PREFIX"$BLINK[stash]$ATTR_RESET"
+			PS1_PREFIX=$PS1_PREFIX"$PS1_BLINK[stash]$PS1_ATTR_RESET"
 		fi
 	fi
-	PS1_PREFIX=$PS1_PREFIX"$ATTR_RESET> "
+	PS1_PREFIX=$PS1_PREFIX"$PS1_ATTR_RESET> "
 }
 
 ps1_unset() {
@@ -453,6 +447,17 @@ wbdb() {
 wcat() {
 	local path=$(which $1)
 	CMD="cat $path"; echo $CMD; $CMD
+}
+
+# Which avoiding link
+which()
+{
+	who="$@"
+	count=$(echo -e "$(/bin/which -a "$who")" | wc -l)
+	result=($(/bin/which -a $who))
+	count=$(($count - 1))
+	result=${result[$count]}
+	echo $result
 }
 
 wll() {

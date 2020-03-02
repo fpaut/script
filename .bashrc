@@ -32,6 +32,7 @@ echo In BASHRC
 get_term_env()
 {
 	# Is it Cygwin
+	[[ $(echo $EXEPATH) ]] && echo msys && return 0
 	[[ $(which cygpath.exe) ]] && echo cygwin && return 0
 	[[ $(which wslpath) ]] && echo wsl && return 0
 	
@@ -75,6 +76,11 @@ unset ROOTDRIVE
 		;;
 		linuxBash)
 			echo Linux Bash!!!
+			ROOTDRIVE="/"
+			source $HOME/bin/scripts/.bashrc_linuxbash.sh
+		;;
+		msys)
+			echo Msys Bash!!!
 			ROOTDRIVE="/"
 			source $HOME/bin/scripts/.bashrc_linuxbash.sh
 		;;

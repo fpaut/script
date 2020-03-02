@@ -28,6 +28,7 @@ alias ll='ls -l'                              # long list
 ########### Personnal Aliases ###########
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 alias bdb="bashdb -x $HOME/.bashdbinit"
+alias fsize='du -s'
 alias ghistory='history | grep -i'
 alias git='LANG=en_GB git'
 alias glunch='lunch | grep -ni'

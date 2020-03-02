@@ -4,7 +4,7 @@ export BASH_STR="Ubuntu bash on Windows"
 export HOME_IN_WINDOWS="C:\Users\fpaut\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs\home\fpaut"
 export ROOTDRIVE="/mnt"
 
-/* Force home to be in a windows accessible folder */
+# Force home to be in a windows accessible folder
 export HOMEW="$ROOTDRIVE/c/Users/fpaut"
 export HOME=$HOMEW
 

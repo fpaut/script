@@ -805,6 +805,7 @@ is_git_folder() {
 	repoGit=$(git rev-parse --git-dir 2>/dev/null)
 	[ -d .git ] || [[ "$repoGit" != "" ]] && echo "$repoGit"
 }
+export -f is_git_folder
 
 
 ############################################################
