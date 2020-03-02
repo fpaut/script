@@ -46,8 +46,17 @@ return
 ;## Left Mouse Button + 'A' : Show ASCII table
 ~LButton & A::run D:\Users\fpaut\Documents\Ascii-codes-table.png
 
+;## Left Mouse Button + 'D' : Show ASCII table
+~LButton & D::run E:\dev\STM32_Toolchain\doc\DeviceID.PNG
+
 ;## Left Mouse Button + 'K' : Show Virtual Keyboard
 ~LButton & K::run D:\Windows\System32\osk.exe
+
+;## Left Mouse Button + 'M' : Active magnify
+~LButton & M::run %windir%\system32\magnify.exe
+
+;## Left Mouse Button + 'R' : COMBO with ARMS
+~LButton & R::run E:\dev\STM32_Toolchain\doc\COMBO_ARMS.png
 
 ;## Left Mouse Button + 'W' : Show how to fix WSL problem Lxssmanager service
 ~LButton & W::run D:\Users\fpaut\Documents\dev\PB_Windows\WslUnableToStart.jpg

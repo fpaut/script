@@ -58,29 +58,56 @@ trap_handler_unset() {
 }
 
 def_font_attributes() {
-	export ATTR_UNDERLINED="\e[0;4m"
+	export PS1_ATTR_UNDERLINED="\[\e[0;4m\]"
 
-	export FONT_BOLD="\e[0;1m"
+	export PS1_FONT_BOLD="\[\e[0;1m\]"
 
-	export BKG_RED="\e[0;41m"
-	export BKG_GREEN="\e[0;42m"
-	export BKG_BLUE="\e[0;44m"
+	export PS1_BKG_RED="\[\e[0;41m\]"
+	export PS1_BKG_GREEN="\[\e[0;42m\]"
+	export PS1_BKG_BLUE="\[\e[0;44m\]"
 
-	export BLACK="\e[0;30m"
-	export RED="\e[0;91m"
-	export GREEN="\e[0;92m"
-	export YELLOW="\e[0;93m"
-##	export BLUE="\e[0;34m"
-	export BLUE="\e[34m"
-	export CYAN="\e[0;96m"
-	export WHITE="\e[0;97m"
+	export PS1_BLACK="\[\e[0;30m\]"
+	export PS1_RED="\[\e[0;91m\]"
+	export PS1_GREEN="\[\e[0;92m\]"
+	export PS1_YELLOW="\[\e[0;93m\]"
+##	export PS1_BLUE="\[\e[0;34m\]"
+	export PS1_BLUE="\[\e[34m\]"
+	export PS1_CYAN="\[\e[0;96m\]"
+	export PS1_WHITE="\[\e[0;97m\]"
 
-	export DIMMED="\e[2m"
-	export BLINK="\e[5m"
+	export PS1_DIMMED="\[\e[2m\]"
+	export PS1_BLINK="\[\e[5m\]"
 	
+	export PS1_ATTR_RESET="\[\e[m\]"
+	
+	TPUT_BLACK=0
+	TPUT_RED=1
+	TPUT_GREEN=2
+	TPUT_YELLOW=3
+	TPUT_BLUE=4
+	TPUT_MAGENTA=5
+	TPUT_CYAN=6
+	TPUT_WHITE=7
+	TPUT_DEFAULT=9
 
-##	export ATTR_RESET="\e[0;0m"
-	export ATTR_RESET="\e[m"
+	export ATTR_UNDERLINED=$(tput smul)
+	export BLINK=$(tput blink)
+	export BOLD=$(tput bold)
+	
+	export BLACK=$(tput setaf $TPUT_BLACK)
+	export RED=$(tput setaf $TPUT_RED)
+	export GREEN=$(tput setaf $TPUT_GREEN)
+	export YELLOW=$(tput setaf $TPUT_YELLOW)
+	export BLUE=$(tput setaf $TPUT_BLUE)
+	export CYAN=$(tput setaf $TPUT_CYAN)
+	export MAGENTA=$(tput setaf $TPUT_MAGENTA)
+	export WHITE=$(tput setaf $TPUT_WHITE)
+	
+	export BKG_RED=$(tput setab $TPUT_RED)
+	export BKG_GREEN=$(tput setab $TPUT_GREEN)
+	export BKG_BLUE=$(tput setab $TPUT_BLUE)
+	
+	export ATTR_RESET=$(tput sgr0)
 }
 
 set_term_title() {
@@ -95,8 +122,12 @@ contains() {
 		return 1
 	fi
 	local search=$1
-	local myarray=$2
-	case "${myarray[@]}" in  *$search*) echo 1; return 0;; esac
+	local myarray=${@:2}
+	test=$(echo ${myarray[@]} | grep -w $search)
+	if [[ "$test" != "" ]]; then
+		echo 1;
+		return 0
+	fi
 	echo 0
 	return 1
 }
