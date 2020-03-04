@@ -37,92 +37,13 @@ if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-# If not running interactively, don't do anything
-[[ "$-" != *i* ]] && return
-
-# Shell Options
-#
-# See man bash for more options...
-#
-# Don't wait for job termination notification
-# set -o notify
-#
-# Don't use ^D to exit
-# set -o ignoreeof
-#
-# Use case-insensitive filename globbing
-# shopt -s nocaseglob
-#
-# Make bash append rather than overwrite the history on disk
-shopt -s histappend
-#
-# When changing directory small typos can be ignored by bash
-# for example, cd /vr/lgo/apaache would find /var/log/apache
-# shopt -s cdspell
-
-# History Options
-#
-# Don't put duplicate lines in the history.
-# export HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
-#
-# Ignore some controlling instructions
-# HISTIGNORE is a colon-delimited list of patterns which should be excluded.
-# The '&' is a special pattern which suppresses duplicate entries.
-export HISTIGNORE=$'[ \t]*:&:[fb]g:exit'
-export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls' # Ignore the ls command as well
-#
-# Whenever displaying the prompt, write the previous line to disk
-export PROMPT_COMMAND="history -a"s
 # Aliases
 #
 # Some people use a different file for aliases
 if [ -f "${HOME}/.bash_aliases" ]; then
    source "${HOME}/.bash_aliases"
 fi
-#
-# Some example alias instructions
-# If these are enabled they will be used instead of any instructions
-# they may mask.  For example, alias rm='rm -i' will mask the rm
-# application.  To override the alias instruction use a \ before, ie
-# \rm will call the real rm not the alias.
-#
-# Interactive operation...
-# alias cp='cp -i'
-alias mv='mv -i'
-#
-# Default to human readable figures
-alias df='df -h'
-alias du='du -h'
-#
-# Misc :)
-# alias less='less -r'                          # raw control characters
-# alias whence='type -a'                        # where, of a sort
-##alias grep='grep --color=always'                     # show differences in colour
-# alias egrep='egrep --color=auto'              # show differences in colour
-alias fgrep='fgrep --color=auto'              # show differences in colour
-#
-# Some shortcuts for different directory listings
-alias ls='ls -hF --color=tty'                 # classify files in colour
-alias dir='ls --color=auto --format=vertical'
-# alias vdir='ls --color=auto --format=long'
-alias ll='ls -l'                              # long list
-# alias la='ls -A'                              # all but . and ..
-# alias l='ls -CF'                              #
 
-########### Personnal Aliases ###########
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-alias bdb="bashdb -x $HOME/.bashdbinit"
-alias ghistory='history | grep -i'
-alias glunch='lunch | grep -ni'
-alias gps='ps faux | grep -ni'
-alias gmount='mount | grep -ni'
-alias here=conv_path_for_win"$(pwd)"
-alias igrep=" grep -ni"
-alias l='ls -CF'
-alias la='ls -A'
-alias ll='ls -halF'
-alias su='su --preserve-environment'
-alias tailf="tail --retry --follow=name"
 alias xopen="xdg-open"
 # History control
 #  ignore duplicate
@@ -169,8 +90,8 @@ cd_func ()
   fi
 
   #
-  # '~' has to be substituted by ${HOME}
-  [[ ${the_new_dir:0:1} == '~' ]] && the_new_dir="${HOME}${the_new_dir:1}"
+  # '$HOME/' has to be substituted by ${HOME}
+  [[ ${the_new_dir:0:1} == '$HOME/' ]] && the_new_dir="${HOME}${the_new_dir:1}"
 
   #
   # Now change to the new dir and add to the top of the stack
@@ -187,7 +108,7 @@ cd_func ()
   for ((cnt=1; cnt <= 10; cnt++)); do
     x2=$(dirs +${cnt} 2>/dev/null)
     [[ $? -ne 0 ]] && return 0
-    [[ ${x2:0:1} == '~' ]] && x2="${HOME}${x2:1}"
+    [[ ${x2:0:1} == '$HOME/' ]] && x2="${HOME}${x2:1}"
     if [[ "${x2}" == "${the_new_dir}" ]]; then
       popd -n +$cnt 2>/dev/null 1>/dev/null
       cnt=cnt-1
@@ -211,23 +132,14 @@ _x()
 	printf "%x\n" $val
 }
 
-## Simple bash calculator, float version (need bash calculator 'bc' tool)
-cf()
+## Simple bash calculator (need bash calculator 'bc' tool)
+c()
 {
 	decimal_digit=4
-	formula="${@}"
+	formula=${@}
 	formula_str="scale=$decimal_digit; $formula"
 	echo "$formula_str" | bc -l
 }
-
-## Simple bash calculator, integer version (need bash calculator 'bc' tool)
-ci()
-{
-	formula="${@}"
-	formula_str="$formula"
-	echo "$formula_str" | bc
-}
-alias c=ci
 
 cd () {
 	local path="$@"
@@ -242,11 +154,26 @@ cd () {
 	builtin cd "$path"
 }
 
+backslash_to_slash()
+{
+	str="$1"
+	echo $(echo $str |  sed 's,\\,/,g')
+}
+export -f backslash_to_slash
+
 beep()
 {
 	CMD="play -q -n synth 0.1 sin 880 || echo -e "\a""
 	echo $CMD; eval "$CMD"
 }
+
+
+double_backslash()
+{
+	str="$1"
+	echo $(echo $str |  sed 's,\\,\\\\,g')
+}
+export -f double_backslash
 
 ###################################################
 ## filtered cat using pattern and excluded pattern
@@ -369,6 +296,12 @@ notify() {
 	$CMD
 }
 
+npp() {
+    CMD="$(which notepadpp) $(conv_path_for_win $@)"
+    echo $CMD
+	$CMD 2>/dev/null&
+}
+
 ############################################################
 ## Background 
 ############################################################
@@ -395,17 +328,17 @@ ps1_prefix()
 {
 	IAM=$(whoami)
 
+	PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w\n"
 	if [[ "$IAM" != "root" ]]; then
-		PREF_COLOR=$PS1_GREEN
+		PREF_COLOR=$GREEN
 	else
-		PREF_COLOR=$PS1_RED
+		PREF_COLOR=$RED
 	fi
-	PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w"
 	if [[ "$BRANCH" != "" ]]; then
-		PS1_PREFIX=$PS1_PREFIX"$PS1_CYAN\n[$BRANCH]$PS1_ATTR_RESET"
+		PS1_PREFIX=$PS1_PREFIX"$PS1_CYAN[$BRANCH]$PS1_ATTR_RESET"
 	fi
 	if [[ "$GIT_AHEAD" != "" &&  "$GIT_AHEAD" != "0" ]]; then
-		PS1_PREFIX=$PS1_PREFIX"$PS1_BLUE[L:$GIT_AHEAD]$PS1_ATTR_RESET"
+		PS1_PREFIX=$PS1_PREFIX"$PS1_BLUE[L:$GIT_AHEAD]$APS1_TTR_RESET"
 	fi
 	if [[ "$GIT_BEHIND" != "" &&  "$GIT_BEHIND" != "0" ]]; then
 		PS1_PREFIX=$PS1_PREFIX"$PS1_BLUE[R:$GIT_BEHIND]$PS1_ATTR_RESET"
@@ -414,9 +347,9 @@ ps1_prefix()
 	if [[ "$GIT_STASH" != "" ]]; then
 		## 'Global' Stash (wathever the branch)
 		if [[ "$GIT_STASH_BRANCH" != "" ]]; then
-			PS1_PREFIX=$PS1_PREFIX"$PS1_RED[stash x $GIT_STASH_BRANCH]$PS1_ATTR_RESET"
+			PS1_PREFIX=$PS1_PREFIX"$PS1_RED[stash x $GIT_STASH_BRANCH]$ATTR_RESET"
 		else
-			PS1_PREFIX=$PS1_PREFIX"$PS1_BLINK[stash]$PS1_ATTR_RESET"
+			PS1_PREFIX=$PS1_PREFIX"$PS1_BLINK[stash]$ATTR_RESET"
 		fi
 	fi
 	PS1_PREFIX=$PS1_PREFIX"$PS1_ATTR_RESET> "
@@ -449,17 +382,6 @@ wcat() {
 	CMD="cat $path"; echo $CMD; $CMD
 }
 
-# Which avoiding link
-which()
-{
-	who="$@"
-	count=$(echo -e "$(/bin/which -a "$who")" | wc -l)
-	result=($(/bin/which -a $who))
-	count=$(($count - 1))
-	result=${result[$count]}
-	echo $result
-}
-
 wll() {
 	local path=$(which $1)
 	CMD="ls -halF --color=auto $path"; echo $CMD; $CMD
@@ -469,20 +391,6 @@ wll() {
 
 export PATH=$HOME/bin/scripts:$PATH
 export PATH=/usr/local/bin:$PATH
-HOSTNAME=$(hostname)
-echo "User: $USER on hostname: $HOSTNAME"
-
-case $HOSTNAME in
-	WSTMONDT019*)
-
-		;;
-	fpaut-Latitude-E5410)
-		;;
-	*)
-		echo "Unknown Hostname..."
-		;;
-esac
-
 
 ############### Completion ##########################
 

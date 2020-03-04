@@ -32,7 +32,7 @@ alias fsize='du -s'
 alias ghistory='history | grep -i'
 alias git='LANG=en_GB git'
 alias glunch='lunch | grep -ni'
-alias gps='ps faux | grep -ni'
+alias gps='echo "PID TTY      STAT   TIME COMMAND" && ps fax | grep -i'
 alias gmount='mount | grep -ni'
 alias here=conv_path_for_win"$(pwd)"
 alias igrep=" grep -ni"

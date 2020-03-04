@@ -90,18 +90,21 @@ unset ROOTDRIVE
 		
 	esac
 	
-case $(hostname) in
+HOSTNAME=$(hostname)
+echo "User: $USER on hostname: $HOSTNAME"
+case $HOSTNAME in
 	WSTMONDT019)
 		echo DIASYS machine
 		source ~/bin/scripts/.bashrc_diasys.sh
 	;;
 	user-HP-ENVY-TS-15-Notebook-PC)
+	
 		echo Personal machine
 		SCRIPTS_PATH="/home/user/bin/scripts"
 		source $HOME/bin/scripts/.bashrc_perso.sh
 	;;
 	*)
-		echo "Unknown machine, or no bash specificities"
+		echo "Unknown machine ($HOSTNAME), or no bash specificities"
 	;;
 esac
 
