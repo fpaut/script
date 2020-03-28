@@ -196,30 +196,36 @@ ecat() {
 # Return filename+extension of a provided path+filename (eg.: "/home/user/toto.txt.doc" return "toto.txt.doc")
 file_get_fullname()
 {
-	file=$1
-	echo $(basename $file)
+	file="$1"
+	echo $(basename "$file")
 }
 
 # Return path of provided path+filename (eg.: "/home/user/toto.txt.doc" return "/home/user")
 file_get_path()
 {
-	file=$1
-	echo $(dirname $file)
+	file="$1"
+	path=${file%%$(basename "$file")*}
+	if [[ "$path" == "" ]]; then
+		path="./"
+	fi
+	echo $path
 }
 
 # Return only name of the filename provided (eg.: "/home/user/toto.txt.doc" return "toto.txt")
 file_get_name()
 {
-	file=$1
-	filename=$(file_get_fullname $file)
+	file="$1"
+	filename=$(file_get_fullname "$file")
 	echo ${filename%.*}
 }
 
 # Return only extension of the filename provided (eg.: "/home/user/toto.txt.doc" return "doc")
 file_get_ext()
 {
-	file=$1
-	filename=$(file_get_fullname $file)
+	file="$1"
+	filename=$(file_get_fullname "$file")
+	#remove last '"'; if any
+	filename=${filename%%\"*}
 	if [[ $filename == *"."* ]]; then
 		echo ${filename##*.}
 	else
@@ -380,6 +386,12 @@ wbdb() {
 wcat() {
 	local path=$(which $1)
 	CMD="cat $path"; echo $CMD; $CMD
+}
+
+which() {
+	local who=$1
+	paths=($(/bin/which -a $who) )
+	echo ${paths[$((${#paths[@]} - 1))]}
 }
 
 wll() {

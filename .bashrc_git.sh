@@ -146,30 +146,17 @@ git_get_local_modif () {
 
 git_patch_create()
 {
-	rev=$1
-	patchName=$2
-	if [[ "$rev" == "" ]]; then
-		echo "First parameter is the revision"
-		echo "Second parameter (optional) is the patch name (stdout otherwise)"
-		return 1
-	fi
-	if [[ "$patchName" == "" ]]; then
-		git format-patch $rev --stdout
-	else
-		git format-patch $rev --stdout > $patchName
-	fi
+	against=$1
+	[[ "$against" == "" ]] && echo "First parameter is the branch/Commit for patch creating" && return
+	CMD="git format-patch $against --stdout > patch_$(date +%s).patch"; echo $CMD; eval "$CMD"
 }
 
 git_patch_apply()
 {
-	patchName=$1
-	if [[ "$patchName" == "" ]]; then
-		echo "First parameter is the patch name"
-		return 1
-	fi
-	git am $patchName
+	patch_name=$1
+	[[ "$patch_name" == "" ]] && echo "First parameter is the patch name" && return
+	CMD="git am $patch_name"; echo $CMD; $CMD
 }
-
 
 git_remote_count_commit () {
 	unset REMOTE AHEAD BEHIND
@@ -419,6 +406,34 @@ pattern2=$2
 }
 
 #########################################
+# List _WIP names
+#########################################
+git_st_ls() {
+	pattern=$1
+	if [[ "$pattern" == "" ]]; then
+		echo "If First parameter is a pattern, this function list the files names with this pattern"
+		echo "otherwise the WIP names are listed"
+	fi
+		
+	
+	if [[ "$pattern" == "" ]]; then
+		LANG=en_GB git status -s | grep "_WIP" | while read file; 
+		do  
+			file=_WIP${file##*_WIP}; 
+			echo ${file%%.*}; 
+		done | sort
+	else
+		LANG=en_GB git status -s | grep "$pattern" | while read file; 
+		do
+			file=${file#* }
+			ext=$(file_get_ext "$file"); 
+			file=${file%%$pattern*}; 
+			echo $file.$ext
+		done | sort
+	fi
+}
+
+#########################################
 # Rename extension of backup wip file, by
 # adding a pattern
 #########################################
@@ -489,7 +504,7 @@ git_st_restore () {
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
 		git status -s | grep "$pattern" | while read file
 		do
-			file=${file#*:}
+			file=${file#*?? }
 			CMD="rm $file"
 			echo $CMD
 			$CMD
@@ -557,17 +572,20 @@ git_st_save () {
 	pattern=$(echo $pattern |  sed 's, ,_,g')
 	git status -s | egrep "A |M " | while read file
 	do
-		file=${file##* }
+		file=${file#* }
 		file=${file#*:}
-		path=$(file_get_path $file)
-		name=$(file_get_name $file)
-		ext=$(file_get_ext $file)
+		#remove last '"'; if any
+		file=${file%\"*}
+		file=${file#*\"}
+		path=$(file_get_path "$file")
+		name=$(file_get_name "$file")
+		ext=$(file_get_ext "$file")
 		if [[ "$name.$ext" != "version.c"  ]]; 
 		then 	
-			[[ "$ext" == "" ]] && CMD="cp $path/$name $path/$name$pattern"
-			[[ "$ext" != "" ]] && CMD="cp $path/$name.$ext $path/$name$pattern.$ext"
+			[[ "$ext" == "" ]] && CMD="cp \"$path/$name\" \"$path/$name$pattern\""
+			[[ "$ext" != "" ]] && CMD="cp \"$path/$name.$ext\" \"$path/$name$pattern.$ext\""
 			echo $CMD; 
-			$CMD
+			eval $CMD
 		else
 			echo Files version found. Ignoring...
 		fi

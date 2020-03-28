@@ -27,9 +27,10 @@
 	lg = log -60 --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 	mg = merge --strategy-option theirs
 	mt = mergetool -y
-	sd = "!bash -c 'repoGit=$(git rev-parse --git-dir 2>/dev/null); BRANCH=$(cat $repoGit/HEAD); BRANCH=${BRANCH##*/}; BSTASH=$(git stash list | grep $BRANCH); BSTASH=${BSTASH%%:*}; if [[ \"$BSTASH\" != \"\" ]]; then git stash drop $BSTASH; else echo No Stash for branch \\\"$BRANCH\\\"; fi'"
+	sd = "!bash -c '[[ "$0" != \"bash\" ]] && stash=$0; repoGit=$(git rev-parse --git-dir 2>/dev/null); BRANCH=$stash;[[ "$stash" == \"\" ]] && BRANCH=$(cat $repoGit/HEAD); [[ "$stash" == \"\" ]] && BRANCH=${BRANCH##*/}; BSTASH=$(git stash list | grep $BRANCH); BSTASH=${BSTASH%%:*}; if [[ \"$BSTASH\" != \"\" ]]; then git stash drop $BSTASH; else echo No Stash for branch \\\"$BRANCH\\\"; fi'"
 	sl = stash list
-	sp = "!bash -c 'repoGit=$(git rev-parse --git-dir 2>/dev/null); BRANCH=$(cat $repoGit/HEAD); BRANCH=${BRANCH##*/}; BSTASH=$(git stash list | grep $BRANCH); BSTASH=${BSTASH%%:*}; if [[ \"$BSTASH\" != \"\" ]]; then git stash pop $BSTASH; else echo No Stash for branch \\\"$BRANCH\\\"; fi'"
+	tt = "!bash -c 'param0=$0; echo XXXXXXXXX param0:$0 param1:$1 '"
+	sp = "!bash -c '[[ "$0" != \"bash\" ]] && stash=$0; repoGit=$(git rev-parse --git-dir 2>/dev/null); BRANCH=$stash;[[ "$stash" == \"\" ]] && BRANCH=$(cat $repoGit/HEAD); [[ "$stash" == \"\" ]] && BRANCH=${BRANCH##*/}; BSTASH=$(git stash list | grep $BRANCH); BSTASH=${BSTASH%%:*}; if [[ \"$BSTASH\" != \"\" ]]; then git stash pop $BSTASH; else echo No Stash for branch \\\"$BRANCH\\\"; fi'"
 	ss = "!bash -c 'STASH_NAME=\"$0 on $(date)\"; vers=$(git status | grep version.c); if [[ \"$vers\" != \"\"  ]]; then echo Files version found. Discarding...; git checkout -- *version.c; git stash save $STASH_NAME; else echo No Files version version; git stash save $STASH_NAME; fi'"
 	stm = "!bash -c 'echo -e \"\\033[0;44mOnly modified files! (stu for untracked files, sta for all)\\033[0;0m\"' && git status -s | egrep --color=always \"A | M| D\""
 	st = "!bash -c 'echo -e \"\\033[0;44mNormal git status\\033[0;0m\"' && git status"

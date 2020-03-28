@@ -6,6 +6,8 @@ BIN_PATH="$ROOTDRIVE/e/Tools/bin"
 SCRIPTS_PATH="$BIN_PATH/scripts"
 FIRMWARE_PATH="$DEV_PATH/STM32_Toolchain/dt-arm-firmware"
 TOOLS_PATH="$DEV_PATH/STM32_Toolchain/dt-fwtools"
+FSM_CYCLE="$FIRMWARE_PATH/ODS/FSM/Cycles/"
+
 
 export DISPLAY=localhost:0.0
 export LIBGL_ALWAYS_INDIRECT=1
@@ -84,29 +86,29 @@ copy_bin_to_medios_hp()
 	
 	if [[ "$(contains incubator "$p1")" == "1" ]]; then
 		echo -e $GREEN"INCUBATOR.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/bin/INCUBATOR.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/bin/INCUBATOR.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/INCUB.bin"; echo $CMD; $CMD
+		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/INCUBATOR.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/INCUBATOR.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/INCUB.bin"; echo $CMD; $CMD
 		
 	fi
 	if [[ "$(contains separator "$p1")" == "1" ]]; then
 		echo -e $GREEN"SEPAR.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/bin/SEPARATOR.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/bin/SEPARATOR.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/SEPAR.bin"; echo $CMD; $CMD
+		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/SEPARATOR.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/SEPARATOR.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/SEPAR.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains measmeca "$p1")" == "1" ]]; then
 		echo -e $GREEN"MEASMECA.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/bin/MEASMECA.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/bin/MEASMECA.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/MEASM.bin"; echo $CMD; $CMD
+		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/MEASMECA.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/MEASMECA.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/MEASM.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains hydro1 "$p1")" == "1" ]]; then
 		echo -e $GREEN"HYDRO1.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/bin/HYDRO1.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/bin/HYDRO1.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/HYDRO1.bin"; echo $CMD; $CMD
+		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/HYDRO1.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/HYDRO1.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/HYDRO1.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains hydro2 "$p1")" == "1" ]]; then
 		echo -e $GREEN"HYDRO2.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/bin/HYDRO2.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/bin/HYDRO2.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/HYDRO2.bin"; echo $CMD; $CMD
+		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/HYDRO2.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
+		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/HYDRO2.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/HYDRO2.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains pmt "$p1")" == "1" ]]; then
 		echo -e $GREEN"PMT.bin for Generic Board"$ATTR_RESET
@@ -186,6 +188,69 @@ step_to_deg()
 	echo $(($(($step * 360)) / $((600 * 4)) ))° if steps is 1/4 steps
 }
 
+update_repo()
+{
+	MasterBranch="master"
+	UpstreamBranch="Fred"
+	wip_branch=$1
+	if [[ "$wip_branch" == "" ]]; then
+		echo "First parameter is the 'Work In Progress' branch name"
+		read -e -i 'Y' -p "Using '$GREEN$BRANCH$ATTR_RESET' as 'Work In Progress' branch name? (Y/n): "
+		if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
+			wip_branch=$BRANCH
+		else
+			return
+		fi
+	fi
+	
+	uncommited=$(git status -s | grep --color=always " M " | grep -v "version")
+	if [[ "$uncommited" != "" ]]; then
+		echo "Some modified files are not commited. Please commit before!"
+		return 1
+	fi
+	
+	CMD="git co $wip_branch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git_st_save _WIP_$wip_branch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git co $MasterBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git pull -X theirs"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git co $UpstreamBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git merge --strategy-option theirs $MasterBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git co $wip_branch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git merge --strategy-option theirs $MasterBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git_st_cmp _WIP_$wip_branch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	
+	echo -e $CYAN"TO DO:"$ATTR_RESET
+	CMD="make BOARD=STM32P405 SHOW_GCC=0 clean"; echo -e $CYAN$CMD$ATTR_RESET
+	CMD="make BOARD=STM32P405 SHOW_GCC=0"; echo -e $CYAN$CMD$ATTR_RESET
+	CMD="make BOARD=GENERIC_BOARD_NEW  GB=MEASMECA SHOW_GCC=0 clean"; echo -e $CYAN$CMD$ATTR_RESET
+	CMD="make BOARD=GENERIC_BOARD_NEW  GB=MEASMECA SHOW_GCC=0"; echo -e $CYAN$CMD$ATTR_RESET
+	echo -e $CYAN$CMD$ATTR_RESET
+}
+
+upstream_repo()
+{
+	MasterBranch="master"
+	UpstreamBranch="Fred"
+	wip_branch=$1
+	if [[ "$wip_branch" == "" ]]; then
+		echo "First parameter is the 'Work In Progress' branch name"
+		read -e -i 'Y' -p "Using '$GREEN$BRANCH$ATTR_RESET' as 'Work In Progress' branch name? (Y/n): "
+		if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
+			wip_branch=$BRANCH
+		else
+			return
+		fi
+	fi
+	CMD="git co $wip_branch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git ss"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git co $UpstreamBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git pull"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git merge $wip_branch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git push"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git co $wip_branch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git sp"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+}
+
 wedit() {
 	local path=$(which $1 2>/dev/null)
 	CMD="npp '$path'"; echo $CMD; eval "$CMD"
@@ -210,14 +275,10 @@ cd - 1>/dev/null
 
 test=$(ls /mnt/m/* 2>/dev/null)
 MOUNTED=$(wslpath M:\\ 2>&1 | grep mnt)
-if [[ $toto ]]; then
-	if [[ ! $test ]]; then
-		echo -e "MEDIOS-HP shared folder doesn't exists in Windows"
-	else
-		echo -e "Mounting MEDIOS-HP in /mnt/m"
-		CMD="sudo mount -t drvfs M: /mnt/m"
-		$CMD
-	fi
+if [[ "$MOUNTED" == "" ]]; then
+	echo -e "Mounting MEDIOS-HP in /mnt/m"
+	CMD="sudo mount -t drvfs M: /mnt/m"
+	$CMD
 fi
 
 echo Out of BASHRC_DIASYS

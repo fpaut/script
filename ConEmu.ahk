@@ -44,7 +44,7 @@ return
 <^<!m::MsgBox [AUTOHOTKEY] You pressed LeftControl+LeftAlt+m.
 
 ;## Left Mouse Button + 'A' : Show ASCII table
-~LButton & A::run D:\Users\fpaut\Documents\Ascii-codes-table.png
+~LButton & A::run E:\Documents\Ascii-codes-table.png
 
 ;## Left Mouse Button + 'D' : Show ASCII table
 ~LButton & D::run E:\dev\STM32_Toolchain\doc\DeviceID.PNG
