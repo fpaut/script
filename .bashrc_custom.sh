@@ -308,6 +308,20 @@ npp() {
 	$CMD 2>/dev/null&
 }
 
+show_parent()
+{
+    pid=$1
+    if [[ "$pid" == "" ]]; then
+        pid=$$
+    fi
+    
+    echo pid=$pid
+    ps -o ppid=$pid | while read ppid;
+    do 
+        ps fax | grep -i $ppid 2>&1  | egrep -v "grep|COMMAND"
+    done
+}
+
 ############################################################
 ## Background 
 ############################################################
@@ -334,7 +348,7 @@ ps1_prefix()
 {
 	IAM=$(whoami)
 
-	PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$BLUE\w\n"
+	PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$PS1_CYAN\w\n"
 	if [[ "$IAM" != "root" ]]; then
 		PREF_COLOR=$GREEN
 	else
