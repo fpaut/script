@@ -154,6 +154,13 @@ cd () {
 	builtin cd "$path"
 }
 
+cdmtp() {
+    userID=$(id $USER)
+    userID=${userID#*uid=}
+    userID=${userID%%($USER)*}
+    cd /run/user/$userID/gvfs/mtp*
+}
+
 backslash_to_slash()
 {
 	str="$1"
