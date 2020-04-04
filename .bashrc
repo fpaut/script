@@ -27,17 +27,17 @@ echo In BASHRC
 # If not running interactively, don't do anything
 [[ "$-" != *i* ]] && return
 
-## Attempt to determine in which subsystem this terminal rub
+## Attempt to determine in which subsystem this terminal run
 ## (Cygwin, WSL, MSYS, or real linux)
 get_term_env()
 {
-	# Is it Cygwin
-	[[ $(echo $EXEPATH) ]] && echo msys && return 0
-	[[ $(which cygpath.exe) ]] && echo cygwin && return 0
+	# Searching terminal environment
+	[[ "$MINGW_PREFIX" != "" ]] && echo msys && return 0
+	[[ "$MINTTY_SHORTCUT" != "" ]] && echo cygwin && return 0
 	[[ $(which wslpath) ]] && echo wsl && return 0
+	echo linuxBash
 	
-	echo linuxBash && return 0
-	return 1
+	return 0
 }
 
 check_var()
@@ -53,26 +53,17 @@ check_var()
 }
 
 
-check_var_V1()
-{
-	echo 0 - 
-	echo 1 - "$1"
-	echo 2 - $(eval echo "$""$1")
-##	echo 3 - $(eval "$""$1")
-}
-
-
 unset ROOTDRIVE
 	case $(get_term_env) in
 		cygwin)
 			echo CYGWIN!!!
 			ROOTDRIVE="/cygdrive"
-			source $HOME/bin/scripts/.bashrc_cygwin.sh
+			source $SCRIPTS_PATH/.bashrc_cygwin.sh
 		;;
 		wsl)
 			echo WSL!!!
 			ROOTDRIVE="/mnt"
-			source $HOME/bin/scripts/.bashrc_winbash.sh
+			source $ROOTDRIVE/e/Tools/bin/scripts/.bashrc_winbash.sh
 		;;
 		linuxBash)
 			echo Linux Bash!!!
@@ -82,7 +73,7 @@ unset ROOTDRIVE
 		msys)
 			echo Msys Bash!!!
 			ROOTDRIVE="/"
-			source $HOME/bin/scripts/.bashrc_linuxbash.sh
+			source $SCRIPTS_PATH/.bashrc_msys.sh
 		;;
 		*)
 			echo "ENV is $(get_term_env)"
@@ -95,7 +86,7 @@ echo "User: $USER on hostname: $HOSTNAME"
 case $HOSTNAME in
 	WSTMONDT019)
 		echo DIASYS machine
-		source ~/bin/scripts/.bashrc_diasys.sh
+		source $ROOTDRIVE/e/Tools/bin/scripts/.bashrc_diasys.sh
 	;;
 	user-HP-ENVY-TS-15-Notebook-PC)
 	
