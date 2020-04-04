@@ -267,6 +267,33 @@ hexdump() {
 	eval "$HD -e '$OPTIONS1' -e '$OPTIONS2' $@"
 }
 
+ll() {
+	path=$1
+	pattern=$2
+	case "$#" in
+		0)
+			path="."
+			pattern=""
+		;;
+		1)
+			path=$1
+			pattern=""
+		;;
+		2)
+			path=$1
+			pattern=$2
+		;;
+		*)
+			echo "Unknown machine ($HOSTNAME), or no bash specificities"
+		;;
+	esac
+	if [[ "$pattern" == "" ]]; then
+		ls -halF "$path"
+	else
+		ls -halF "$path" | grep --color=always "$pattern"
+	fi
+}
+
 ## kate() {
 ##     CMD="$(which kate) $(conv_path_for_win $@)"
 ##     echo $CMD

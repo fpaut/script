@@ -21,7 +21,6 @@ alias fgrep='fgrep --color=auto'              # show differences in colour
 alias ls='ls -hF --color=tty'                 # classify files in colour
 alias dir='ls --color=auto --format=vertical'
 # alias vdir='ls --color=auto --format=long'
-alias ll='ls -l'                              # long list
 # alias la='ls -A'                              # all but . and ..
 # alias l='ls -CF'                              #
 
@@ -38,7 +37,6 @@ alias here=conv_path_for_win"$(pwd)"
 alias igrep=" grep -ni"
 alias l='ls -CF'
 alias la='ls -A'
-alias ll='ls -halF'
 alias rm='trash'
 alias su='su --preserve-environment'
 alias tailf="tail --retry --follow=name"

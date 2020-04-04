@@ -386,11 +386,11 @@ pattern2=$2
 		echo $CMD; eval $CMD
 		case  "$?" in
 			"0")
-				echo -e "$GREEN $file_p1 IDENTICAL to $file_p2$ATTR_RESET"
+				echo -e "$GREEN IDENTICAL : $file_p1 / $file_p2$ATTR_RESET"
 				do_cmp=false
 			;;
 			"1")
-				echo -e "$BLUE $file_p1 is DIFFERENT to $file_p2 $ATTR_RESET"
+				echo -e "$BLUE DIFFERENT : $file_p1 / $file_p2 $ATTR_RESET"
 				do_cmp=true
 			;;
 			"2")
@@ -492,7 +492,7 @@ git_st_restore () {
 		do
 			file=${file##* }
 			name=${file%$pattern*}
-			ext=$(file_get_ext $file)
+			ext=$(file_get_ext "$file")
 			CMD="cp $file $name.$ext"
 			echo $CMD
 			$CMD
@@ -505,7 +505,7 @@ git_st_restore () {
 		git status -s | grep "$pattern" | while read file
 		do
 			file=${file#*?? }
-			CMD="rm $file"
+			CMD="rm \"$file\""
 			echo $CMD
 			$CMD
 		done
@@ -525,7 +525,7 @@ git_st_rm () {
 	test=$(
 	git status -s | grep  --color=never "$pattern" | while read file
 	do
-		file=${file##* }
+		file=${file#* }
 		file=${file#*:}
 		CMD=" $file "
 		echo $CMD
@@ -540,7 +540,7 @@ git_st_rm () {
 		if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
 			git status -s | grep --color=never $pattern | while read file
 			do
-				file=${file##* }
+				file=${file#* }
 				file=${file#*:}
 				CMD="rm -rf \"$file\""
 				echo $CMD;

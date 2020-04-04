@@ -190,6 +190,7 @@ step_to_deg()
 
 update_repo()
 {
+	
 	MasterBranch="master"
 	UpstreamBranch="Fred"
 	wip_branch=$1
@@ -205,26 +206,43 @@ update_repo()
 	
 	uncommited=$(git status -s | grep --color=always " M " | grep -v "version")
 	if [[ "$uncommited" != "" ]]; then
-		echo "Some modified files are not commited. Please commit before!"
-		return 1
+		echo "Theses files are modified but not commited."
+		echo -e "$uncommited"
+		read -e -i 'Y' -p "Do you want to commit before? (Y/n): "
+		if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
+			return 1
+		fi
 	fi
+
+	SVG_NAME="_WIP_"
+	SVG_NAME+="$FUNCNAME"
+	SVG_NAME+="_$wip_branch"
+
 	
 	CMD="git co $wip_branch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
-	CMD="git_st_save _WIP_$wip_branch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="yes | git_st_rm $SVG_NAME"; echo -e $CYAN$CMD$ATTR_RESET; eval "$CMD"
+	CMD="yes n | git_st_save $SVG_NAME"; echo -e $CYAN$CMD$ATTR_RESET; eval "$CMD"
 	CMD="git co $MasterBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
 	CMD="git pull -X theirs"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
 	CMD="git co $UpstreamBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
 	CMD="git merge --strategy-option theirs $MasterBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
 	CMD="git co $wip_branch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
 	CMD="git merge --strategy-option theirs $MasterBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
-	CMD="git_st_cmp _WIP_$wip_branch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	read -e -i 'C' -p "Restore saved files, or Compare ? (R/C): "
+	if [[ "$REPLY" == "R" || "$REPLY" == "R" ]]; then
+		CMD="git_st_restore $SVG_NAME"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	else
+		CMD="git_st_cmp $SVG_NAME"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	fi
 	
-	echo -e $CYAN"TO DO:"$ATTR_RESET
-	CMD="make BOARD=STM32P405 SHOW_GCC=0 clean"; echo -e $CYAN$CMD$ATTR_RESET
-	CMD="make BOARD=STM32P405 SHOW_GCC=0"; echo -e $CYAN$CMD$ATTR_RESET
-	CMD="make BOARD=GENERIC_BOARD_NEW  GB=MEASMECA SHOW_GCC=0 clean"; echo -e $CYAN$CMD$ATTR_RESET
-	CMD="make BOARD=GENERIC_BOARD_NEW  GB=MEASMECA SHOW_GCC=0"; echo -e $CYAN$CMD$ATTR_RESET
-	echo -e $CYAN$CMD$ATTR_RESET
+	if [[ "$(pwd | grep \"dt-arm-firmware\")" != "" ]]; then
+		echo -e $CYAN"TO DO:"$ATTR_RESET
+		CMD="make BOARD=STM32P405 SHOW_GCC=0 clean"; echo -e $CYAN$CMD$ATTR_RESET
+		CMD="make BOARD=STM32P405 SHOW_GCC=0"; echo -e $CYAN$CMD$ATTR_RESET
+		CMD="make BOARD=GENERIC_BOARD_NEW  GB=MEASMECA SHOW_GCC=0 clean"; echo -e $CYAN$CMD$ATTR_RESET
+		CMD="make BOARD=GENERIC_BOARD_NEW  GB=MEASMECA SHOW_GCC=0"; echo -e $CYAN$CMD$ATTR_RESET
+		echo -e $CYAN$CMD$ATTR_RESET
+	fi
 }
 
 upstream_repo()
