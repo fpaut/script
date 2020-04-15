@@ -267,6 +267,7 @@ hexdump() {
 	eval "$HD -e '$OPTIONS1' -e '$OPTIONS2' $@"
 }
 
+unalias ll
 ll() {
 	path=$1
 	pattern=$2

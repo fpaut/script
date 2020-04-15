@@ -37,7 +37,8 @@ alias here=conv_path_for_win"$(pwd)"
 alias igrep=" grep -ni"
 alias l='ls -CF'
 alias la='ls -A'
-alias rm='trash'
+alias rm='echo trash && trash'
+alias rmf='echo /bin/rm && /bin/rm'
 alias su='su --preserve-environment'
 alias tailf="tail --retry --follow=name"
 alias trash-restore='restore-trash'
