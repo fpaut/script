@@ -1,4 +1,6 @@
 #!/bin/bash
+echo
+echo In BASHRC_TOOLS
 shopt -s expand_aliases
 alias exit_on_error='err=$?; [[ "$err" != "0" ]] && exit $err'
 alias return_on_error='err=$?; [[ "$err" != "0" ]] && return $err'
@@ -146,3 +148,4 @@ c_exec () {
 	ERR=$?
 	return $ERR
 }
+echo Out of BASHRC_TOOLS

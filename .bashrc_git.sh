@@ -343,14 +343,12 @@ pattern2=$2
 	git status -s | grep --color=never "$pattern1" | while read file_p1
 	do
 		do_cmp=false
-		file_p1=${file_p1##* }
-		path=$(file_get_path $file_p1)
-		name=$(file_get_name $file_p1)
-		ext=$(file_get_ext $file_p1)
+		file_p1=${file_p1#* }
+		path="$(file_get_path "$file_p1")"
+		name=$(file_get_name "$file_p1")
+		ext=$(file_get_ext "$file_p1")
 		name=${name%%$pattern1*}
-## 		echo "name=$name"
-##		echo "ext=$ext"
-		if [[ "$pattern2" == "" ]]; then
+ 		if [[ "$pattern2" == "" ]]; then
 			if [[ "$ext" == "" ]]; then
 				# No 2nd pattern and no extension, compare with filename
 				file_p2=$path/$name
@@ -382,7 +380,7 @@ pattern2=$2
 ##		file_p2=$(double_backslash "$file_p2")
 ##		echo "file_p1=$file_p1"
 ##		echo "file_p2=$file_p2"
-		CMD="diff $file_p1 $file_p2 1>/dev/null"
+		CMD="diff \"$file_p1\" \"$file_p2\" 1>/dev/null"
 		echo $CMD; eval $CMD
 		case  "$?" in
 			"0")
@@ -399,7 +397,7 @@ pattern2=$2
 			;;
 		esac
 		if [[ "$do_cmp" != "false" ]]; then		
-			CMD="$GIT_DIFFTOOL $file_p1 $file_p2 1>/dev/null 2>/dev/null&"
+			CMD="$GIT_DIFFTOOL \"$file_p1\" \"$file_p2\" 1>/dev/null 2>/dev/null&"
 			echo $CMD; eval $CMD
 		fi
 	done
@@ -421,7 +419,7 @@ git_st_ls() {
 		do  
 			file=_WIP${file##*_WIP}; 
 			echo ${file%%.*}; 
-		done | sort
+		done | sort | uniq
 	else
 		LANG=en_GB git status -s | grep "$pattern" | while read file; 
 		do
@@ -570,6 +568,8 @@ git_st_rm_check () {
 git_st_save () {
 	pattern="$1"
 	pattern=$(echo $pattern |  sed 's, ,_,g')
+	# Remove previous saved pattern 
+	CMD="yes n | git_st_rm $pattern"; echo -e $CYAN$CMD$ATTR_RESET; eval "$CMD"
 	git status -s | egrep "A |M " | while read file
 	do
 		file=${file#* }
@@ -670,6 +670,16 @@ git_unix2dos () {
 		echo $CMD; $CMD
 	done
 	find . -iname "*"\-wip"*"
+}
+
+#########################################
+# Update repository submodules 
+# recursively
+#########################################
+git_submodule_update() {
+	CMD="git submodule update --recursive "$1
+	echo $CMD
+	$CMD
 }
 
 

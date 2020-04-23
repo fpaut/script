@@ -223,11 +223,11 @@ update_repo()
 	CMD="yes | git_st_rm $SVG_NAME"; echo -e $CYAN$CMD$ATTR_RESET; eval "$CMD"
 	CMD="yes n | git_st_save $SVG_NAME"; echo -e $CYAN$CMD$ATTR_RESET; eval "$CMD"
 	CMD="git co $MasterBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
-	CMD="git pull -X theirs"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git pull -X theirs origin/$MasterBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
 	CMD="git co $UpstreamBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
-	CMD="git merge --strategy-option theirs $MasterBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git rebase --strategy-option theirs $MasterBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
 	CMD="git co $wip_branch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
-	CMD="git merge --strategy-option theirs $MasterBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
+	CMD="git rebase --strategy-option theirs $MasterBranch"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
 	read -e -i 'C' -p "Restore saved files, or Compare ? (R/C): "
 	if [[ "$REPLY" == "R" || "$REPLY" == "R" ]]; then
 		CMD="git_st_restore $SVG_NAME"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
@@ -247,7 +247,6 @@ update_repo()
 
 upstream_repo()
 {
-	MasterBranch="master"
 	UpstreamBranch="Fred"
 	wip_branch=$1
 	if [[ "$wip_branch" == "" ]]; then

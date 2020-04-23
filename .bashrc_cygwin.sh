@@ -5,7 +5,7 @@ export HOME_IN_WINDOWS="C:\\cygwin64\\home\\fpaut"
 export ROOTDRIVE="/cygdrive"
 export HOMEW="$(cygpath.exe -w $HOME)"
 
-
+alias apt="$ROOTDRIVE/e/Tools/apt-cyg/apt-cyg"
 alias sudo="cygstart --action=runas "
 alias wps="ps -W"
 alias wgps="ps -W | grep "

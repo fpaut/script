@@ -264,9 +264,10 @@ hexdump() {
 	HD=$(which hexdump)
 	OPTIONS1='8/1 "%02X ""\t"" "'
 	OPTIONS2='8/1 "%c""\n"'
-	eval "$HD -e '$OPTIONS1' -e '$OPTIONS2' $@"
+	eval "$HD -e '$OPTIONS1' -e '$OPTIONS2' \"$@\""
 }
 
+unalias ll 2>/dev/null
 ll() {
 	path=$1
 	pattern=$2
