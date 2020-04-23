@@ -5,8 +5,11 @@ export HOME_IN_WINDOWS="C:\Users\fpaut\AppData\Local\Packages\CanonicalGroupLimi
 export ROOTDRIVE="/mnt"
 export HOMEW="$ROOTDRIVE/c/Users/fpaut"
 
-alias rm='trash -v'
-alias trash-restore='restore-trash'
+unalias rm
+alias rm="trash -v"
+alias trash-restore="restore-trash"
+alias pitivi="CMD=\"flatpak run org.pitivi.Pitivi//stable\" && echo $CMD && $CMD"
+alias clean_linux="CMD=\"sudo stracer\"; echo \"$CMD\"; \"$CMD\""
 
 conv_path_for_win()
 {
@@ -34,7 +37,7 @@ wedit() {
 	else
 		path=$1
 	fi
-	CMD="kate $path"; echo $CMD; $CMD
+	CMD="kate $path"; echo $CMD; eval "$CMD&"
 }
 
 
