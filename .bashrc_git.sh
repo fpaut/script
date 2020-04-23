@@ -672,6 +672,16 @@ git_unix2dos () {
 	find . -iname "*"\-wip"*"
 }
 
+#########################################
+# Update repository submodules 
+# recursively
+#########################################
+git_submodule_update() {
+	CMD="git submodule update --recursive "$1
+	echo $CMD
+	$CMD
+}
+
 
 ####################################################################################################################################################################
 ## "WIP section" Utilities functions to manipulate Work In Progress files combined with GIT
