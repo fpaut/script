@@ -8,7 +8,7 @@ define_alias()
 {
     aliasName="$1"
     aliasCmd="$2"
-    alias $aliasName 2>/dev/null 1>/dev/null
+    alias $aliasName 1>/dev/null 2>/dev/null
     if [[ "$?" != "0" ]]; then
         alias $aliasName="$aliasCmd"
     fi
@@ -55,5 +55,5 @@ define_alias "su" "su --preserve-environment"
 define_alias "tailf" "tail --retry --follow name"
 define_alias "trash-restore" "restore-trash"
 define_alias "xopen" "xdg-open"
-define_alias "sudo" "sudo env PATH $PATH"
+define_alias "sudo" "sudo env PATH=$PATH"
 echo Out of BASHRC_ALIASES

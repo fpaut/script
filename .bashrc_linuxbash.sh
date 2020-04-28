@@ -5,7 +5,7 @@ export HOME_IN_WINDOWS="C:\Users\fpaut\AppData\Local\Packages\CanonicalGroupLimi
 export ROOTDRIVE="/mnt"
 export HOMEW="$ROOTDRIVE/c/Users/fpaut"
 
-unalias rm
+unalias rm 1>/dev/null 2>/dev/null 
 alias rm="trash -v"
 alias trash-restore="restore-trash"
 alias pitivi="CMD=\"flatpak run org.pitivi.Pitivi//stable\" && echo $CMD && $CMD"
