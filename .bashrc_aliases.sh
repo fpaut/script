@@ -8,7 +8,7 @@ define_alias()
 {
     aliasName="$1"
     aliasCmd="$2"
-    alias $aliasName 2>&1 1>/dev/null
+    alias $aliasName 2>/dev/null 1>/dev/null
     if [[ "$?" != "0" ]]; then
         alias $aliasName="$aliasCmd"
     fi
@@ -42,7 +42,7 @@ define_alias "alert" "notify-send --urgency low -i dialog-information "
 define_alias "bdb" "bashdb -x $HOME/.bashdbinit"
 define_alias "fsize" "du -s"
 define_alias "ghistory" "history | grep -i"
-define_alias "git" "LANG en_GB git"
+define_alias "git" "LANG=en_GB git"
 define_alias "glunch" "lunch | grep -ni"
 define_alias "gps" "echo \"PID TTY      STAT   TIME COMMAND\" && ps fax | grep -i"
 define_alias "gmount" "mount | grep -ni"
