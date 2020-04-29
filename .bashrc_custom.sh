@@ -254,12 +254,6 @@ gexport () {
 	eval "export | grep -i $pattern"
 }
 
-grll() {
-	local pattern=$1
-	local path=$2
-	eval "ls -halF $path | grep -i $pattern"
-}
-
 hexdump() {
 	HD=$(which hexdump)
 	OPTIONS1='8/1 "%02X ""\t"" "'
@@ -289,9 +283,9 @@ ll() {
 		;;
 	esac
 	if [[ "$pattern" == "" ]]; then
-		ls -halF "$path"
+		ls "$path"
 	else
-		ls -halF "$path" | grep --color=always "$pattern"
+		ls "$path" | grep --color=always "$pattern"
 	fi
 }
 

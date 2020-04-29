@@ -31,7 +31,7 @@ define_alias "whence" "type -a"                        # where, of a sort
 define_alias "fgrep" "fgrep --color auto"              # show differences in colour
 #
 # Some shortcuts for different directory listings
-define_alias "ls" "ls -hF --color tty"                 # classify files in colour
+define_alias "ls" "ls -hF --color"                 # classify files in colour
 define_alias "dir" "ls --color auto --format vertical"
 define_alias "vls" "ls --color auto --format long"
 # define_alias "la" "ls -A"                              # all but . and ..
