@@ -16,12 +16,12 @@ OPTIONS+="--spider "
 
 #is it connected through a VPN?
 VPN=$(ifconfig | grep "tun")
-[[ "$VPN" != "" ]] && RESULT="VPN-"
+[[ "$VPN" != "" ]] && RESULT="VPN"
 
 #Timeout de 5s
 wget $OPTIONS $HOST --output-document=$OUTPUT 2>/dev/null 1>&2
 if [ "$?" = "0" ]; then
-    RESULT+="Ok" 
+    RESULT+="" 
 else
     # Waiting 3 disconnect before declaring Disconnected
         RESULT+="!!! DOWN !!!"; notify-send -t 200 DISCONNECTED!
@@ -29,7 +29,7 @@ fi
 
 #is WIFI connected as a HOTSPOT?
 HOTSPOT=$(iw dev | grep "type AP")
-[[ "$HOTSPOT" != "" ]] && RESULT+="-HOTSPOT"
+[[ "$HOTSPOT" != "" ]] && RESULT+="-HST"
 
 
 echo "$RESULT"

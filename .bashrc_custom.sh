@@ -141,6 +141,12 @@ c()
 	echo "$formula_str" | bc -l
 }
 
+## Simple bash calculator (without bash calculator 'bc' tool)
+c_()
+{
+    echo "$((${@}))"
+}
+
 cd () {
 	local path="$@"
 	if [ "$path" = "" ]; then
@@ -283,9 +289,9 @@ ll() {
 		;;
 	esac
 	if [[ "$pattern" == "" ]]; then
-		ls "$path"
+		ls -halF "$path"
 	else
-		ls "$path" | grep --color=always "$pattern"
+		ls -halF "$path" | grep --color=always "$pattern"
 	fi
 }
 
