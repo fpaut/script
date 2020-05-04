@@ -55,5 +55,5 @@ define_alias "su" "su --preserve-environment"
 define_alias "tailf" "tail --retry --follow name"
 define_alias "trash-restore" "restore-trash"
 define_alias "xopen" "xdg-open"
-define_alias "sudo" "sudo env PATH=$PATH"
+define_alias "sudo" "sudo env PATH=\"$PATH\""
 echo Out of BASHRC_ALIASES
