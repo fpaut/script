@@ -28,7 +28,7 @@ define_alias "du" "du -h"
 define_alias "whence" "type -a"                        # where, of a sort
 ##define_alias "grep" "grep --color always"                     # show differences in colour
 # define_alias "egrep" "egrep --color auto"              # show differences in colour
-define_alias "fgrep" "fgrep --color auto"              # show differences in colour
+define_alias "fgrep" "fgrep --color=auto"              # show differences in colour
 #
 # Some shortcuts for different directory listings
 define_alias "ls" "ls -hF --color"                 # classify files in colour
