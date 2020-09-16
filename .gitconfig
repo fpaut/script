@@ -15,8 +15,6 @@
 [merge]
 	tool =  meld
 ##	tool =  '/mnt/c/Program Files (x86)/Meld/Meld.exe' \"$LOCAL\" \"$REMOTE\"\"$MERGED\"
-[credential]
-	helper = wincred
 [alias]
 	co = checkout
 	unstage = reset HEAD --

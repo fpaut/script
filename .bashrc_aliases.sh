@@ -21,19 +21,19 @@ define_alias "mv" "mv -i"
 #
 # Default to human readable figure
 define_alias "df" "df -h"
+define_alias "dfg" "df | grep Sys && df | grep"
 define_alias "du" "du -h"
 #
 # Misc :)
 # define_alias "less" "less -r"                          # raw control characters
 define_alias "whence" "type -a"                        # where, of a sort
-##define_alias "grep" "grep --color always"                     # show differences in colour
-# define_alias "egrep" "egrep --color auto"              # show differences in colour
+##define_alias "grep" "grep --color=always"                     # show differences in colour
+# define_alias "egrep" "egrep --color=auto"              # show differences in colour
 define_alias "fgrep" "fgrep --color=auto"              # show differences in colour
 #
 # Some shortcuts for different directory listings
-define_alias "ls" "ls -hF --color"                 # classify files in colour
-define_alias "dir" "ls --color auto --format vertical"
-define_alias "vls" "ls --color auto --format long"
+define_alias "dir" "ls --color=auto --format vertical"
+define_alias "vls" "ls --color=auto --format long"
 # define_alias "la" "ls -A"                              # all but . and ..
 # define_alias "l" "ls -CF"                              #
 
@@ -46,10 +46,12 @@ define_alias "git" "LANG=en_GB git"
 define_alias "glunch" "lunch | grep -ni"
 define_alias "gps" "echo \"PID TTY      STAT   TIME COMMAND\" && ps fax | grep -i"
 define_alias "gmount" "mount | grep -ni"
+define_alias "grepc" "grep --color=always"
 define_alias "here" "conv_path_for_win \"$(pwd)\""
 define_alias "igrep" " grep -ni"
 define_alias "l" "ls -CF"
 define_alias "la" "ls -A"
+define_alias "ls_switch" "du -a "
 define_alias "rm" "trash"
 define_alias "su" "su --preserve-environment"
 define_alias "tailf" "tail --retry --follow name"
