@@ -37,6 +37,22 @@ git_branch_delete()
 	echo $CMD && $CMD
 }
 
+git_branch_get_author()
+{
+	CMD="git for-each-ref --format='%(committerdate)%09%(authorname)%09%(refname)' | sort -k5n -k2M -k3n -k4n | grep remotes | awk -F \"\t\" '{ printf \"%-32s %-27s %s\n\", \$1, \$2, \$3 }'"
+	echo $CMD && eval $CMD
+}
+
+git_branch_get_tag()
+{
+	CMD="git for-each-ref --format='%(committerdate)%09%(authorname)%09%(refname)' | sort -k5n -k2M -k3n -k4n | grep tags | awk -F \"\t\" '{ printf \"%-32s %-27s %s\n\", \$1, \$2, \$3 }'"
+	echo $CMD && eval $CMD
+}
+
+git_diff_file_only(){
+	rev=$1
+	git diff --name-only $rev
+}
 
 git_diff_show_file(){
 	branch=$1
@@ -98,7 +114,7 @@ git_discard () {
 	fi
 	git status -s | grep --color=never "$file_pattern" | grep  --color=never  -v "?? " | while read file
 	do
-		file=${file##* }
+		file=${file#* }
 		file=${file#*:}
 		[[ "$file" != "" ]] && CMD="git checkout -- $file"
 		echo $CMD; $CMD
@@ -340,48 +356,35 @@ git_st_cmp () {
 do_cmp=false
 pattern1=$1
 pattern2=$2
-	git status -s | grep --color=never "$pattern1" | while read file_p1
+	git status -s | grep --color=never "$pattern1" | while read file
 	do
 		do_cmp=false
-		file_p1=${file_p1#* }
-		path="$(file_get_path "$file_p1")"
-		name=$(file_get_name "$file_p1")
+		file_p1=$(get_wip_filename "$file")
+		path=$(file_get_path "$file_p1")
 		ext=$(file_get_ext "$file_p1")
-		name=${name%%$pattern1*}
- 		if [[ "$pattern2" == "" ]]; then
-			if [[ "$ext" == "" ]]; then
-				# No 2nd pattern and no extension, compare with filename
-				file_p2=$path/$name
-			else
-				# No 2nd pattern but extension, compare with filename
-				file_p2=$path/$name.$ext
-			fi
-		else
-			if [[ "$ext" == "" ]]; then
-				# 2nd pattern but no extension, compare with filename
-				file_p2=$path/$name$pattern2
-			else
-				# 2nd pattern and extension exist, compare with filename'pattern2'.ext
-				file_p2=$path/$name$pattern2.$ext
-			fi
+		name=$(file_get_name "$file_p1")
+		# echo file_p1=$file_p1
+		# echo file_p1=$file_p1
+		# echo file_p1 path=$path
+		# echo file_p1 name=$name
+		# echo file_p1 ext=$ext
+		if [[ "$ext" != "" ]]; then
+			name=$name"."
 		fi
-##		echo "file_p2=$file_p2"
-		if [[ ! -f "$file_p1" ]]
-		then
-			echo "$file_p1 does not exist"
+		file_p2=$path$name$ext$pattern2
+		file_p1="$file_p1 [$(get_wip_date "$file")] [WIP_$(get_wip_pattern "$file")]"
+		# echo "file_p1=$file_p1"
+		if [[ "$pattern2" != "" ]]; then
+			file=$(git status -s | grep --color=never "$name.$ext" | grep --color=never "$pattern2")
+			file_p2="$path$name.$ext [$(get_wip_date "$file")] [$pattern2]"
+			echo "file_p2=$file_p2"
 		fi
-		if [[ ! -f "$file_p2" ]]
-		then
-			echo "$file_p2 does not exist"
-		fi
-##		file_p1=$(conv_path_for_win $file_p1)
-##		file_p1=$(double_backslash "$file_p1")
-##		file_p2=$(conv_path_for_win $file_p2)
-##		file_p2=$(double_backslash "$file_p2")
-##		echo "file_p1=$file_p1"
-##		echo "file_p2=$file_p2"
+		[[ ! -f "$file_p1" ]] && echo -e $RED"$file_p1 does not exist"$ATTR_RESET;
+		[[ ! -f "$file_p2" ]] && echo -e $RED"$file_p2 does not exist"$ATTR_RESET;
+
+		## DIFF
 		CMD="diff \"$file_p1\" \"$file_p2\" 1>/dev/null"
-		echo $CMD; eval $CMD
+		eval $CMD
 		case  "$?" in
 			"0")
 				echo -e "$GREEN IDENTICAL : $file_p1 / $file_p2$ATTR_RESET"
@@ -415,18 +418,14 @@ git_st_ls() {
 		
 	
 	if [[ "$pattern" == "" ]]; then
-		LANG=en_GB git status -s | grep "_WIP" | while read file; 
+		LANG=en_GB git status -s | grep "WIP" | while read file; 
 		do  
-			file=_WIP${file##*_WIP}; 
-			echo ${file%%.*}; 
+			echo -e "[ $(get_wip_date "$file") ]\t[ WIP_$(get_wip_pattern "$file") ] "
 		done | sort | uniq
 	else
 		LANG=en_GB git status -s | grep "$pattern" | while read file; 
 		do
-			file=${file#* }
-			ext=$(file_get_ext "$file"); 
-			file=${file%%$pattern*}; 
-			echo $file.$ext
+			echo $file
 		done | sort
 	fi
 }
@@ -475,11 +474,15 @@ git_st_restore () {
 	echo -e $GREEN"Following file will replace original."$ATTR_RESET
 	git status -s | grep "$pattern" | while read file
 	do
-		file=${file##* }
-		file=${file#*:}
-		name=${file%$pattern*}
-		ext=$(file_get_ext $file)
-		CMD="copy $file -> $name.$ext"
+		name=$(get_wip_filename "$file")
+		ext=$(file_get_ext $name)
+		path=$(file_get_path "$name")
+		name=$(file_get_name "$name")
+		# echo path=$path
+		# echo name=$name
+		# echo ext=$ext
+		[[ "$ext" != "" ]] && name=$name"."
+		CMD="copy $path$name$ext [$(get_wip_date "$file")] [WIP_$(get_wip_pattern "$file")] -> $path/$name$ext"
 		echo $CMD
 	done
 	echo -e $GREEN
@@ -488,12 +491,14 @@ git_st_restore () {
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
 		git status -s | grep "$pattern" | while read file
 		do
-			file=${file##* }
-			name=${file%$pattern*}
-			ext=$(file_get_ext "$file")
-			CMD="cp $file $name.$ext"
+			name=$(get_wip_filename "$file")
+			ext=$(file_get_ext $name)
+			path=$(file_get_path "$name")
+			name=$(file_get_name "$name")
+			[[ "$ext" != "" ]] && name=$name"."
+			CMD="cp \"$path$name$ext [$(get_wip_date "$file")] [WIP_$(get_wip_pattern "$file")]\" $path$name$ext"
 			echo $CMD
-			$CMD
+			eval $CMD
 		done
 	fi
 	echo -e $GREEN
@@ -502,10 +507,11 @@ git_st_restore () {
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
 		git status -s | grep "$pattern" | while read file
 		do
-			file=${file#*?? }
+			file=$(get_right_first " " "$file")
+			echo file=$file
 			CMD="rm \"$file\""
 			echo $CMD
-			$CMD
+			eval $CMD
 		done
 	fi
 }
@@ -569,7 +575,14 @@ git_st_save () {
 	pattern="$1"
 	pattern=$(echo $pattern |  sed 's, ,_,g')
 	# Remove previous saved pattern 
-	CMD="yes n | git_st_rm $pattern"; echo -e $CYAN$CMD$ATTR_RESET; eval "$CMD"
+	echo -e $CYAN Removing previous saved pattern$ATTR_RESET
+	CMD="yes y | git_st_rm $pattern"; echo -e $CYAN$CMD$ATTR_RESET; eval "$CMD"
+	myDate=$(date +%y)
+	myDate+=_$(date +%m)
+	myDate+=_$(date +%d)
+	myDate+=_$(date +%H)H
+	myDate+=$(date +%M)mn
+	echo myDate=$myDate
 	git status -s | egrep "A |M " | while read file
 	do
 		file=${file#* }
@@ -582,8 +595,8 @@ git_st_save () {
 		ext=$(file_get_ext "$file")
 		if [[ "$name.$ext" != "version.c"  ]]; 
 		then 	
-			[[ "$ext" == "" ]] && CMD="cp \"$path/$name\" \"$path/$name$pattern\""
-			[[ "$ext" != "" ]] && CMD="cp \"$path/$name.$ext\" \"$path/$name$pattern.$ext\""
+			[[ "$ext" == "" ]] && CMD="cp \"$path/$name\" \"$path/$name [$myDate] [$pattern]\""
+			[[ "$ext" != "" ]] && CMD="cp \"$path/$name.$ext\" \"$path/$name.$ext [$myDate] [$pattern]\""
 			echo $CMD; 
 			eval $CMD
 		else
@@ -661,7 +674,16 @@ git_st_exe () {
 	fi
 }
 
-
+#########################################
+# git merge only fast foward
+# Fails if there are conflicts
+#########################################
+git_merge_ff_only () {
+	BRANCH=$@
+	CMD="git merge --ff-only $BRANCH"
+	echo $CMD
+	$CMD
+}
 git_unix2dos () {
 	git status -s | grep "modified" | grep -v "\-wip" | while read file
 	do
@@ -677,9 +699,8 @@ git_unix2dos () {
 # recursively
 #########################################
 git_submodule_update() {
-	CMD="git submodule update --recursive "$1
-	echo $CMD
-	$CMD
+	CMD="git submodule update --init --recursive "$1; echo $CMD; $CMD
+	CMD="git pull --recurse-submodules"; echo $CMD; $CMD
 }
 
 
@@ -687,6 +708,24 @@ git_submodule_update() {
 ## "WIP section" Utilities functions to manipulate Work In Progress files combined with GIT
 ####################################################################################################################################################################
 WIP_PREFIX="WIP"
+
+get_wip_date()
+{
+	wip_date=$(get_right_first "[" "$1")
+	echo $(get_left_last "]" "$wip_date");
+}
+
+get_wip_pattern()
+{
+	wip_pattern=$(get_right_last "[WIP_" "$1");
+	echo $(get_left_first "]" "$wip_pattern");
+}
+
+get_wip_filename()
+{
+	wip_filename=$(get_right_first " " "$1")
+	echo $(get_left_last " " "$wip_filename")
+}
 
 #########################################
 # Show wip file, with specific pattern

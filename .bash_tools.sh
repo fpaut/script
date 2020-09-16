@@ -25,6 +25,18 @@ backtrace() {
 #  exit 1
 }
 
+datediff() {
+	if [[ "$1" == "" || "$2" == "" ]]; then
+		echo #1 and #2 parameters must be 2 dates to calculate difference in days
+		echo eg.: ${FUNCNAME[0]} '"9 oct" "now"'
+		echo
+		return 1
+	fi
+    d1=$(date -d "$1" +%s)
+    d2=$(date -d "$2" +%s)
+	echo $(( (((d1-d2) > 0 ? (d1-d2) : (d2-d1)) + 43200) / 86400 )) days
+}
+
 debug_log() {
 	string=$@
 	if [[ "$DEBUG_BASH" != "" ]]; then
@@ -38,6 +50,34 @@ double_backslash()
 	echo $(echo $str |  sed 's,\\,\\\\,g')
 }
 export -f double_backslash
+
+get_left_first()
+{
+	sep=$1
+	line=$2
+	echo ${line%$sep*}
+}
+
+get_left_last()
+{
+	sep=$1
+	line=$2
+	echo ${line%%$sep*}
+}
+
+get_right_first()
+{
+	sep=$1
+	line=$2
+	echo ${line#*$sep}
+}
+
+get_right_last()
+{
+	sep=$1
+	line=$2
+	echo ${line##*$sep}
+}
 
 trap_handler_cb() {
 	# Backup exit status if you're interested...

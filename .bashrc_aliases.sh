@@ -26,7 +26,8 @@ define_alias "du" "du -h"
 # Misc :)
 # define_alias "less" "less -r"                          # raw control characters
 define_alias "whence" "type -a"                        # where, of a sort
-##define_alias "grep" "grep --color always"                     # show differences in colour
+define_alias "grep" "grep --color=never"                     # show differences without colour
+define_alias "grepc" "grep --color=always"                     # show differences in colour
 # define_alias "egrep" "egrep --color auto"              # show differences in colour
 define_alias "fgrep" "fgrep --color=auto"              # show differences in colour
 #
@@ -41,6 +42,7 @@ define_alias "vls" "ls --color auto --format long"
 define_alias "alert" "notify-send --urgency low -i dialog-information "
 define_alias "bdb" "bashdb -x $HOME/.bashdbinit"
 define_alias "fsize" "du -s"
+define_alias "getObjSize" "nm --print-size --size-sort --radix=d"
 define_alias "ghistory" "history | grep -i"
 define_alias "git" "LANG=en_GB git"
 define_alias "glunch" "lunch | grep -ni"

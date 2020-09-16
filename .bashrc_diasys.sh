@@ -16,8 +16,10 @@ export LIBGL_ALWAYS_INDIRECT=1
 
 alias cdd="cd $DEV_PATH"
 alias cdf="cd $FIRMWARE_PATH"
+alias cdfo="cd $FIRMWARE_PATH-other-branch"
 alias cdfsm="cdf && cd ODS/FSM/Cycles"
-alias cdlog="cd /mnt/m/ComboMaster/emulated-disk/Files/0/logs/$(eval echo $(date +%Y)$(date +%m)$(date +%d))"
+alias cdlog="cdf && cd Combo/Simul/Files/0/logs//$(eval echo $(date +%Y)$(date +%m)$(date +%d))"
+alias cdsimul="cdf && cd Combo/Simul/Files"
 alias cds="cd $SCRIPTS_PATH"
 alias cdt="cd $TOOLS_PATH"
 alias cmd="/mnt/c/WINDOWS/system32/cmd.exe /c"

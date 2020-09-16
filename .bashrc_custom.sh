@@ -383,7 +383,7 @@ ps1_prefix()
 {
 	IAM=$(whoami)
 
-	PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$PS1_CYAN\w\n"
+	PS1_PREFIX="\D{%T}-$PREF_COLOR\h(\u):$PS1_CYAN \w\n"
 	if [[ "$IAM" != "root" ]]; then
 		PREF_COLOR=$GREEN
 	else
@@ -393,7 +393,7 @@ ps1_prefix()
 		PS1_PREFIX=$PS1_PREFIX"$PS1_CYAN[$BRANCH]$PS1_ATTR_RESET"
 	fi
 	if [[ "$GIT_AHEAD" != "" &&  "$GIT_AHEAD" != "0" ]]; then
-		PS1_PREFIX=$PS1_PREFIX"$PS1_BLUE[L:$GIT_AHEAD]$APS1_TTR_RESET"
+		PS1_PREFIX=$PS1_PREFIX"$PS1_BLUE[L:$GIT_AHEAD]$PS1_ATTR_RESET"
 	fi
 	if [[ "$GIT_BEHIND" != "" &&  "$GIT_BEHIND" != "0" ]]; then
 		PS1_PREFIX=$PS1_PREFIX"$PS1_BLUE[R:$GIT_BEHIND]$PS1_ATTR_RESET"
@@ -421,7 +421,6 @@ str_replace() {
 	search=$2
 	replace=$3
 	result=${str//$2/$3}
-	echo result=$result
 	echo $result
 }
 export -f str_replace
@@ -438,8 +437,11 @@ wcat() {
 }
 
 which() {
-	local who=$1
-	paths=($(/bin/which -a $who) )
+	local who=$@
+#	echo who before = $who
+	who=$(str_replace "$who" " " "\ ")
+#	echo who after = $who
+	paths=($(/bin/which -a "$who"))
 	echo ${paths[$((${#paths[@]} - 1))]}
 }
 
