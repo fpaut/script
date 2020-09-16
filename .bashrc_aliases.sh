@@ -32,9 +32,8 @@ define_alias "grepc" "grep --color=always"                     # show difference
 define_alias "fgrep" "fgrep --color=auto"              # show differences in colour
 #
 # Some shortcuts for different directory listings
-define_alias "ls" "ls -hF --color"                 # classify files in colour
-define_alias "dir" "ls --color auto --format vertical"
-define_alias "vls" "ls --color auto --format long"
+define_alias "dir" "ls --color=auto --format vertical"
+define_alias "vls" "ls --color=auto --format long"
 # define_alias "la" "ls -A"                              # all but . and ..
 # define_alias "l" "ls -CF"                              #
 
@@ -52,6 +51,7 @@ define_alias "here" "conv_path_for_win \"$(pwd)\""
 define_alias "igrep" " grep -ni"
 define_alias "l" "ls -CF"
 define_alias "la" "ls -A"
+define_alias "ls_switch" "du -a "
 define_alias "rm" "trash"
 define_alias "su" "su --preserve-environment"
 define_alias "tailf" "tail --retry --follow name"

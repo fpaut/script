@@ -1,5 +1,9 @@
 #!/bin/bash
 PLAYLIST_URL=$1
-CMD="youtube-dl --extract-audio --audio-format mp3 $PLAYLIST_URL"
+LOGFILE="./youtube-dl.log"
+rm $LOGFILE
+CMD="/usr/local/bin/youtube-dl --extract-audio --audio-format mp3 --ignore-errors $PLAYLIST_URL 2>&1 | tee $LOGFILE"
 echo $CMD && eval $CMD
-
+echo "Number of titles "$(cat $LOGFILE | grep "Downloading video" | wc -l)
+echo "Error "$(cat LOGFILE | grep "ERROR")
+cat $LOGFILE | grep "Downloading video" | wc -l

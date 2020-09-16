@@ -10,7 +10,7 @@ if [ -z $HOST ]; then
 fi
 
 # Timeout
-OPTIONS="-T $TIMEOUT "
+OPTIONS="--no-check-certificate -T $TIMEOUT "
 # Ne rien télécharger
 OPTIONS+="--spider "
 
