@@ -18,13 +18,13 @@ alias cdd="cd $DEV_PATH"
 alias cdf="cd $FIRMWARE_PATH"
 alias cdfo="cd $FIRMWARE_PATH-other-branch"
 alias cdfsm="cdf && cd ODS/FSM/Cycles"
-alias cdlog="cdf && cd Combo/Simul/Files/0/logs//$(eval echo $(date +%Y)$(date +%m)$(date +%d))"
+alias cdsch="cdf && cd Scheduling"
 alias cdsimul="cdf && cd Combo/Simul/Files"
 alias cds="cd $SCRIPTS_PATH"
 alias cdt="cd $TOOLS_PATH"
 alias cmd="/mnt/c/WINDOWS/system32/cmd.exe /c"
-
 alias jenkins_CLI="java -jar jenkins-cli.jar -auth pautf:QtxS1204+ -s http://FRSOFTWARE02:8080/"
+
 
 
 cmlog()
@@ -61,6 +61,15 @@ deg_to_step()
 	deg=$1
 	echo $(( $(($((600 * $deg)) / 360)) )) steps
 	echo $(( $(($((600 * $deg)) / 360)) * 4)) 1/4 steps
+}
+
+cdlog()
+{
+	year=$(date +%Y)
+	month=$(date +%m)
+	day=$(date +%d)
+	cdf
+	cd $(get_combo_log_folder)
 }
 
 
@@ -168,6 +177,31 @@ get_company()
 {
 	echo diasys
 }
+
+get_combo_last_log_name()
+{
+	DIR=($(ls $(get_combo_log_folder ) | grep "\.LOG") )
+	nbLog=${#DIR[@]}
+	lastArrayIndex=$(echo $(( $nbLog - 1)))
+	lastLog=$(echo ${DIR[$lastArrayIndex]})
+	echo $lastLog
+}
+
+get_combo_last_log_path()
+{
+	echo $(get_combo_log_folder)/$(get_combo_last_log_name)
+}
+
+get_combo_log_folder()
+{
+	logPath="$FIRMWARE_PATH/Combo/Simul/Files/0/logs/"
+	DIR=($(ls $logPath) )
+	nbLog=${#DIR[@]}
+	lastArrayIndex=$(echo $(( $nbLog - 1)))
+	lastDir=$(echo ${DIR[$lastArrayIndex]})
+	echo $logPath$lastDir
+}
+
 npp() {
 ## exec /mnt/e/Tools/Notepad++/notepad++.exe "$@"
     CMD="/mnt/e/Tools/Notepad++/notepad++.exe \"$(conv_path_for_win $@)\""
@@ -292,11 +326,17 @@ FILEMODE=$(cat .git/config | grep -i filemode)
 echo -e "dt-fwtools\t: $FILEMODE"
 cd - 1>/dev/null
 
-test=$(ls /mnt/m/* 2>/dev/null)
 MOUNTED=$(wslpath M:\\ 2>&1 | grep mnt)
 if [[ "$MOUNTED" == "" ]]; then
 	echo -e "Mounting MEDIOS-HP in /mnt/m"
 	CMD="sudo mount -t drvfs M: /mnt/m"
+	$CMD
+fi
+
+MOUNTED=$(wslpath Z:\\ 2>&1 | grep mnt)
+if [[ "$MOUNTED" == "" ]]; then
+	echo -e "Mounting /mnt/z = \\manihi\diasystech"
+	CMD="sudo mount -t drvfs Z: /mnt/z"
 	$CMD
 fi
 
