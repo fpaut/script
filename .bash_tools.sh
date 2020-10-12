@@ -25,7 +25,42 @@ backtrace() {
 #  exit 1
 }
 
-datediff() {
+contains()
+{
+	if [ $# -le 1 ]; then
+		echo "#1 is pattern"
+		echo "#2 is array to check"
+		return 1
+	fi
+	local search=$1
+	local myarray=${@:2}
+	test=$(echo ${myarray[@]} | grep -w $search)
+	if [[ "$test" != "" ]]; then
+		echo 1;
+		return 0
+	fi
+	echo 0
+	return 1
+}
+
+c_exec ()
+{
+	# $1=command to execute
+	# $2=0 just to display xommand without execution
+	local CMD=$1
+	local EXEC=$2
+	local ERR
+	if [ "$EXEC" = "0" ]; then
+		CMD="## $CMD"
+	fi
+	echo -e $BLUE"$CMD"$ATTR_RESET
+	export OUT=$(eval "$CMD")
+	ERR=$?
+	return $ERR
+}
+
+datediff()
+{
 	if [[ "$1" == "" || "$2" == "" ]]; then
 		echo #1 and #2 parameters must be 2 dates to calculate difference in days
 		echo eg.: ${FUNCNAME[0]} '"9 oct" "now"'
@@ -42,61 +77,6 @@ debug_log() {
 	if [[ "$DEBUG_BASH" != "" ]]; then
 		echo $string
 	fi
-}
-
-double_backslash()
-{
-	str="$1"
-	echo $(echo $str |  sed 's,\\,\\\\,g')
-}
-export -f double_backslash
-
-get_left_first()
-{
-	sep=$1
-	line=$2
-	echo ${line%$sep*}
-}
-
-get_left_last()
-{
-	sep=$1
-	line=$2
-	echo ${line%%$sep*}
-}
-
-get_right_first()
-{
-	sep=$1
-	line=$2
-	echo ${line#*$sep}
-}
-
-get_right_last()
-{
-	sep=$1
-	line=$2
-	echo ${line##*$sep}
-}
-
-trap_handler_cb() {
-	# Backup exit status if you're interested...
-    local exit_status=$?
-    echo "TRAP HANDLER (CALLER=$(caller 0)"
-} # trap_exit_handler()
-
-trap_handler_set() {
-	trap trap_handler_cb $SIG_LIST
-
-	# nounset : Attempt to use undefined variable outputs error message, and forces an exit
-	set -o nounset
-}
-
-trap_handler_unset() {
-	trap "" $SIG_LIST
-
-	# nounset : Attempt to use undefined variable outputs error message, and forces an exit
-	set +o nounset
 }
 
 def_font_attributes() {
@@ -152,40 +132,78 @@ def_font_attributes() {
 	export ATTR_RESET=$(tput sgr0)
 }
 
+double_backslash()
+{
+	str="$1"
+	echo $(echo $str |  sed 's,\\,\\\\,g')
+}
+export -f double_backslash
+
+get_left_first()
+{
+	sep=$1
+	line=$2
+	echo ${line%$sep*}
+}
+
+get_left_last()
+{
+	sep=$1
+	line=$2
+	echo ${line%%$sep*}
+}
+
+get_right_first()
+{
+	sep=$1
+	line=$2
+	echo ${line#*$sep}
+}
+
+get_right_last()
+{
+	sep=$1
+	line=$2
+	echo ${line##*$sep}
+}
+
+lower_case()
+{
+	str=$1
+	echo ${str,,}
+}
+export -f lower_case
+
+trap_handler_cb() {
+	# Backup exit status if you're interested...
+    local exit_status=$?
+    echo "TRAP HANDLER (CALLER=$(caller 0)"
+} # trap_exit_handler()
+
+trap_handler_set() {
+	trap trap_handler_cb $SIG_LIST
+
+	# nounset : Attempt to use undefined variable outputs error message, and forces an exit
+	set -o nounset
+}
+
+trap_handler_unset() {
+	trap "" $SIG_LIST
+
+	# nounset : Attempt to use undefined variable outputs error message, and forces an exit
+	set +o nounset
+}
+
 set_term_title() {
   local TITLE=$@
   echo -ne '\033]0;'$TITLE'\007'
 }
 
-contains() {
-	if [ $# -le 1 ]; then
-		echo "#1 is pattern"
-		echo "#2 is array to check"
-		return 1
-	fi
-	local search=$1
-	local myarray=${@:2}
-	test=$(echo ${myarray[@]} | grep -w $search)
-	if [[ "$test" != "" ]]; then
-		echo 1;
-		return 0
-	fi
-	echo 0
-	return 1
+upper_case()
+{
+	str=$1
+	echo ${str^^}
 }
+export -f upper_case
 
-c_exec () {
-	# $1=command to execute
-	# $2=0 just to display xommand without execution
-	local CMD=$1
-	local EXEC=$2
-	local ERR
-	if [ "$EXEC" = "0" ]; then
-		CMD="## $CMD"
-	fi
-	echo -e $BLUE"$CMD"$ATTR_RESET
-	export OUT=$(eval "$CMD")
-	ERR=$?
-	return $ERR
-}
 echo Out of BASHRC_TOOLS

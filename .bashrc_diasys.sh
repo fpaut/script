@@ -217,6 +217,23 @@ get_version()
 	echo $version
 }
 
+myMount()
+{
+	drive=$1
+	# Lowercase
+	letter=${drive,,}
+	# Uppercase
+	LETTER=${drive^^}
+	
+	MOUNTED=$(wslpath '$LETTER:\\' 2>&1 | grep mnt)
+	if [[ "$?" == "0" ]]; then
+		echo -e "Mounting $LETTER: in /mnt/$letter"
+		CMD="sudo mount -t drvfs $LETTER: /mnt/$letter"
+		$CMD
+	fi
+}
+
+
 step_to_deg()
 {
 	step=$1
@@ -326,18 +343,8 @@ FILEMODE=$(cat .git/config | grep -i filemode)
 echo -e "dt-fwtools\t: $FILEMODE"
 cd - 1>/dev/null
 
-MOUNTED=$(wslpath M:\\ 2>&1 | grep mnt)
-if [[ "$MOUNTED" == "" ]]; then
-	echo -e "Mounting MEDIOS-HP in /mnt/m"
-	CMD="sudo mount -t drvfs M: /mnt/m"
-	$CMD
-fi
-
-MOUNTED=$(wslpath Z:\\ 2>&1 | grep mnt)
-if [[ "$MOUNTED" == "" ]]; then
-	echo -e "Mounting /mnt/z = \\manihi\diasystech"
-	CMD="sudo mount -t drvfs Z: /mnt/z"
-	$CMD
-fi
+myMount M
+myMount Z
+myMount G
 
 echo Out of BASHRC_DIASYS
