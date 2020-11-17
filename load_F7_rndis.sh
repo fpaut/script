@@ -17,9 +17,9 @@ double_backslash()
 OPENOCD="$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728/bin/openocd.exe"
 CFG_LINK=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/interface/stlink.cfg"))
 CFG_BOARD=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/c/Users/fpaut/bin/Openocd/OpenOCD-20180728//share/openocd/scripts/board/stm32f7discovery.cfg"))
-RNDIS_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$(is_git_folder)/../ODS/RNDIS-F7/bin/rndis-F7.bin")))
-RNDIS_BIN2=$(double_backslash $(double_backslash $(conv_path_for_win "$(is_git_folder)/../ODS/RNDIS-F7/bin/rndis-F7ext.bin")))
-APPLI_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$(is_git_folder)/../ODS/LEDappli/bin7/LEDappli.bin")))
+RNDIS_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$(get_git_folder)/../ODS/RNDIS-F7/bin/rndis-F7.bin")))
+RNDIS_BIN2=$(double_backslash $(double_backslash $(conv_path_for_win "$(get_git_folder)/../ODS/RNDIS-F7/bin/rndis-F7ext.bin")))
+APPLI_BIN=$(double_backslash $(double_backslash $(conv_path_for_win "$(get_git_folder)/../ODS/LEDappli/bin7/LEDappli.bin")))
 
 echo CFG_LINK	= $CFG_LINK
 echo CFG_BOARD	= $CFG_BOARD

@@ -22,13 +22,13 @@ CFG_BOARD=$(double_backslash $(conv_path_for_win "$ROOTDRIVE/e/Tools/Openocd/Ope
 
 
 if [[ "$1" == "vcpgen" ||  "$2" == "vcpgen" ]]; then
-	VCP_BIN=$(double_backslash $(conv_path_for_win "$(is_git_folder)/../ODS/vcp/build/bin/vcp.bin"))
+	VCP_BIN=$(double_backslash $(conv_path_for_win "$(get_git_folder)/../ODS/vcp/build/bin/vcp.bin"))
 	VCP_BIN=$(double_backslash $VCP_BIN)
 else
 	VCP_BIN=""
 fi
 if [[ "$1" == "vcpgen-hal" ||  "$2" == "vcpgen-hal" ]]; then
-	VCP_BIN=$(double_backslash $(conv_path_for_win "$(is_git_folder)/../ODS/vcp/build/bingen-hal-f4/vcp.bin"))
+	VCP_BIN=$(double_backslash $(conv_path_for_win "$(get_git_folder)/../ODS/vcp/build/bingen-hal-f4/vcp.bin"))
 	VCP_BIN=$(double_backslash $VCP_BIN)
 else
 	VCP_BIN=""
@@ -36,7 +36,7 @@ fi
 FLASH_VCP="-c \"flash write_image erase  \"$VCP_BIN\" 0x08000000\""
 
 if [[ "appli" != "" ]]; then
-	APPLI_BIN=$(double_backslash $(conv_path_for_win "$(is_git_folder)/../ODS/StepMotor/build/bin/$appli"))
+	APPLI_BIN=$(double_backslash $(conv_path_for_win "$(get_git_folder)/../ODS/StepMotor/build/bin/$appli"))
 	APPLI_BIN=$(double_backslash $APPLI_BIN)
 else
 	APPLI_BIN=""

@@ -206,45 +206,6 @@ ecat() {
 	eval $CMD
 }
 
-# Return filename+extension of a provided path+filename (eg.: "/home/user/toto.txt.doc" return "toto.txt.doc")
-file_get_fullname()
-{
-	file="$1"
-	echo $(basename "$file")
-}
-
-# Return path of provided path+filename (eg.: "/home/user/toto.txt.doc" return "/home/user")
-file_get_path()
-{
-	file="$1"
-	path=${file%%$(basename "$file")*}
-	if [[ "$path" == "" ]]; then
-		path="./"
-	fi
-	echo $path
-}
-
-# Return only name of the filename provided (eg.: "/home/user/toto.txt.doc" return "toto.txt")
-file_get_name()
-{
-	file="$1"
-	filename=$(file_get_fullname "$file")
-	echo ${filename%.*}
-}
-
-# Return only extension of the filename provided (eg.: "/home/user/toto.txt.doc" return "doc")
-file_get_ext()
-{
-	file="$1"
-	filename=$(file_get_fullname "$file")
-	#remove last '"'; if any
-	filename=${filename%%\"*}
-	if [[ $filename == *"."* ]]; then
-		echo ${filename##*.}
-	else
-		return
-	fi
-}
 
 get_caller() {
 	var="$(ps | grep "$PID" | head -n 2)"
@@ -363,7 +324,7 @@ show_parent()
 
 prompt_update() {
 	history -a
-	repoGit=$(is_git_folder)
+	repoGit=$(get_git_folder)
 	gitps1_update_branch $repoGit
 	gitps1_update_aheadBehind $repoGit
 	gitps1_update_stash $repoGit

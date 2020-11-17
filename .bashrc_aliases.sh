@@ -34,6 +34,7 @@ define_alias "gmount" "mount | grep -ni"
 define_alias "gps" "echo \"PID TTY      STAT   TIME COMMAND\" && ps fax | grep -i"
 define_alias "grep" "grep --color=never"                     # show differences without colour
 define_alias "grepc" "grep --color=always"                     # show differences in colour
+define_alias "gwps" "tasklist.exe | grep -i"                   # list Windows native process and grep
 define_alias "here" "conv_path_for_win \"$(pwd)\""
 define_alias "igrep" "grep -ni"
 define_alias "l" "ls -CF"
@@ -47,5 +48,7 @@ define_alias "sudo" "sudo env PATH=\"$PATH\""
 define_alias "tailf" "tail --retry --follow name"
 define_alias "trash-restore" "restore-trash"
 define_alias "whence" "type -a"                        # where, of a sort
+define_alias "wkill" "taskkill.exe /PID"                 # Kill Windows native process
+define_alias "wps" "tasklist.exe"                        # list Windows native process
 define_alias "xopen" "xdg-open"
 echo Out of BASHRC_ALIASES

@@ -25,13 +25,20 @@
 	dt = difftool -y
 	lg = log -60 --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 	mg = merge --strategy-option theirs
+	mgff = merge --ff-only
 	mt = mergetool -y
 	sd = "!bash -c '[[ "$0" != \"bash\" ]] && stash=$0; repoGit=$(git rev-parse --git-dir 2>/dev/null); BRANCH=$stash;[[ "$stash" == \"\" ]] && BRANCH=$(cat $repoGit/HEAD); [[ "$stash" == \"\" ]] && BRANCH=${BRANCH##*/}; BSTASH=$(git stash list | grep $BRANCH); BSTASH=${BSTASH%%:*}; if [[ \"$BSTASH\" != \"\" ]]; then git stash drop $BSTASH; else echo No Stash for branch \\\"$BRANCH\\\"; fi'"
 	sl = stash list
 	tt = "!bash -c 'param0=$0; echo XXXXXXXXX param0:$0 param1:$1 '"
 	sp = "!bash -c '[[ "$0" != \"bash\" ]] && stash=$0; repoGit=$(git rev-parse --git-dir 2>/dev/null); BRANCH=$stash;[[ "$stash" == \"\" ]] && BRANCH=$(cat $repoGit/HEAD); [[ "$stash" == \"\" ]] && BRANCH=${BRANCH##*/}; BSTASH=$(git stash list | grep $BRANCH); BSTASH=${BSTASH%%:*}; if [[ \"$BSTASH\" != \"\" ]]; then git stash pop $BSTASH; else echo No Stash for branch \\\"$BRANCH\\\"; fi'"
 	ss = "!bash -c 'STASH_NAME=\"$0 on $(date)\"; vers=$(git status | grep version.c); if [[ \"$vers\" != \"\"  ]]; then echo Files version found. Discarding...; git checkout -- *version.c; git stash save $STASH_NAME; else echo No Files version version; git stash save $STASH_NAME; fi'"
-	st = "!bash -c 'echo -e \"\\033[0;44mOnly modified files! (stu for untracked files, sta for all)\\033[0;0m\"' && git status -s  | grep -v \"??\" | egrep --color=always \"A | M| D|MM\""
+	stFilter = "!bash -c 'param0=$0 && git status | egrep -v \"$param0\"'"
+	stTest = "!bash -c 'echo -e \"\\033[0;44mFiles Append:\\033[0;0m\" && git stFilter \"renamed|D |M \"'"
+	stAppend = "!bash -c 'echo -e \"\\033[0;44mFiles Append:\\033[0;0m\" && git status | grep --color=always \"new file\"'"
+	stDeleted = "!bash -c 'echo -e \"\\033[0;44mFiles Deleted:\\033[0;0m\" && git status | grep --color=always \"deleted\"'"
+	stModified = "!bash -c 'echo -e \"\\033[0;44mFiles Modified:\\033[0;0m\" && git status | grep --color=always \"modified\"'"
+	stRenamed = "!bash -c 'echo -e \"\\033[0;44mFiles Renamed:\\033[0;0m\" && git status | grep --color=always \"renamed\"'"
+	st = "!bash -c echo && git stModified && git stAppend && git stDeleted"
 	sta = "!bash -c 'echo -e \"\\033[0;44mNormal git status\\033[0;0m\"' && git status"
 	stu = "!bash -c 'echo -e \"\\033[0;44mOnly untracked files! (st for tracked files, sta for all)\\033[0;0m\"' && git status -s | grep -w --color=always "??""
 	sub = submodule update --init --recursive

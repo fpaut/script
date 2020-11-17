@@ -44,28 +44,37 @@ return
 <^<!m::MsgBox [AUTOHOTKEY] You pressed LeftControl+LeftAlt+m.
 
 ;## Left Mouse Button + 'A' : Show ASCII table
-~LButton & A::run E:\Documents\Ascii-codes-table.png
+LButton_ToolTip = "'A' : Show ASCII table"
+~LButton & A::run E:\Documents\Ascii-codes-table.pngc
 
-;## Left Mouse Button + 'D' : Show ASCII table
+;## Left Mouse Button + 'D' : Show Combo Devices ID
 ~LButton & D::run E:\dev\STM32_Toolchain\doc\DeviceID.PNG
 
 ;## Left Mouse Button + 'K' : Show Virtual Keyboard
-~LButton & K::run D:\Windows\System32\osk.exe
+~LButton & K::run C:\Windows\System32\osk.exe
 
-;## Left Mouse Button + 'M' : Active magnify
+;## Left Mouse Button + 'M' : Active magnifyc
 ~LButton & M::run %windir%\system32\magnify.exe
 
 ;## Left Mouse Button + 'R' : COMBO with ARMS
 ~LButton & R::run E:\dev\STM32_Toolchain\doc\COMBO_ARMS.png
 
+;## Left Mouse Button + 'Y' : Launch Youtube Player
+~LButton::ToolTip % LButton_ToolTip
+~LButton & Y::run E:\Tools\SMPlayer\smplayer.exe
+
+
 ;## Left Mouse Button + 'W' : Show how to fix WSL problem Lxssmanager service
 ~LButton & W::run D:\Users\fpaut\Documents\dev\PB_Windows\WslUnableToStart.jpg
 
-;## holding Menu will show the ToolTip and will not trigger a context menu
+;## holding touch 'Menu' will show the ToolTip and will not trigger a context menu
 AppsKey::ToolTip [AUTOHOTKEY] Press < or > to cycle through windows.
 AppsKey Up::ToolTip
 ~AppsKey & <::Send !+{Esc}
 ~AppsKey & >::Send !{Esc}
+
+;## ALTGR+SPACE: Make a Window Always-on-Top
+<^>!SPACE::  Winset, Alwaysontop, , A
 
 
 ^Numpad0::

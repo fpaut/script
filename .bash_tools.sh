@@ -139,31 +139,88 @@ double_backslash()
 }
 export -f double_backslash
 
+
+#
+# Filename manipulation
+#
+
+# Return filename+extension of a provided path+filename (eg.: "/home/user/toto.txt.doc" return "toto.txt.doc")
+file_get_fullname()
+{
+	f="$1"
+	echo $(basename "$f")
+}
+
+# Return path of provided path+filename (eg.: "/home/user/toto.txt.doc" return "/home/user")
+file_get_path()
+{
+	f="$1"
+	path=$(dirname "$1")
+	if [[ "$path" == "" ]]; then
+		path="./"
+	fi
+	echo $path
+}
+
+# Return only name of the filename provided (eg.: "/home/user/toto.txt.doc" return "toto.txt")
+file_get_name()
+{
+	f="$1"
+	filename=$(file_get_fullname "$f")
+	echo ${filename%.*}
+}
+
+# Return only extension of the filename provided (eg.: "/home/user/toto.txt.doc" return "doc")
+file_get_ext()
+{
+	f="$1"
+	filename=$(file_get_fullname "$f")
+	#remove last '"'; if any
+	filename=${filename%%\"*}
+	if [[ $filename == *"."* ]]; then
+		echo ${filename##*.}
+	else
+		return
+	fi
+}
+
+# Return only extension of the filename provided (eg.: "/home/user/toto.txt.doc" return "doc")
+replace()
+{
+	pattern1=$1
+	pattern2=$2
+	str=$3
+	echo $(echo $str |  sed "s,$pattern1,$pattern2,g")
+}
+
+
 get_left_first()
 {
-	sep=$1
-	line=$2
+	sep="$1"
+	echo sep="\"$sep\""
+	line="$2"
+	echo line="\"$line\""
 	echo ${line%$sep*}
 }
 
 get_left_last()
 {
-	sep=$1
-	line=$2
+	sep="$1"
+	line="$2"
 	echo ${line%%$sep*}
 }
 
 get_right_first()
 {
-	sep=$1
-	line=$2
+	sep="$1"
+	line="$2"
 	echo ${line#*$sep}
 }
 
 get_right_last()
 {
-	sep=$1
-	line=$2
+	sep="$1"
+	line="$2"
 	echo ${line##*$sep}
 }
 

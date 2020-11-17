@@ -68,7 +68,6 @@ cdlog()
 	year=$(date +%Y)
 	month=$(date +%m)
 	day=$(date +%d)
-	cdf
 	cd $(get_combo_log_folder)
 }
 
@@ -76,7 +75,7 @@ cdlog()
 copy_bin_to_medios_hp()
 {
 	p1=$@
-	ROOT_FOLDER=$(is_git_folder)/..
+	ROOT_FOLDER=$(get_git_folder)/..
 	export ROOT_FOLDER
 	
 	if [[ "$p1" == "" ]]; then
@@ -194,12 +193,18 @@ get_combo_last_log_path()
 
 get_combo_log_folder()
 {
-	logPath="$FIRMWARE_PATH/Combo/Simul/Files/0/logs/"
-	DIR=($(ls $logPath) )
-	nbLog=${#DIR[@]}
-	lastArrayIndex=$(echo $(( $nbLog - 1)))
-	lastDir=$(echo ${DIR[$lastArrayIndex]})
-	echo $logPath$lastDir
+	logPath="$(get_git_folder)/../Combo/Simul/Files/0/logs/"
+	ERR=$?
+	if [[ "$ERR" == "0" ]]; then
+		DIR=($(ls $logPath) )
+		nbLog=${#DIR[@]}
+		lastArrayIndex=$(echo $(( $nbLog - 1)))
+		lastDir=$(echo ${DIR[$lastArrayIndex]})
+		echo $logPath$lastDir
+	else
+		echo "Not in firmware folder"
+		return $ERR
+	fi
 }
 
 npp() {
@@ -224,12 +229,17 @@ myMount()
 	letter=${drive,,}
 	# Uppercase
 	LETTER=${drive^^}
-	
-	MOUNTED=$(wslpath '$LETTER:\\' 2>&1 | grep mnt)
-	if [[ "$?" == "0" ]]; then
+
+	TEST_MOUNT="wslpath '$LETTER:\\' 2>/dev/null 1>/dev/null"
+	MOUNTED=$(eval $TEST_MOUNT)
+	ERR=$?
+	if [[ "$ERR" == "0" ]]; then
+		mkdir -p /mnt/$letter
 		echo -e "Mounting $LETTER: in /mnt/$letter"
 		CMD="sudo mount -t drvfs $LETTER: /mnt/$letter"
 		$CMD
+	else
+		echo -e "/mnt/$letter not mounted"
 	fi
 }
 
@@ -322,7 +332,7 @@ upstream_repo()
 }
 
 wedit() {
-	local path=$(which $1 2>/dev/null)
+	local path=$(which "$1" 2>/dev/null)
 	CMD="npp '$path'"; echo $CMD; eval "$CMD"
 }
 
