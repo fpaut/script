@@ -3,5 +3,3 @@ CMD="sudo openvpn --config \"/home/user/realHome/Documents/Doc_Perso/Boulot/Dias
 echo $CMD
 eval "$CMD"
 ## PID=$($(eval "$CMD") && echo $!)
-
-/pautf@109.205.3.142.ovpn
