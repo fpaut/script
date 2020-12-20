@@ -224,6 +224,17 @@ get_right_last()
 	echo ${line##*$sep}
 }
 
+ghexdiff()
+{
+    a="$(basename "$1")" ;
+    b="$(basename "$2")" ;
+    hd "$1" > /tmp/"$a".hex ;
+    hd "$2" > /tmp/"$b".hex ;
+    meld /tmp/"$a".hex /tmp/"$b".hex ;
+    rm /tmp/"$a".hex /tmp/"$b".hex ;
+}
+            
+            
 lower_case()
 {
 	str=$1
