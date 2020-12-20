@@ -8,6 +8,11 @@ FIRMWARE_PATH="$DEV_PATH/STM32_Toolchain/dt-arm-firmware"
 TOOLS_PATH="$DEV_PATH/STM32_Toolchain/dt-fwtools"
 FSM_CYCLE="$FIRMWARE_PATH/ODS/FSM/Cycles/"
 
+INBOX_FILE="$ROOTDRIVE/c/Users/fpaut/AppData/Roaming/Thunderbird/Profiles/mtrhwyn5.default/ImapMail/mail2.diasys-technologies.com/INBOX"
+MAILBOX_TMP_FOLDER="$HOME/tmp/"
+MAILBOX_PREFIX="MAILBOX_"
+MAILBOX_POLLING_LOCK=$MAILBOX_PREFIX"POLLING_RUNNING"
+MAILBOX_POLLING_POPUP=$MAILBOX_PREFIX"POLLING_POPUP"
 
 export DISPLAY=localhost:0.0
 export LIBGL_ALWAYS_INDIRECT=1
@@ -22,10 +27,9 @@ alias cdsch="cdf && cd Scheduling"
 alias cdsimul="cdf && cd Combo/Simul/Files"
 alias cds="cd $SCRIPTS_PATH"
 alias cdt="cd $TOOLS_PATH"
+alias cdto="cd $TOOLS_PATH-other-branch"
 alias cmd="/mnt/c/WINDOWS/system32/cmd.exe /c"
 alias jenkins_CLI="java -jar jenkins-cli.jar -auth pautf:QtxS1204+ -s http://FRSOFTWARE02:8080/"
-
-
 
 cmlog()
 {
@@ -222,6 +226,14 @@ get_version()
 	echo $version
 }
 
+ganttproject()
+{
+	path="$1"
+	CMD="/mnt/e/Tools/GanttProject/ganttproject.exe $(wslpath -w $path)"
+	echo $CMD
+	$CMD&
+}
+
 myMount()
 {
 	drive=$1
@@ -308,6 +320,65 @@ update_repo()
 	fi
 }
 
+mailbox_check() {
+	prev="$1"
+	actual="$(mailbox_get_info)"; 
+	ls "$$MAILBOX_TMP_FOLDER""MAILBOX_POLLING_POPUP $MAILBOX_POLLING_PID" 2>/dev/null
+	if [[ "$?" != "0" ]]; then
+		if [[ "$prev" != "$actual" ]]; then 
+			if [[ "$prev" > "$actual" ]]; then 
+				# cp $INBOX_FILE "$INBOX_FILE"".back"
+				# diff $INBOX_FILE "$INBOX_FILE"".back" >/dev/stderr
+				echo Diff detected prev=$prev actual=$actual... >/dev/stderr
+			fi
+			touch "$MAILBOX_TMP_FOLDER""$MAILBOX_POLLING_POPUP $MAILBOX_POLLING_PID"
+			notify-send " .. NEW MAIL! .. "
+##			zenity --info --text="prev=$prev actual=$actual" 2>/dev/null
+			rm "$MAILBOX_TMP_FOLDER""$MAILBOX_POLLING_POPUP $MAILBOX_POLLING_PID" 2>/dev/null
+		fi
+	fi
+	echo "$actual"
+}
+
+mailbox_clean_lock_files() {
+	CMD="rm -v \"$MAILBOX_TMP_FOLDER$MAILBOX_PREFIX\"* 2>/dev/null"
+	echo $CMD
+	eval $CMD
+}
+
+mailbox_get_info() {
+	# Return size in byte of the mailbox file
+	echo $(stat --printf="%s" $INBOX_FILE)
+}
+
+
+mailbox_polling() {
+	prev=$(mailbox_get_info)
+	while (true) do 
+##		echo "before prev=$prev"
+		prev=$(mailbox_check "$prev")
+##		echo "after mailbox_check prev=$prev"
+		sleep 10; 
+	done
+}
+
+mailbox_kill_polling() {
+	echo Killing process $MAILBOX_POLLING_PID
+	kill $MAILBOX_POLLING_PID
+	mailbox_clean_lock_files
+}
+
+
+notify-send() {
+	powershell.exe "New-BurntToastNotification -Text \"$1\"" 2>&1 1>/dev/null
+}
+
+on_shell_exit() {
+	echo on_shell_exit
+	mailbox_kill_polling
+}
+
+
 upstream_repo()
 {
 	UpstreamBranch="Fred"
@@ -333,9 +404,8 @@ upstream_repo()
 
 wedit() {
 	local path=$(which "$1" 2>/dev/null)
-	CMD="npp '$path'"; echo $CMD; eval "$CMD"
+	CMD="npp \"$path\""; echo $CMD; eval "$CMD"
 }
-
 
 cd $SCRIPTS_PATH
 git config core.fileMode false
@@ -357,4 +427,21 @@ myMount M
 myMount Z
 myMount G
 
+CMD="ls $MAILBOX_TMP_FOLDER | grep $MAILBOX_POLLING_LOCK 2>/dev/null"
+eval $CMD
+if [[ "$?" != "0" ]]; then
+	echo "$MAILBOX_TMP_FOLDER""$MAILBOX_POLLING_LOCK" not found
+	mailbox_clean_lock_files
+	trap on_shell_exit EXIT
+	echo Launching Mailbox polling
+	rm "$MAILBOX_TMP_FOLDER""$MAILBOX_POLLING_LOCK" 2>/dev/null
+	rm "$MAILBOX_TMP_FOLDER""$MAILBOX_POLLING_POPUP" 2>/dev/null
+	mailbox_polling&
+	MAILBOX_POLLING_PID="$!"
+	touch "$MAILBOX_TMP_FOLDER""$MAILBOX_POLLING_LOCK $MAILBOX_POLLING_PID"
+else
+	echo Mailbox polling not launched
+fi
+echo MAILBOX_POLLING_PID= $MAILBOX_POLLING_PID
+ 
 echo Out of BASHRC_DIASYS

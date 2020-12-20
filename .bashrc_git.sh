@@ -99,6 +99,22 @@ git_diff_cmp(){
 	done
 }
 
+git_discard () {
+	file_pattern=$1
+	[[ "$file_pattern" == "" ]] && echo missing file pattern to discard as first parameter &&  return 1
+	if [[ "$file_pattern" == "all" ]]; then
+		file_pattern=""
+	fi
+	git status -s | grep --color=never "$file_pattern" | grep  --color=never  -v "?? " | while read file
+	do
+		file=${file#* }
+		file=${file#*:}
+		[[ "$file" != "" ]] && CMD="git checkout -- $file"
+		echo $CMD; eval $CMD
+	done
+}
+
+
 git_get_branch () {
 	BRANCH=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1]/')
 	BRANCH=${BRANCH:1:$((${#BRANCH} - 2))}
@@ -133,21 +149,6 @@ gitconfig_restore()
 	CMD="cp $SCRIPTS_PATH/.gitconfig $HOME"
 	echo $CMD
 	$CMD
-}
-
-git_discard () {
-	file_pattern=$1
-	[[ "$file_pattern" == "" ]] && echo missing file pattern to discard as first parameter &&  return 1
-	if [[ "$file_pattern" == "all" ]]; then
-		file_pattern=""
-	fi
-	git status -s | grep --color=never "$file_pattern" | grep  --color=never  -v "?? " | while read file
-	do
-		file=${file#* }
-		file=${file#*:}
-		[[ "$file" != "" ]] && CMD="git checkout -- $file"
-		echo $CMD; $CMD
-	done
 }
 
 git_reset () {
@@ -447,10 +448,11 @@ git_st_ls() {
 	fi
 		
 	
+	echo "From oldest to newest"
 	if [[ "$pattern" == "" ]]; then
 		LANG=en_GB git status -s | grep "WIP" | while read file; 
 		do  
-			echo -e "[ WIP_$(get_wip_pattern "$file") ]\t[ $(get_wip_date "$file") ]"
+			echo -e "[ $(get_wip_date "$file") ]\t[ WIP_$(get_wip_pattern "$file") ]"
 		done | sort | uniq
 	else
 		LANG=en_GB git status -s | grep "$pattern" | while read file; 
