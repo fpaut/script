@@ -373,47 +373,6 @@ get_right_last()
 	echo ${line##*$sep}
 }
 
-gexport () {
-	local pattern=$1
-	eval "export | grep -i $pattern"
-}
-
-hexdump() {
-	HD=$(which hexdump)
-	OPTIONS1='8/1 "%02X ""\t"" "'
-	OPTIONS2='8/1 "%c""\n"'
-	eval "$HD -e '$OPTIONS1' -e '$OPTIONS2' \"$@\""
-}
-
-unalias ll 2>/dev/null
-ll() {
-	path=$1
-	pattern=$2
-	case "$#" in
-		0)
-			path="."
-			pattern=""
-		;;
-		1)
-			path=$1
-			pattern=""
-		;;
-		2)
-			path=$1
-			pattern=$2
-		;;
-		*)
-			echo "Unknown machine ($HOSTNAME), or no bash specificities"
-		;;
-	esac
-	if [[ "$pattern" == "" ]]; then
-		ls -halF "$path"
-	else
-		ls -halF "$path" | grep --color=always "$pattern"
-	fi
-}
-
-
 lower_case()
 {
 	str=$1

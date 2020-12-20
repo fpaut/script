@@ -1,4 +1,5 @@
 #!/bin/bash
+VIEWER="/bin/xnview"
 #timestamp
 yy=$(eval "date +%Y")
 mm=$(eval "date +%m")
@@ -16,7 +17,7 @@ path_dest=$(eval "zenity --file-selection --save --filename=$filename")
 if [[ "$?" == "0" ]]; then
     echo Moving...
     mv /home/$USER/Images/$filename $path_dest
-    xdg-open "$path_dest"
+    $VIEWER "$path_dest"
 else
     echo Deleting...
     rm /home/$USER/Images/$filename
