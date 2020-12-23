@@ -548,13 +548,15 @@ which() {
 #	who=$(str_replace "$who" " " "\ ")
 #	echo who after = $who
 	paths=($(/bin/which -a "$who" 2>/dev/null))
-	if [[ "$?" == "0" ]]; then
+	ERR=$?
+	if [[ "$$ERR" == "0" ]]; then
         echo "${paths[$((${#paths[@]} - 1))]}"
+        ERR=$?
 	else
-		echo "Error on which $who"
+		echo "Error on which $who" > /dev/stderr
     fi
-	if [[ "$?" != "0" ]]; then
-		echo "Error on which $who"
+	if [[ "$ERR" != "0" ]]; then
+		echo "Error on which $who" > /dev/stderr
     fi
 }
 

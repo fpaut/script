@@ -176,11 +176,6 @@ copy_web_pages_to_medios_hp()
 	echo $CMD; $CMD
 }
 
-get_company()
-{
-	echo diasys
-}
-
 get_combo_last_log_name()
 {
 	DIR=($(ls $(get_combo_log_folder ) | grep "\.LOG") )

@@ -31,10 +31,11 @@ echo In BASHRC
 ## (Cygwin, WSL, MSYS, or real linux)
 get_term_env()
 {
+    WSL=$(which wslpath)
 	# Searching terminal environment
 	[[ "$MINGW_PREFIX" != "" ]] && echo msys && return 0
 	[[ "$MINTTY_SHORTCUT" != "" ]] && echo cygwin && return 0
-	[[ $(which wslpath) ]] && echo wsl && return 0
+	[[ "$WSL" ]] && echo wsl && return 0
 	echo linuxBash
 	
 	return 0
