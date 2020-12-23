@@ -89,9 +89,7 @@ case $HOSTNAME in
 		source $ROOTDRIVE/e/Tools/bin/scripts/.bashrc_diasys.sh
 	;;
 	user-HP-ENVY-TS-15-Notebook-PC)
-	
 		echo Personal machine
-		SCRIPTS_PATH="/home/user/bin/scripts"
 		source $HOME/bin/scripts/.bashrc_perso.sh
 	;;
 	*)
@@ -103,13 +101,13 @@ source $SCRIPTS_PATH/.bashrc_standard.sh
 
 GIT=$(which git)
 if [[ "$GIT" != "" ]]; then
-$SCRIPTS_PATH/git-aliases.sh
+    $SCRIPTS_PATH/git-aliases.sh
+    source $SCRIPTS_PATH/git-completion.bash
 fi
 source $SCRIPTS_PATH/.bashrc_aliases.sh
 source $SCRIPTS_PATH/.bashrc_git.sh
-source $SCRIPTS_PATH/.bashrc_custom.sh
 source $SCRIPTS_PATH/.bash_tools.sh
-source $SCRIPTS_PATH/git-completion.bash
+
 def_font_attributes
 
 export PATH=$PATH:$SCRIPTS_PATH

@@ -547,8 +547,10 @@ which() {
 #	echo who before = $who
 #	who=$(str_replace "$who" " " "\ ")
 #	echo who after = $who
-	paths=($(/bin/which -a "$who"))
-	echo "${paths[$((${#paths[@]} - 1))]}"
+	paths=($(/bin/which -a "$who" 2>&1 > /dev/null))
+	if [[ "$?" == "0" ]]; then
+        echo "${paths[$((${#paths[@]} - 1))]}"
+    fi
 }
 
 wll() {

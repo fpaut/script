@@ -9,9 +9,4 @@ alias cds="cd $SCRIPTS_PATH"
 alias cdt="cd $TOOLS_PATH"
 alias jenkins_CLI="java -jar jenkins-cli.jar -auth pautf:QtxS1204+ -s http://FRSOFTWARE02:8080/"
 
-get_company()
-{
-    echo perso
-}
-
 echo Out of BASHRC_PERSO

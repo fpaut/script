@@ -146,9 +146,23 @@ git_dos2unix () {
 ## Restore global ~/.git config overwritten by sourcetree
 gitconfig_restore()
 {
-	CMD="cp $SCRIPTS_PATH/.gitconfig $HOME"
-	echo $CMD
-	$CMD
+    gitconfig_src=""
+    case $(hostname) in
+        WSTMONDT019)
+            gitconfig_src=".gitconfig_diasys"
+        ;;
+        user-HP-ENVY-TS-15-Notebook-PC)
+            gitconfig_src=".gitconfig_linux"
+        ;;
+        *)
+            echo "Unknown machine ($HOSTNAME), or no bash specificities"
+        ;;
+    esac
+    if [[ "$gitconfig_src" != "" ]]; then
+        CMD="cp $SCRIPTS_PATH/$gitconfig_src $HOME/.gitconfig"
+        echo $CMD
+        $CMD
+    fi
 }
 
 git_reset () {

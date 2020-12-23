@@ -23,7 +23,7 @@ define_alias "bdb" "bashdb -x $HOME/.bashdbinit"
 define_alias "df" "df -h"
 define_alias "dir" "ls --color=auto --format vertical"
 define_alias "du" "du -h"
-define_alias "fgrep" "fgrep --color=auto"              # show differences in colour
+define_alias "fgrep" "fgrep -n --color=auto"              # show differences in colour
 define_alias "fsize" "du -s"
 define_alias "getObjSize" "nm --print-size --size-sort --radix=d"
 define_alias "gdf" "df -h | grep Sys. && df -h | grep"
