@@ -417,9 +417,9 @@ ll() {
 		;;
 	esac
 	if [[ "$pattern" == "" ]]; then
-		ls --color=always -halF "$path"
+		ls --color=always --time-style=+"%b-%d-%Y %R:%S" -halF "$path"
 	else
-		ls --color=always -halF "$path" | grep --color=always "$pattern"
+		ls --color=always --time-style=+"%b-%d-%Y %R:%S" -halF "$path" | grep --color=always "$pattern"
 	fi
 }
 
@@ -594,20 +594,15 @@ wcat() {
 
 which() {
 	local who="$@"
-#	echo who before = $who
-#	who=$(str_replace "$who" " " "\ ")
-#	echo who after = $who
 	paths=($(/bin/which -a "$who" 2>/dev/null))
 	ERR=$?
-	if [[ "$$ERR" == "0" ]]; then
-        echo "${paths[$((${#paths[@]} - 1))]}"
-        ERR=$?
-	else
-		echo "Error on which $who" > /dev/stderr
-    fi
 	if [[ "$ERR" != "0" ]]; then
-		echo "Error on which $who" > /dev/stderr
-    fi
+		if [[ "${who:0:2}" == "./" ]]; then
+			paths=($(/bin/which -a "${who:2}" 2>/dev/null))
+			ERR=$?
+			[[ "$ERR" != "0" ]] && echo "Error on which ${who:2}" > /dev/stderr
+		fi
+	fi
 }
 
 wll() {

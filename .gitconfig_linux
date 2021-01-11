@@ -12,17 +12,19 @@
 	tool =  meld
 
 [alias]
-	co = checkout
+	co = -c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks checkout --
 	conflicts="diff --name-only --diff-filter=U"
 	unstage = reset HEAD --
 	last = log -1 HEAD
 	br = branch
+	brr = "!bash -c 'git branch --format=\"%(refname:short)\" | while read branch; do exists=$(git ls-remote --heads $(git config --get remote.origin.url) \"$branch\");  echo -ne \"$branch \"; if [ -n \"$exists\" ]; then echo -e $GREEN\"Exists on remote!\"$ATTR_RESET; else echo; fi; done'"
 	ci = commit
 	dt = difftool -y
 	lg = log -60 --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 	mg = merge --strategy-option theirs
 	mgff = merge --ff-only
 	mt = mergetool -y
+	rv = !git -c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks checkout --
 	sd = "!bash -c '[[ "$0" != \"bash\" ]] && stash=$0; repoGit=$(git rev-parse --git-dir 2>/dev/null); BRANCH=$stash;[[ "$stash" == \"\" ]] && BRANCH=$(cat $repoGit/HEAD); [[ "$stash" == \"\" ]] && BRANCH=${BRANCH##*/}; BSTASH=$(git stash list | grep $BRANCH); BSTASH=${BSTASH%%:*}; if [[ \"$BSTASH\" != \"\" ]]; then git stash drop $BSTASH; else echo No Stash for branch \\\"$BRANCH\\\"; fi'"
 	sl = stash list
 	tt = "!bash -c 'param0=$0; echo XXXXXXXXX param0:$0 param1:$1 '"

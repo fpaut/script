@@ -109,7 +109,7 @@ git_discard () {
 	do
 		file=${file#* }
 		file=${file#*:}
-		[[ "$file" != "" ]] && CMD="git checkout -- $file"
+		[[ "$file" != "" ]] && CMD="git -c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks checkout -- \"$file\""
 		echo $CMD; eval $CMD
 	done
 }

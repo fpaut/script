@@ -4,13 +4,13 @@ MyHelp = MyHelp "`n CTRL + y : Show Youtube TubePlayer{s}"
 
 
 MyHelp = MyHelp "`n CTRL + t : Minimize Youtube TubePlayer"
-;## CTRL + t : Minimize Youtube TubePlayer
-^t::
-WinMinimize, ahk_exe TubePlayer.exe
+;## Left Mouse Button + t : Minimize Youtube TubePlayer
+~LButton & t::
+WinMinimize, ahk_exe E:\Tools\SMPlayer\smplayer.exe
 return
 
-;## CTRL + y : Show Youtube TubePlayer
-^y::WinActivate, ahk_exe TubePlayer.exe
+;## Left Mouse Button + y : Show Youtube TubePlayer
+~LButton & y::run E:\Tools\SMPlayer\smplayer.exe
 
 ;## CTRL + j : Write text
 ^j::
