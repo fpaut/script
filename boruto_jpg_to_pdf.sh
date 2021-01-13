@@ -30,7 +30,7 @@ echo ERR=$ERR
 if [[ "$ERR" != "0" ]]; then
     exit 1
 fi
-CMD="convert ./* /home/user/Documents/Doc_Perso/Fred/ebook/Boruto/test/Boruto-$CHAPITRE.pdf"; echo $CMD; eval "$CMD"
+CMD="convert -define registry:temporary-path=~/tmp -limit memory 16mb -limit area 0 ./* /home/user/Documents/Doc_Perso/Fred/ebook/Boruto/test/Boruto-$CHAPITRE.pdf"; echo $CMD; eval "$CMD"
 CMD="cd -"; echo $CMD; eval "$CMD"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 echo "~/Documents/Doc_Perso/Fred/ebook/Boruto/test/Boruto-$CHAPITRE.pdf done!"

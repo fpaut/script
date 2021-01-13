@@ -956,10 +956,10 @@ gitps1_update_stash() {
 
 alias gitps1_restore=ps1_restore
 
-source $SCRIPTS_PATH/git-completion.bash
 GIT=$(which git)
 if [[ "$GIT" != "" ]]; then
-	$SCRIPTS_PATH/git-aliases.sh
+    $SCRIPTS_PATH/git-aliases.sh
+    source $SCRIPTS_PATH/git-completion.bash
 fi
 
 echo Out of BASHRC_GIT

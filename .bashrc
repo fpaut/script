@@ -99,12 +99,6 @@ case $HOSTNAME in
 esac
 
 source $SCRIPTS_PATH/.bashrc_standard.sh
-
-GIT=$(which git)
-if [[ "$GIT" != "" ]]; then
-    $SCRIPTS_PATH/git-aliases.sh
-    source $SCRIPTS_PATH/git-completion.bash
-fi
 source $SCRIPTS_PATH/.bashrc_aliases.sh
 source $SCRIPTS_PATH/.bashrc_git.sh
 source $SCRIPTS_PATH/.bash_tools.sh

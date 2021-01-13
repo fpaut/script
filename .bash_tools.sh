@@ -594,15 +594,20 @@ wcat() {
 
 which() {
 	local who="$@"
+#	echo who before = $who
+#	who=$(str_replace "$who" " " "\ ")
+#	echo who after = $who
 	paths=($(/bin/which -a "$who" 2>/dev/null))
 	ERR=$?
+	if [[ "$$ERR" == "0" ]]; then
+        echo "${paths[$((${#paths[@]} - 1))]}"
+        ERR=$?
+	else
+		echo "Error on which $who" > /dev/stderr
+    fi
 	if [[ "$ERR" != "0" ]]; then
-		if [[ "${who:0:2}" == "./" ]]; then
-			paths=($(/bin/which -a "${who:2}" 2>/dev/null))
-			ERR=$?
-			[[ "$ERR" != "0" ]] && echo "Error on which ${who:2}" > /dev/stderr
-		fi
-	fi
+		echo "Error on which $who" > /dev/stderr
+    fi
 }
 
 wll() {
