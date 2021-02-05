@@ -603,6 +603,10 @@ which() {
 			[[ "$ERR" != "0" ]] && echo "Error on which ${who:2}" > /dev/stderr
 		fi
 	fi
+	# Show result
+	if [[ "$ERR" == "0" ]]; then
+        echo "${paths[$((${#paths[@]} - 1))]}"
+	fi
 }
 
 wll() {
@@ -617,6 +621,11 @@ x0()
 { 
 	val=$1
 	printf "%x\n" $val
+}
+
+_h()
+{
+ x0 $@
 }
 
 ############################################################

@@ -25,9 +25,15 @@
 	ci = commit
 	dt = difftool -y
 	lg = log -60 --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-	mg = merge --strategy-option theirs
+	mg = merge
+	mgT = merge --strategy-option theirs
+	mgM = merge --strategy-option mine
 	mgff = merge --ff-only
 	mt = mergetool -y
+	rb = rebase
+	rbT = rebase --strategy-option theirs
+	rbM = rebase --strategy-option mine
+	rbff = rebase --ff-only
 	rv = !git -c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks checkout --
 	sd = "!bash -c '[[ "$0" != \"bash\" ]] && stash=$0; repoGit=$(git rev-parse --git-dir 2>/dev/null); BRANCH=$stash;[[ "$stash" == \"\" ]] && BRANCH=$(cat $repoGit/HEAD); [[ "$stash" == \"\" ]] && BRANCH=${BRANCH##*/}; BSTASH=$(git stash list | grep $BRANCH); BSTASH=${BSTASH%%:*}; if [[ \"$BSTASH\" != \"\" ]]; then git stash drop $BSTASH; else echo No Stash for branch \\\"$BRANCH\\\"; fi'"
 	sl = stash list

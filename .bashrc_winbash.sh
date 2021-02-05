@@ -10,7 +10,7 @@ export HOME=$HOMEW
 
 alias rm='trash -v'
 alias trash-restore='restore-trash'
-export WSLPATH=$(which wslpath)
+export WSLPATH=/bin/wslpath
 
 conv_path_for_win()
 {
@@ -39,7 +39,7 @@ wslpath()
 			echo "    -m    translate from a WSL path to a Windows path, with ‘/’ instead of ‘\\’"
 		;;
 		*)
-			$WSLPATH "$@"
+			eval "$WSLPATH $@"
 		;;
 	esac
 }

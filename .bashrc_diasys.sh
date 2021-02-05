@@ -29,6 +29,18 @@ alias cds="cd $SCRIPTS_PATH"
 alias cdt="cd $TOOLS_PATH"
 alias cdto="cd $TOOLS_PATH-other-branch"
 alias cmd="/mnt/c/WINDOWS/system32/cmd.exe /c"
+alias jsd_copy="pushd $FIRMWARE_PATH/Scheduling \
+				&& cp -v ./ia.jsd $ROOTDRIVE/m/respons/Tools/Combo-FS-Simul/Files/0/schedule \
+				&& cp -v ./ia.jsn $ROOTDRIVE/m/respons/Tools/Combo-FS-Simul/Files/0/schedule \
+				; popd \\
+				&& pushd $FIRMWARE_PATH/SchedulerUnitTests/Test1 \
+				&& cp -v ./IAtestdata.ana $ROOTDRIVE/m/respons/Tools/scripts/Test1/IAtestdata.ana.txt \
+				; popd
+				"
+alias ledappli_clean="pushd $FIRMWARE_PATH/ODS/LEDappli && make clean; popd"
+alias ledappli_make="pushd $FIRMWARE_PATH/ODS/LEDappli && make BOARD=STM32P405_HAL MODULE=IA DEBUG=TRUE && copy_bin_to_msi ledappli; echo; read -p \"Appuyez sur entrée... \"; popd"
+alias vcp_clean="pushd $FIRMWARE_PATH/ODS/vcp && make clean; popd"
+alias vcp_make="pushd $FIRMWARE_PATH/ODS/vcp &&  make BOARD=STM32P405_HAL MODULE=IA && copy_bin_to_msi vcpF4; echo; read -p \"Appuyez sur entrée... \"; popd"
 alias jenkins_CLI="java -jar jenkins-cli.jar -auth pautf:QtxS1204+ -s http://FRSOFTWARE02:8080/"
 
 cmlog()
@@ -60,13 +72,6 @@ cmlog()
 	cd -
 }
 
-deg_to_step()
-{
-	deg=$1
-	echo $(( $(($((600 * $deg)) / 360)) )) steps
-	echo $(( $(($((600 * $deg)) / 360)) * 4)) 1/4 steps
-}
-
 cdlog()
 {
 	year=$(date +%Y)
@@ -76,7 +81,7 @@ cdlog()
 }
 
 
-copy_bin_to_medios_hp()
+copy_bin_to_msi()
 {
 	p1=$@
 	ROOT_FOLDER=$(get_git_folder)/..
@@ -90,67 +95,56 @@ copy_bin_to_medios_hp()
 	fi
 		
 	
-	cd $DEV_PATH/STM32_Toolchain/dt-arm-firmware
+	DT_ARM_FIRMWARE="$DEV_PATH/STM32_Toolchain/dt-arm-firmware"
 	
 	if [[ "$(contains ledappli "$p1")" == "1" ]]; then
 		echo -e $GREEN"LEDappli for Red Board"$ATTR_RESET
-		CMD="cp $ROOT_FOLDER/ODS/LEDappli/build/bin/LEDappli.bin $ROOTDRIVE/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
-		CMD="cp $ROOT_FOLDER/ODS/LEDappli/build/bin/LEDappli.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/IA.bin"; echo $CMD; $CMD
+		CMD="cp $DT_ARM_FIRMWARE/ODS/LEDappli/build/bin-spl_IA/LEDappli_IA.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/IA.bin"; echo $CMD; $CMD
 	fi
 	
 	if [[ "$(contains incubator "$p1")" == "1" ]]; then
 		echo -e $GREEN"INCUBATOR.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/INCUBATOR.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/INCUBATOR.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/INCUB.bin"; echo $CMD; $CMD
+		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_IA/INCUBATOR.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/INCUB.bin"; echo $CMD; $CMD
 		
 	fi
 	if [[ "$(contains separator "$p1")" == "1" ]]; then
 		echo -e $GREEN"SEPAR.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/SEPARATOR.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/SEPARATOR.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/SEPAR.bin"; echo $CMD; $CMD
+		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_IA/SEPARATOR.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/SEPAR.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains measmeca "$p1")" == "1" ]]; then
 		echo -e $GREEN"MEASMECA.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/MEASMECA.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/MEASMECA.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/MEASM.bin"; echo $CMD; $CMD
+		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_IA/MEASMECA.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/MEASM.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains hydro1 "$p1")" == "1" ]]; then
 		echo -e $GREEN"HYDRO1.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/HYDRO1.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/HYDRO1.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/HYDRO1.bin"; echo $CMD; $CMD
+		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_IA/HYDRO1.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/HYDRO1.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains hydro2 "$p1")" == "1" ]]; then
 		echo -e $GREEN"HYDRO2.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/HYDRO2.bin $ROOTDRIVE/m/dev/binFirmware/binGB/"; echo $CMD; $CMD
-		CMD="cp  $ROOT_FOLDER/ODS/StepMotor/build/bin/HYDRO2.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/HYDRO2.bin"; echo $CMD; $CMD
+		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_IA/HYDRO2.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/HYDRO2.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains pmt "$p1")" == "1" ]]; then
 		echo -e $GREEN"PMT.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $ROOT_FOLDER/ODS/PMTboardAppli/bin/PMTboardAppli.bin $ROOTDRIVE/m/dev/binFirmware/binGB/PMT.bin"; echo $CMD; $CMD
-		CMD="cp  $ROOT_FOLDER/ODS/PMTboardAppli/bin/PMTboardAppli.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/PMT.bin"; echo $CMD; $CMD
+		CMD="cp  $DT_ARM_FIRMWARE/ODS/PMTboardAppli/bin-spl_IA/PMTboardAppli.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/PMT.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains vcpF4 "$p1")" == "1" ]]; then
 		echo -e $GREEN"vcp for Red Board"$ATTR_RESET
-		CMD="cp $ROOT_FOLDER/ODS/vcp/build/binred-hal-f4/vcp.bin $ROOTDRIVE/m/dev/binFirmware/binF4/"; echo $CMD; $CMD
+		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/build/binred-hal-f4/vcp.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/"; echo $CMD; $CMD
 	fi
 	
 	if [[ "$(contains vcpGB "$p1")" == "1" ]]; then
 		echo -e $GREEN"vcp for Generic Board"$ATTR_RESET
-		CMD="cp $ROOT_FOLDER/ODS/vcp/bin/vcp.bin $ROOTDRIVE/m/dev/binFirmware/binGB/VCPGENERIC.bin"; echo $CMD; $CMD
-		CMD="cp $ROOT_FOLDER/ODS/vcp/bin/vcp.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/VCPGENERIC.bin"; echo $CMD; $CMD
+		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/bin-spl_IA/vcp.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPGENERIC.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains vcpGB_HAL "$p1")" == "1" ]]; then
 		echo -e $GREEN"vcp-HAL for Generic Board"$ATTR_RESET
-		CMD="cp $ROOT_FOLDER/ODS/vcp/build/bingen-hal-f4/vcp.bin $ROOTDRIVE/m/dev/binFirmware/binGB/VCPGENERIC-HAL.bin"; echo $CMD; $CMD
-		CMD="cp $ROOT_FOLDER/ODS/vcp/build/bingen-hal-f4/vcp.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/VCPGENERIC-HAL.bin"; echo $CMD; $CMD
+		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/build/bingen-hal-f4/vcp.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPGENERIC-HAL.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains vcppmt "$p1")" == "1" ]]; then
 		echo -e $GREEN"vcp for PMT Board"$ATTR_RESET
-		CMD="cp $ROOT_FOLDER/ODS/vcp/build/binpmt/vcp.bin $ROOTDRIVE/m/dev/binFirmware/binGB/vcppmt.bin"; echo $CMD; $CMD
-		CMD="cp $ROOT_FOLDER/ODS/vcp/build/binpmt/vcp.bin $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/0/firmware/VCPPMT.BIN"; echo $CMD; $CMD
+		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/build/binpmt/vcp.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPPMT.BIN"; echo $CMD; $CMD
 	fi
 	
-	cd -
 }
 
 copy_rawIpClient_to_medios_hp()
@@ -176,9 +170,21 @@ copy_web_pages_to_medios_hp()
 	echo $CMD; $CMD
 }
 
+deg_to_step()
+{
+	deg=$1
+	echo $(( $(($((600 * $deg)) / 360)) )) steps
+	echo $(( $(($((600 * $deg)) / 360)) * 4)) 1/4 steps
+}
+
+
 get_combo_last_log_name()
 {
-	DIR=($(ls $(get_combo_log_folder ) | grep "\.LOG") )
+	if [[ "$1" == "" ]]; then
+		DIR=($(ls $(get_combo_log_folder ) | grep "\.LOG") )
+	else
+		DIR=($(ls "$1"))
+	fi
 	nbLog=${#DIR[@]}
 	lastArrayIndex=$(echo $(( $nbLog - 1)))
 	lastLog=$(echo ${DIR[$lastArrayIndex]})
@@ -228,28 +234,6 @@ ganttproject()
 	echo $CMD
 	$CMD&
 }
-
-myMount()
-{
-	drive=$1
-	# Lowercase
-	letter=${drive,,}
-	# Uppercase
-	LETTER=${drive^^}
-
-	TEST_MOUNT="wslpath '$LETTER:\\' 2>/dev/null 1>/dev/null"
-	MOUNTED=$(eval $TEST_MOUNT)
-	ERR=$?
-	if [[ "$ERR" == "0" ]]; then
-		mkdir -p /mnt/$letter
-		echo -e "Mounting $LETTER: in /mnt/$letter"
-		CMD="sudo mount -t drvfs $LETTER: /mnt/$letter"
-		$CMD
-	else
-		echo -e "/mnt/$letter not mounted"
-	fi
-}
-
 
 step_to_deg()
 {
@@ -363,6 +347,40 @@ mailbox_kill_polling() {
 	mailbox_clean_lock_files
 }
 
+myMount()
+{
+	drive=$1
+	# Lowercase
+	letter=${drive,,}
+	# Uppercase
+	LETTER=${drive^^}
+	
+	echo ls /mnt/$letter/
+	already_mounted=$(ls /mnt/$letter/)
+	if [[ "$already_mounted" == "" ]]; then
+		TEST_MOUNT="powershell.exe ls '$LETTER:\\' 2>/dev/null 1>/dev/null"
+		eval $TEST_MOUNT
+		ERR=$?
+		if [[ "$ERR" == "0" ]]; then
+			echo $LETTER:\ exists! Attempts to mount letter $LETTER: to /mnt/$letter
+			sudo mkdir -p /mnt/$letter
+			CMD="sudo mount -t drvfs $LETTER: -o umask=000 /mnt/$letter"
+			$CMD
+			ERR=$?
+			if [[ "$ERR" == "0" ]]; then
+				echo -e $GREEN"success!"$ATTR_RESET
+			else
+				echo -e $RED"failed!"$ATTR_RESET
+			fi
+		else
+			echo $LETTER:\ is not a known drive for Windows
+		fi
+	else
+		echo "/mnt/$letter/ already mounted in WSL"
+	fi
+}
+
+
 
 notify-send() {
 	powershell.exe "New-BurntToastNotification -Text \"$1\"" 2>&1 1>/dev/null
@@ -373,6 +391,147 @@ on_shell_exit() {
 	mailbox_kill_polling
 }
 
+
+####################################################################################################
+# Parse a Scheduler Log file, and extract Scheduler frame file
+sch_extract_frames()
+{
+	if [[ "$#" -le "1" ]]; then
+		echo "Parse a Scheduler Log file, and extract Scheduler frame file"
+		echo "#1 is the logfile"
+		echo "#2 is the destination path"
+		return
+	fi
+	logfile=$1
+	destPath=$2
+	if [[ "$destPath" == "" ]]; then
+		destPath = "$HOME"
+	fi
+	logfile_without_ext=${logfile%.*}
+	logfile_ext=${logfile##*.}
+	output_frames_1=$HOME/SCH_Frames_1.txt
+	output_frames_2=$HOME/SCH_Frames_2.txt
+	output_frames_3=$HOME/SCH_Frames_3.txt
+	output_frames_4=$HOME/SCH_Frames_4.txt
+	output_frames_5=$HOME/SCH_Frames_5.txt
+	final_output_frames="$destPath/$logfile_without_ext"_SCH_Frames.txt
+	
+	# Keep only frames
+	echo -e $GREEN"Extracting lines with frame" $ATTR_RESET
+	CMD="cat $logfile | egrep ']\ ->\ {' > $output_frames_1"
+	echo $CMD; eval $CMD
+	echo -e $GREEN"$output_frames_1 done!" $ATTR_RESET
+	
+	# Replace \" by "
+	search='\\\\\\\"'
+	replace='\"'
+	echo -e $GREEN'Replace \" by "' $ATTR_RESET
+	CMD="cat $output_frames_1 |  sed \"s,$search,$replace,g\" "
+	echo $CMD; eval $CMD | tee $output_frames_2 | tee /dev/null
+	echo -e $GREEN"$output_frames_2 done!" $ATTR_RESET
+	
+	# Replace [{ "fct"] by [{"id":"880","com":"immu.1","fct"]
+	search='{ \"fct\"'
+	replace='{\"id\":\"880\"\,\"com\":\"immu.1\"\,\"fct\"'
+	echo -e $GREEN'Replace { "fct" by {"id":"880","com":"immu.1","fct"' $ATTR_RESET
+	CMD="cat $output_frames_2 |  sed \"s,$search,$replace,g\""
+	echo $CMD; eval $CMD | tee $output_frames_3 | tee /dev/null
+	echo -e $GREEN"$output_frames_3 done!" $ATTR_RESET
+	
+	# Remove prefix log part {"time":"2021/02/04 09:05:21 (...) ] -> {
+	rm $output_frames_4
+	echo -e $GREEN'Removing prefix log part {"time":"2021/02/04 09:05:21 (...) ] -> {' $ATTR_RESET
+	sep='] ->'
+	cat $output_frames_3 | while read line
+	do
+		echo ${line#*$sep} >> $output_frames_4
+	done
+	echo -e $GREEN"$output_frames_4 done!" $ATTR_RESET
+	
+	# Remove ending "}
+	rm -f $output_frames_5
+	echo -e $GREEN'Removing ending "}' $ATTR_RESET
+	sep='}"}'
+	rep='};50;'
+	cat $output_frames_4 | while read line
+	do
+		echo ${line//$sep/$rep} >> $output_frames_5
+	done
+	
+	# Replace "end"}};50; by "end"}};;
+	rm -vf $final_output_frames
+	search='\"end\"}};50;'
+	replace='\"end\"}};;'
+	echo -e $GREEN"Replace $search by $replace" $ATTR_RESET
+	CMD="cat $output_frames_5 |  sed \"s,$search,$replace,g\" "
+	echo $CMD; eval $CMD | tee $final_output_frames | tee /dev/null
+	echo -e $GREEN"$final_output_frames done!" $ATTR_RESET
+	
+	echo "<END OF SCRIPT!" >>  $final_output_frames
+	echo -e $GREEN"Done! (from $logfile)"
+	echo $BLUE$final_output_frames $ATTR_RESET
+}
+
+####################################################################################################
+# Parse frame file, and set Scheduler end frame ("fct":{"name":"IAsched", "type" : "end"}};;) with a
+# specified timeout
+sch_set_end_timeout()
+{
+	if [[ "$#" -le "1" ]]; then
+		echo "Parse frame file, and set Scheduler end frame (\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}};;)"
+		echo "with a specified timeout"
+		echo "#1 is the logfile"
+		echo "#2 is the timeout value"
+		return
+	fi
+	logfile=$1
+	tmp_file="$HOME/tmp.txt"
+	timeout_value=$2
+
+	# Replace "end"}};; by "end"}};$timeout_value;
+	rm $tmp_file
+	search="\\\"end\\\"}};;"
+	replace="\\\"end\\\"}};$timeout_value;"
+	echo -e $GREEN"Replace $search by $replace" $ATTR_RESET
+	CMD="cat $logfile |  sed \"s,$search,$replace,g\"  | tee $tmp_file"
+	echo $CMD; eval "$CMD"
+	rm -f $logfile
+	mv -f $tmp_file $logfile
+	echo -e $GREEN"$logfile done!" $ATTR_RESET
+	
+	echo -e $GREEN"Done! (from $logfile)"
+	echo $BLUE$final_output_frames $ATTR_RESET
+}
+
+####################################################################################################
+# Parse frame file, and generate a new file on each "fct":{"name":"IAsched", "type" : "end"}} found
+sch_split_frame_file()
+{
+	if [[ "$#" -le "1" ]]; then
+		echo "Parse frame file, and generate a new file on each (\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}};;) found"
+		echo "#1 is the frame file"
+		echo "  Each new file generated is named '#1__Cycle_\index_file\.txt'"
+		return
+	fi
+	logfile=$1
+	logfile_without_ext=${logfile%.*}
+
+	# Replace "end"}};; by "end"}};$timeout_value;
+	search="\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}"
+	index_file=1
+	cat $logfile | while read line
+	do
+		final_output_frames="$logfile_without_ext""_Cycle_"$index_file".txt"
+		echo $line >> $final_output_frames
+		END=$(echo $line | grep "$search")
+		if [[ "$END" != "" ]]; then
+			index_file=$(($index_file + 1))
+			echo "final_output_frames= "$final_output_frames
+		fi
+	done
+	echo -e $GREEN"Done! (from $logfile)"
+	echo $BLUE$final_output_frames $ATTR_RESET
+}
 
 upstream_repo()
 {
@@ -418,7 +577,9 @@ FILEMODE=$(cat .git/config | grep -i filemode)
 echo -e "dt-fwtools\t: $FILEMODE"
 cd - 1>/dev/null
 
+myMount F
 myMount M
+myMount N
 myMount Z
 myMount G
 

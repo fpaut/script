@@ -32,7 +32,7 @@ LButton_ToolTip = "'A' : Show ASCII table"
 ~LButton & A::run E:\Documents\Ascii-codes-table.png
 
 ;## Left Mouse Button + 'D' : Show Combo Devices ID
-~LButton & D::run E:\dev\STM32_Toolchain\doc\DeviceID.PNG
+~LButton & D::run E:\dev\STM32_Toolchain\doc\DeviceID.jpg
 
 ;## Left Mouse Button + 'K' : Show Virtual Keyboard
 ~LButton & K::run C:\Windows\System32\osk.exe
