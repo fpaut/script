@@ -19,5 +19,5 @@ do
         exit
     fi
     CH=$(($CH + 1))
-URL_OK=1
+#URL_OK=1
 done

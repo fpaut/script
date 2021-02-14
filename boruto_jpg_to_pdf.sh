@@ -1,14 +1,23 @@
 CHAPITRE=$1
+HTTRACK_FILTER=$2
+if [ "$#" -ne 2 ]; then 
+    HTTRACK_FILTER="+uploads/2018/*.png +*uploads/2018/*.jpg +*uploads/2018/*.jpeg  -*x*"
+    echo "using default httrack filter (=$HTTRACK_FILTER)"
+fi
 URL="https://boruto-france.fr/boruto-chapitre-$CHAPITRE-fr/"
-FOLDER="/home/user/websites/Boruto/$CHAPITRE"
+URL_OUTPUT="/home/user/websites/Boruto/$CHAPITRE/web"
+PDF_OUTPUT="/home/user/Documents/Doc_Perso/Fred/ebook/Boruto/test/Boruto-chapitre-$CHAPITRE.pdf"
+echo INPUT=$URL
+echo URL_OUTPUT=$URL_OUTPUT
+echo PDF_OUTPUT=$PDF_OUTPUT
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-CMD="rm -rf $FOLDER"; echo $CMD; eval "$CMD"
+CMD="rm -rf $URL_OUTPUT"; echo $CMD; eval "$CMD"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-CMD="httrack --update https://boruto-france.fr/boruto-chapitre-$CHAPITRE-fr/ +*uploads/2018/*.png +*uploads/2018/*.jpg +*uploads/2018/*.jpeg  -*x* -mime:application/* -O $FOLDER"; echo $CMD; eval "$CMD"
+CMD="httrack https://boruto-france.fr/boruto-chapitre-$CHAPITRE-fr/ $HTTRACK_FILTER -O $URL_OUTPUT --file-log $URL_OUTPUT/Boruto-chapitre-$CHAPITRE.log"; echo $CMD; eval "$CMD"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-CMD="rm -v $FOLDER/boruto-france.fr/wp-content/uploads/2017/08/*x*"; echo $CMD; eval "$CMD"
+##CMD="rm -v $URL_OUTPUT/boruto-france.fr/wp-content/uploads/2017/08/*x*"; echo $CMD; eval "$CMD"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-CMD="cd $FOLDER/boruto-france.fr/wp-content/uploads"; echo $CMD; $CMD
+CMD="cd $URL_OUTPUT/boruto-france.fr/wp-content/uploads"; echo $CMD; $CMD
 ERR=$?
 echo ERR=$ERR
 if [[ "$ERR" != "0" ]]; then
@@ -30,8 +39,4 @@ echo ERR=$ERR
 if [[ "$ERR" != "0" ]]; then
     exit 1
 fi
-CMD="convert -define registry:temporary-path=~/tmp -limit memory 16mb -limit area 0 ./* /home/user/Documents/Doc_Perso/Fred/ebook/Boruto/test/Boruto-$CHAPITRE.pdf"; echo $CMD; eval "$CMD"
-CMD="cd -"; echo $CMD; eval "$CMD"
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-echo "~/Documents/Doc_Perso/Fred/ebook/Boruto/test/Boruto-$CHAPITRE.pdf done!"
-echo "££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££"
+echo img_to_pdf.sh "*.jpg" "$PDF_OUTPUT"

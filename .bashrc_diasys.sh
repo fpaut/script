@@ -315,6 +315,25 @@ update_repo()
 	fi
 }
 
+which() {
+	local who="$@"
+#	echo who before = $who
+#	who=$(str_replace "$who" " " "\ ")
+#	echo who after = $who
+	paths=($(/bin/which -a "$who" 2>/dev/null))
+	ERR=$?
+	if [[ "$$ERR" == "0" ]]; then
+        echo "${paths[$((${#paths[@]} - 1))]}"
+        ERR=$?
+	else
+		echo "Error on which $who" > /dev/stderr
+    fi
+	if [[ "$ERR" != "0" ]]; then
+		echo "Error on which $who" > /dev/stderr
+    fi
+}
+
+
 mailbox_check() {
 	prev="$1"
 	actual="$(mailbox_get_info)"; 

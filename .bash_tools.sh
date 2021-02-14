@@ -342,37 +342,6 @@ get_caller() {
 }
 
 
-
-get_left_first()
-{
-	sep="$1"
-	echo sep="\"$sep\""
-	line="$2"
-	echo line="\"$line\""
-	echo ${line%$sep*}
-}
-
-get_left_last()
-{
-	sep="$1"
-	line="$2"
-	echo ${line%%$sep*}
-}
-
-get_right_first()
-{
-	sep="$1"
-	line="$2"
-	echo ${line#*$sep}
-}
-
-get_right_last()
-{
-	sep="$1"
-	line="$2"
-	echo ${line##*$sep}
-}
-
 gexport () {
 	local pattern=$1
 	eval "export | grep -i $pattern"
@@ -581,6 +550,47 @@ upper_case()
 }
 export -f upper_case
 
+# Variable extraction
+var_get_left_first()
+{
+	sep="$1"
+	echo sep="\"$sep\""
+	line="$2"
+	echo line="\"$line\""
+	echo ${line%$sep*}
+}
+
+# Variable extraction
+var_get_left_last()
+{
+	sep="$1"
+	line="$2"
+	echo ${line%%$sep*}
+}
+
+# Variable length
+var_get_length()
+{
+	var="$1"
+	echo ${#var}
+}
+
+# Variable extraction
+var_get_right_first()
+{
+	sep="$1"
+	line="$2"
+	echo ${line#*$sep}
+}
+
+# Variable extraction
+var_get_right_last()
+{
+	sep="$1"
+	line="$2"
+	echo ${line##*$sep}
+}
+
 wbdb() {
 	local path=$(which $1)
 	shift
@@ -592,23 +602,6 @@ wcat() {
 	CMD="cat $path"; echo $CMD; $CMD
 }
 
-which() {
-	local who="$@"
-#	echo who before = $who
-#	who=$(str_replace "$who" " " "\ ")
-#	echo who after = $who
-	paths=($(/bin/which -a "$who" 2>/dev/null))
-	ERR=$?
-	if [[ "$$ERR" == "0" ]]; then
-        echo "${paths[$((${#paths[@]} - 1))]}"
-        ERR=$?
-	else
-		echo "Error on which $who" > /dev/stderr
-    fi
-	if [[ "$ERR" != "0" ]]; then
-		echo "Error on which $who" > /dev/stderr
-    fi
-}
 
 wll() {
 	local path=$(which $1)
