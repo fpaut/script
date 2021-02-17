@@ -29,12 +29,26 @@ log()
     echo -e $txt > /dev/stderr
 }
 
+img_type()
+{
+    ext=$1
+    format=$2
+    page=$3
+    fmt="%0"
+    fmt+=$format
+    fmt+="d.$ext"
+    echo $fmt> /dev/stderr
+    
+#    printf $fmt $page -e $txt > /dev/stdout
+}
+
 update_url()
 {
     NAME=$1
     CHAPTER=$2
     PAGE=$3
     log  "-n Get page $PAGE from $NAME, Chapter $CHAPTER: "
+    log_err  "Get page $PAGE from $NAME, Chapter $CHAPTER: "
 
     UPDATED_URL="https://www.scan-fr.cc/uploads/manga/$NAME/chapters"
     case $NAME in
@@ -58,13 +72,15 @@ update_url()
         ;;     
         naruto)
             UPDATED_URL="$URL_BASE/$NAME/chapters/Volume $CHAPTER"
+            IMG=$PAGE".jpg"
             if [[ "$CHAPTER" -lt 28 ]]; then
                 if [[ "$PAGE" -lt 10 ]]; then
-                    IMG="00"$PAGE".jpg"
+                    IMG=$(img_type jpg 3 $PAGE)
                 fi
-                if [[ "$PAGE" -ge 10 && "$PAGE" -lt 100 ]]; then
-                    IMG="0"$PAGE".jpg"
-                fi        
+                
+                if [[ "$PAGE" -ge 10 && "$PAGE" -lt 27 ]]; then
+                    IMG=$(img_type jpg 2 $PAGE)
+                fi    
             fi
         ;;
         my-hero-academia)
@@ -80,7 +96,9 @@ get_chapter()
 {
     NAME=$1
     CHAPTER=$2
-    echo -ne $GREEN"Download Chapter $CHAPTER of $NAME"$ATTR_RESET; echo
+    echo -e $GREEN"Download "
+    echo -e $GREEN"NAME=$NAME"
+    echo -e $GREEN"CHAPTER=$CHAPTER"$ATTR_RESET; echo
     PAGE=0
     OUTPUT="/home/user/Documents/Doc_Perso/Fred/ebook/Manga/$NAME/Chapter_"$CHAPTER""
     ERR=0
@@ -100,6 +118,8 @@ get_chapter()
         if [[ "$ERR" != "0" ]]; then
             PAGE_WITH_ERR=$(($PAGE_WITH_ERR + 1))
             echo -e $RED"NOK, ERR=$ERR PAGE_WITH_ERR=$PAGE_WITH_ERR"$ATTR_RESET
+            log_err  "Get page $PAGE from $NAME, Chapter $CHAPTER: "
+            log_err  \"$URL/$IMG\
         else
             PAGE_WITH_ERR=0
             echo -e $GREEN"OK"$ATTR_RESET
@@ -114,6 +134,9 @@ get_chapter()
         CMD="mv -vf ./$IMG $OUTPUT"; $CMD; ERR=$?
         PAGE=$(($PAGE + 1))
     done
+    if [[ "$PAGE" -ge "5" ]]; then
+        CHAPTER_WITH_ERR=$(($CHAPTER_WITH_ERR + 1))
+    fi
 }
 
 convert_to_pdf()
@@ -134,7 +157,9 @@ convert_to_pdf()
 
 CHAPTER=$FIRST_CHAPTER
 echo -e $CYAN"Ready to download from $URL_BASE"$ATTR_RESET
-while [[ "$CHAPTER" -le $END_CHAPTER ]]
+rm -f $LOGFILE
+CHAPTER_WITH_ERR=0
+while [[ "$CHAPTER" -le $END_CHAPTER && "$CHAPTER_WITH_ERR" -lt 2 ]]
 do
     get_chapter $NAME $CHAPTER
     convert_to_pdf $NAME $CHAPTER
