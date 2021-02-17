@@ -58,7 +58,8 @@ update_url()
         ;;     
         naruto)
             UPDATED_URL="$URL_BASE/$NAME/chapters/Volume $CHAPTER"
-            if [[ "$CHAPTER" -lt 28 ]]; then
+            IMG=$PAGE".jpg"
+            if [[ "$CHAPTER" -lt 27 ]]; then
                 if [[ "$PAGE" -lt 10 ]]; then
                     IMG="00"$PAGE".jpg"
                 fi
