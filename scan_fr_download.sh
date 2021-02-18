@@ -128,7 +128,7 @@ get_chapter()
     OUTPUT="./Manga/$NAME/Chapter_"$CHAPTER""
     WGET_ERR=0
     PAGE_WITH_ERR=0
-    while [[ "$PAGE_WITH_ERR" -lt "5" ]]
+    while [[ "$PAGE_WITH_ERR" -lt "3" ]]
     do
         if [[ "$PAGE" -lt 10 ]]; then
             IMG="0"$PAGE".jpg"
@@ -192,9 +192,9 @@ convert_to_pdf()
     cd $OUTPUT
     img_to_pdf.sh "*" "$NAME-Chapitre_$(printf %03d $CHAPTER)".pdf
     echo -ne $GREEN"Move  $OUTPUT/$NAME-Chapitre_$(printf %03d $CHAPTER) to $OUTPUT/.."$ATTR_RESET; echo
-    echo "mv $OUTPUT/"$NAME-Chapitre_$(printf %03d $CHAPTER)".pdf $OUTPUT/.."; echo
-    eval "mv $OUTPUT/"$NAME-Chapitre_$(printf %03d $CHAPTER)".pdf $OUTPUT/.."
     cd -
+    echo "mv $OUTPUT/"$NAME-Chapitre_$(printf %03d $CHAPTER)".pdf $OUTPUT/.."; echo
+    mv $OUTPUT/"$NAME-Chapitre_$(printf %03d $CHAPTER)".pdf $OUTPUT/..
 ###    echo -ne $GREEN"Delete $OUTPUT"$ATTR_RESET; echo
 ###    rm -vrf $OUTPUT 2>/dev/null
 }
