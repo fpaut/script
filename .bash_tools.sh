@@ -358,10 +358,20 @@ ghexdiff()
 }
 
 hexdump() {
-	HD=$(which hexdump)
-	OPTIONS1='8/1 "%02X ""\t"" "'
-	OPTIONS2='8/1 "%c""\n"'
-	eval "$HD -e '$OPTIONS1' -e '$OPTIONS2' \"$@\""
+	HD=$(which xxd)
+	if (( $# == 0 )) ; then
+		# Get pipe input
+        eval "$HD < /dev/stdin"
+        echo
+    else
+		# Get standart command line parameters
+        eval "$HD \"$@\""
+        echo
+    fi
+#	For hexdump tool
+#	eval "$HD -e '$OPTIONS1' -e '$OPTIONS2' \"$@\""
+#	OPTIONS1='8/1 "%02X ""\t"" "'
+#	OPTIONS2='8/1 "%c""\n"'
 }
 
 unalias ll 2>/dev/null
@@ -427,6 +437,34 @@ npp() {
     CMD="$(which notepadpp) \"$(conv_path_for_win $@)\""
     echo $CMD
 	eval $CMD 2>/dev/null&
+}
+
+pad_number()
+{
+    number=$1
+    maxPadLen=$2
+	if [[ "${#number}" -ge "$maxPadLen" ]]; then
+		echo $number
+		return
+	fi
+#	echo "pad_number() number=$number" > /dev/stderr
+	#Remove 0 avoiding octal interpretation and error "-bash: printf: 08: invalid octal number"
+	OFF=0
+	while [[ "${number:$OFF:1}" == "0" ]];
+	do
+		OFF=$(($OFF + 1))
+	done
+	number=${number:$OFF}
+    fmt="%0"
+    fmt+=$maxPadLen
+    fmt+="d"
+#	echo "pad_number() number=$number" > /dev/stderr
+#	echo "pad_number() maxPadLen=$maxPadLen" > /dev/stderr
+	if [[ "$maxPadLen" != "0" ]]; then
+		printf "$fmt" $number
+	else
+		echo $number
+	fi
 }
 
 prompt_update() {

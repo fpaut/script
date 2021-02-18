@@ -2,7 +2,8 @@
 NAME=$1
 FIRST_CHAPTER=$2
 END_CHAPTER=$3
-ONLY_ONE=$4
+START_PAGE=$4
+ONLY_ONE=$5
 PAGE_WITH_ERR=0
 
 echo NAME=$NAME
@@ -29,6 +30,34 @@ log()
     echo -e $txt > /dev/stderr
 }
 
+pad_number()
+{
+    number=$1
+    maxPadLen=$2
+	if [[ "${#number}" -ge "$maxPadLen" ]]; then
+		echo $number
+		return
+	fi
+#	echo "pad_number() number=$number" > /dev/stderr
+	#Remove 0 avoiding octal interpretation and error "-bash: printf: 08: invalid octal number"
+	OFF=0
+	while [[ "${number:$OFF:1}" == "0" ]];
+	do
+		OFF=$(($OFF + 1))
+	done
+	number=${number:$OFF}
+    fmt="%0"
+    fmt+=$maxPadLen
+    fmt+="d"
+#	echo "pad_number() number=$number" > /dev/stderr
+#	echo "pad_number() maxPadLen=$maxPadLen" > /dev/stderr
+	if [[ "$maxPadLen" != "0" ]]; then
+		printf "$fmt" $number
+	else
+		echo $number
+	fi
+}
+
 update_url()
 {
     NAME=$1
@@ -43,7 +72,8 @@ update_url()
         dragon-ball-super)
             UPDATED_URL=$URL_BASE/$NAME/chapters
             if [[ "$PAGE" -lt 10 ]]; then
-                IMG="0"$PAGE".jpg"
+				NUMBER=$(pad_number $PAGE 3)
+                IMG="$NUMBER.jpg"
             else
                 IMG=""$PAGE".jpg"
             fi
@@ -58,14 +88,26 @@ update_url()
         ;;     
         naruto)
             UPDATED_URL="$URL_BASE/$NAME/chapters/Volume $CHAPTER"
-            IMG=$PAGE".jpg"
+            IMG="$PAGE.jpg"
             if [[ "$CHAPTER" -lt 27 ]]; then
-                if [[ "$PAGE" -lt 10 ]]; then
-                    IMG="00"$PAGE".jpg"
-                fi
-                if [[ "$PAGE" -ge 10 && "$PAGE" -lt 100 ]]; then
-                    IMG="0"$PAGE".jpg"
-                fi        
+                IMG="$(pad_number $PAGE 3).jpg"
+            fi
+            if [[ "$CHAPTER" -ge 245 && "$CHAPTER" -lt 281 ]]; then
+                IMG="$(pad_number $PAGE 2).jpg"
+				UPDATED_URL="$URL_BASE/$NAME/chapters/$CHAPTER"
+            fi
+            if [[ "$CHAPTER" == 281 ]]; then
+				if [[ "$PAGE" -lt 4 ]]; then
+					IMG="$(pad_number $PAGE 2).jpg"
+					UPDATED_URL="$URL_BASE/$NAME/chapters/$CHAPTER"
+				else
+					IMG="$(pad_number $PAGE 2).png"
+					UPDATED_URL="$URL_BASE/$NAME/chapters/$CHAPTER"
+				fi
+            fi
+            if [[ "$CHAPTER" -ge 282 ]]; then
+				IMG="$(pad_number $PAGE 2).png"
+				UPDATED_URL="$URL_BASE/$NAME/chapters/$CHAPTER"
             fi
         ;;
         my-hero-academia)
@@ -82,9 +124,9 @@ get_chapter()
     NAME=$1
     CHAPTER=$2
     echo -ne $GREEN"Download Chapter $CHAPTER of $NAME"$ATTR_RESET; echo
-    PAGE=0
-    OUTPUT="/home/user/Documents/Doc_Perso/Fred/ebook/Manga/$NAME/Chapter_"$CHAPTER""
-    ERR=0
+    PAGE=$START_PAGE
+    OUTPUT="./Manga/$NAME/Chapter_"$CHAPTER""
+    WGET_ERR=0
     PAGE_WITH_ERR=0
     while [[ "$PAGE_WITH_ERR" -lt "5" ]]
     do
@@ -97,14 +139,36 @@ get_chapter()
         IMG=${URL#*;}
         URL=${URL%;*}
 
-        CMD="wget \"$URL/$IMG\""; UNUSED=$(eval "$CMD 2>&1 1>/dev/null"); ERR=$?
-        if [[ "$ERR" != "0" ]]; then
-            PAGE_WITH_ERR=$(($PAGE_WITH_ERR + 1))
-            echo -e $RED"NOK, ERR=$ERR PAGE_WITH_ERR=$PAGE_WITH_ERR"$ATTR_RESET
-        else
-            PAGE_WITH_ERR=0
-            echo -e $GREEN"OK"$ATTR_RESET
-        fi
+		WGET_OK=0
+		NB_RETRY=0
+		WGET_OPTS="" # "--retry-connrefused "
+		WGET_OPTS+="--waitretry=0 "
+		WGET_OPTS+="--read-timeout=3 "
+		WGET_OPTS+="--timeout=3 "
+		WGET_OPTS+="--tries 1 "
+		WGET_OPTS+="--continue "
+		while [[ "$WGET_OK" != "1" && NB_RETRY -lt 6 ]]
+		do
+			log  "-n ($URL/$IMG) :"
+			CMD="wget $WGET_OPTS \"$URL/$IMG\""; UNUSED=$(eval "$CMD 2>&1 1>/dev/null"); WGET_ERR=$?
+			if [[ "$WGET_ERR" != "0" ]]; then
+				NB_RETRY=$(($NB_RETRY + 1))
+				echo -e $RED" NOK, WGET_ERR=$WGET_ERR NB_RETRY=$NB_RETRY PAGE_WITH_ERR=$PAGE_WITH_ERR"$ATTR_RESET
+				if [[ "$NB_RETRY" == "3" ]]; then
+					IMG=$(echo $IMG |  sed "s,png,jpg,g")
+				fi
+			else
+				PAGE_WITH_ERR=0
+				NB_RETRY=0
+				WGET_OK=1
+				echo -e $GREEN" OK on RETRY=$NB_RETRY"$ATTR_RESET
+			fi
+		done
+		if [[ "$WGET_ERR" != "0" ]]; then
+			PAGE_WITH_ERR=$(($PAGE_WITH_ERR + 1))
+		else
+			PAGE_WITH_ERR=0
+		fi
         if ! [[ -e $OUTPUT ]]; then
             echo -ne $GREEN"Create Folder $OUTPUT"$ATTR_RESET; echo
             mkdir -p $OUTPUT
@@ -121,14 +185,16 @@ convert_to_pdf()
 {
     NAME=$1
     CHAPTER=$2
-    OUTPUT="/home/user/Documents/Doc_Perso/Fred/ebook/Manga/$NAME/Chapter_"$CHAPTER""
+    OUTPUT="./Manga/$NAME/Chapter_"$CHAPTER""
     echo -ne $CYAN"Convert $NAME Chapter $CHAPTER to PDF"$ATTR_RESET
-    OUTPUT="/home/user/Documents/Doc_Perso/Fred/ebook/Manga/$NAME/Chapter_"$CHAPTER""
+    OUTPUT="./Manga/$NAME/Chapter_"$CHAPTER""
     
     cd $OUTPUT
-    img_to_pdf.sh "*" "$NAME-Chapter_$(printf %03d $CHAPTER)".pdf
-    echo -ne $GREEN"Move  $OUTPUT/* to $OUTPUT/.."$ATTR_RESET; echo
-    mv $OUTPUT/"$NAME-Chaptitre_$(printf %03d $CHAPTER)".pdf $OUTPUT/.. 2>/dev/null
+    img_to_pdf.sh "*" "$NAME-Chapitre_$(printf %03d $CHAPTER)".pdf
+    echo -ne $GREEN"Move  $OUTPUT/$NAME-Chapitre_$(printf %03d $CHAPTER) to $OUTPUT/.."$ATTR_RESET; echo
+    echo "mv $OUTPUT/"$NAME-Chapitre_$(printf %03d $CHAPTER)".pdf $OUTPUT/.."; echo
+    eval "mv $OUTPUT/"$NAME-Chapitre_$(printf %03d $CHAPTER)".pdf $OUTPUT/.."
+    cd -
 ###    echo -ne $GREEN"Delete $OUTPUT"$ATTR_RESET; echo
 ###    rm -vrf $OUTPUT 2>/dev/null
 }
@@ -139,7 +205,7 @@ while [[ "$CHAPTER" -le $END_CHAPTER ]]
 do
     get_chapter $NAME $CHAPTER
     convert_to_pdf $NAME $CHAPTER
-   if [[ "$ONLY_ONE" != "" || "$CHAPTER" -ge $END_CHAPTER ]]; then
+    if [[ "$ONLY_ONE" != "" || "$CHAPTER" -ge $END_CHAPTER ]]; then
         CHAPTER=$END_CHAPTER
     fi
     CHAPTER=$(($CHAPTER+ 1))
@@ -147,7 +213,7 @@ done
 
 
 echo; echo; echo
-CMD="ls -halF /home/user/Documents/Doc_Perso/Fred/ebook/Manga/$NAME"
+CMD="ls -halF ./Manga/$NAME"
 echo -ne $CYAN
 echo $CMD; $CMD
 echo -e $ATTR_RESET

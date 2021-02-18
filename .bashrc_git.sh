@@ -923,8 +923,9 @@ gitps1_update_aheadBehind() {
 	unset GIT_BEHIND
 	if [[ "$isGit" ]]; then
 		local_remote=$(eval git rev-list --left-right --count "$BRANCH...origin/$BRANCH 2>/dev/null")
-		GIT_AHEAD=${local_remote:0:1}
-		GIT_BEHIND=$(echo ${local_remote:1} | sed 's/ //g')
+		local_remote=$(echo $local_remote | sed 's/ /;/g')
+		GIT_AHEAD=$(echo ${local_remote%;*})
+		GIT_BEHIND=$(echo ${local_remote#*;})
 	fi
 }
 

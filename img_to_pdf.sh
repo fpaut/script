@@ -18,12 +18,9 @@ my_ls()
 ls $IMG_PATTERN | while read file
 do
     filename=$(file_get_name $file)
-    if [[ $(var_get_length "$filename") < 2 ]]; then
-        CMD="mv $file $(printf %02d 3)$file"; echo $CMD; $CMD
-    fi
-    if [[ $(var_get_length "$filename") < 3 ]]; then
-        CMD="mv $file $(printf %d 3)$file"; echo $CMD; $CMD
-    fi
+    ext=$(file_get_ext $file)
+	filename=$(pad_number $filename 4)
+    CMD="mv $file $filename.$ext"; echo $CMD; $CMD
 done
 
 # Convert each image as a pdf
@@ -34,12 +31,14 @@ do
 done
 
 # Concatenate all pdf as one
-CMD="pdftk $(my_ls pdf) cat output $OUTPUT"
+FILE_LIST=$(ls *.pdf)
+CMD="pdftk $FILE_LIST cat output $OUTPUT"
+CMD="java -jar /mnt/c/Users/fpaut/dev/Perso/pdftk/build/jar/pdftk.jar $FILE_LIST cat output $OUTPUT"
 echo $CMD
 eval $CMD
 
-CMD="rm -f $(my_ls jpg*)"
-echo $CMD; $CMD
-CMD="rm -f $(my_ls png*)"
-echo $CMD; $CMD
+#CMD="rm -f $(my_ls jpg*)"
+#echo $CMD; $CMD
+#CMD="rm -f $(my_ls png*)"
+#echo $CMD; $CMD
 

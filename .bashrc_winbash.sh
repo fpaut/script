@@ -10,12 +10,14 @@ export HOME=$HOMEW
 
 alias rm='trash -v'
 alias trash-restore='restore-trash'
-export WSLPATH=$(which wslpath)
+export WSLPATH="/bin/wslpath"
 
 conv_path_for_win()
 {
 	if [[ "$@" != "" ]]; then
-		echo $($WSLPATH -w $@)
+		CMD="$WSLPATH -w \"$@\""
+		echo "$CMD" > /dev/stderr
+		echo $(eval "$CMD")
 	fi
 }
 export -f conv_path_for_win
