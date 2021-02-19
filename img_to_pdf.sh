@@ -27,7 +27,11 @@ done
 ls $IMG_PATTERN | while read file
 do
     filename=$(file_get_name $file)
-    CMD="convert $file $filename.pdf"; echo $CMD; $CMD
+    CMD="convert $file $filename.pdf"; echo $CMD; $CMD; ERR=$?
+	if [[ "$ERR" != "0" ]]; then
+		echo convert return $ERR > /dev/stderr
+		exit 1
+	fi
 done
 
 # Concatenate all pdf as one

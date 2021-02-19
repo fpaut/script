@@ -7,19 +7,19 @@ WIP_PREFIX="WIP"
 
 get_wip_date()
 {
-	wip_date=$(get_right_last "[" "$1")
-	echo $(get_left_last "]" "$wip_date");
+	wip_date=$(var_get_right_last "[" "$1")
+	echo $(var_get_left_last "]" "$wip_date");
 }
 
 get_wip_pattern()
 {
-	wip_pattern=$(get_right_last "[WIP_" "$1");
-	echo $(get_left_last "]" "$wip_pattern");
+	wip_pattern=$(var_get_right_last "[WIP_" "$1");
+	echo $(var_get_left_last "]" "$wip_pattern");
 }
 
 get_wip_filename()
 {
-	echo $(get_right_first " " "$1")
+	echo $(var_get_right_first " " "$1")
 }
 
 ####################################################################################################################################################################
@@ -415,7 +415,7 @@ pattern2=$2
 		if [[ "$ext" != "" ]]; then
 			name=$name"."
 		fi
-		file_p2=$path/$( get_right_last " " "$file_p1")
+		file_p2=$path/$( var_get_right_last " " "$file_p1")
 #		echo file_p2=$file_p1
 		file_p1="$path/$name$ext"
 #		echo "file_p1=$file_p1"
@@ -530,7 +530,7 @@ git_st_restore () {
 		echo name=$name
 		echo ext=$ext
 		[[ "$ext" != "" ]] && name=$name"."
-		destname=$(get_right_last "]" "$name")
+		destname=$(var_get_right_last "]" "$name")
 		CMD="copy $path/$name$ext -> $path/$destname$ext"
 		echo $CMD
 	done
@@ -550,7 +550,7 @@ git_st_restore () {
 			echo name=$name
 			echo ext=$ext
 			[[ "$ext" != "" ]] && name=$name"."
-			destname=$(get_right_last "]" "$name")
+			destname=$(var_get_right_last "]" "$name")
 			CMD="cp \"$path/$name$ext\" \"$path/$destname$ext\""
 			echo $CMD
 			eval $CMD
@@ -562,7 +562,7 @@ git_st_restore () {
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
 		git status -s | grep "$pattern" | while read file
 		do
-			file=$(get_right_first " " "$file")
+			file=$(var_get_right_first " " "$file")
 			echo file=$file
 			CMD="rm \"$file\""
 			echo $CMD
