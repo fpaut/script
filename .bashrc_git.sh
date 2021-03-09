@@ -107,7 +107,7 @@ git_discard () {
 	fi
 	git status -s | grep --color=never "$file_pattern" | grep  --color=never  -v "?? " | while read file
 	do
-		file=${file#* }
+		file=${file##* }
 		file=${file#*:}
 		[[ "$file" != "" ]] && CMD="git -c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks checkout -- \"$file\""
 		echo $CMD; eval $CMD
