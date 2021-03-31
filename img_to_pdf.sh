@@ -37,7 +37,7 @@ done
 # Concatenate all pdf as one
 FILE_LIST=$(ls *.pdf)
 CMD="pdftk $FILE_LIST cat output $OUTPUT"
-CMD="java -jar /mnt/c/Users/fpaut/dev/Perso/pdftk/build/jar/pdftk.jar $FILE_LIST cat output $OUTPUT"
+#CMD="java -jar /mnt/c/Users/fpaut/dev/Perso/pdftk/build/jar/pdftk.jar $FILE_LIST cat output $OUTPUT"
 echo $CMD
 eval $CMD
 
