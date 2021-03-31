@@ -30,8 +30,8 @@ alias cdt="cd $TOOLS_PATH"
 alias cdto="cd $TOOLS_PATH-other-branch"
 alias cmd="/mnt/c/WINDOWS/system32/cmd.exe /c"
 alias jsd_copy="pushd $FIRMWARE_PATH/Scheduling \
-				&& cp -v ../Combo/Simul/Files/0/schedule/ia.jsd $ROOTDRIVE/n/Files/0/schedule \
-				&& cp -v ../Combo/Simul/Files/0/schedule/ia.jsn $ROOTDRIVE/n/Files/0/schedule \
+				&& cp -v ../Combo/Simul/Files/0/schedule/iagan.jsd $ROOTDRIVE/n/Files/0/schedule \
+				&& cp -v ../Combo/Simul/Files/0/schedule/iagan.jsn $ROOTDRIVE/n/Files/0/schedule \
 				; popd \\
 				&& pushd $FIRMWARE_PATH/SchedulerUnitTests/Test1 \
 				&& cp -v ./IAtestdata.ana $ROOTDRIVE/m/respons/Tools/scripts/Test1/IAtestdata.ana.txt \
@@ -170,6 +170,80 @@ copy_web_pages_to_medios_hp()
 	CMD="cp -vr $DEV_PATH/STM32_Toolchain/dt-arm-firmware/Combo/Simul/Files/1/www/* $ROOTDRIVE/m/ComboMaster/emulated-disk/Files/1/www/"
 	echo $CMD; $CMD
 }
+
+dbg_count_incub_action()
+{
+	while true
+	do
+		ERR=0
+		date
+		LOGFILE="./$(get_combo_last_log_name .)"
+		cat $LOGFILE 2>&1 1>/dev/null
+		ERR=$?
+		if [[ "$ERR" == "0" ]]; then
+			CLEAR_COUNT=$(cat $LOGFILE 2>/dev/null | grep "Incubator_ClearInstructions" | wc -l)
+			ADD_COUNT=$(cat $LOGFILE 2>/dev/null | grep ") AddMove(" | wc -l)
+			RUN_COUNT=$(cat $LOGFILE 2>/dev/null | grep "Incubator_RunInstructions" | wc -l)
+			echo "LOGFILE= "$LOGFILE
+			echo -n "Clear:"$CLEAR_COUNT" Add:"$ADD_COUNT" Run:"$RUN_COUNT
+			echo
+			echo ERR=$ERR; echo
+			if [[ "$CLEAR_COUNT" != "$RUN_COUNT" ]]; then
+				if [[ "ERR" == "0" ]]; then
+					break
+				fi
+			fi
+		fi
+		sleep 3
+	done
+	echo
+	# 0000_ for alphabetical sorting and avoiding 'get_combo_last_log_name()' to get this file as "last log name"
+	CMD="cp -v $LOGFILE 0000_BUG_${LOGFILE#*/}"; echo -n "COPY "; eval "$CMD"
+	echo
+}
+
+dbg_count_dev_action()
+{
+	if [[ "$#" < 1 ]]; then
+		echo "#1 is logfile"
+		echo "#2 = true to exit on error"
+		return 1
+	fi
+	LOGFILE="$1"
+	EXIT_ON_ERROR="$2"
+	ERR_COUNT=false
+	NBERR_COUNT=0
+	TEST=$(cat $LOGFILE 2>/dev/null)
+	[[ "$?" != "0" ]] && echo "$LOGFILE inaccessible" && return 0
+	LOG_CONTENT=$(cat $LOGFILE)
+	echo LOG= $LOGFILE \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+	for dev in reaarm reatr separ meas incub samarm cuvload
+	do
+		SCH_COUNT=$(echo -e "$LOG_CONTENT" | grep SCHMaster | grep "\\\\\\\"dev\\\\\\\":\\\\\\\"$dev\\\\\\\"" | wc -l)
+		PARSED_COUNT=$(echo -e "$LOG_CONTENT" | grep "cb_parse_$dev" | wc -l)
+		EXEC_COUNT=$(echo -e "$LOG_CONTENT" | grep "SCHMain_OrderExec" | grep "$dev" | wc -l)
+		
+		if [[ "$SCH_COUNT" != $PARSED_COUNT || $SCH_COUNT != $EXEC_COUNT || $EXEC_COUNT != $PARSED_COUNT ]]; then
+			echo -e $RED"Error!"$ATTR_RESET
+			echo -e "$LOG_CONTENT" | grep time |  sed -e 1b -e '$!d'
+			ERR_COUNT=true
+		fi
+		if [[ "$ERR_COUNT" != "false" ]]; then		
+			LOG_COLOR=$RED
+			NBERR_COUNT=$(($NBERR_COUNT + 1))
+		else
+			LOG_COLOR=$GREEN
+		fi
+		echo -e  "dev $LOG_COLOR\"$dev\"$ATTR_RESET \t $LOG_COLOR$SCH_COUNT$ATTR_RESET frames sent, \t $LOG_COLOR$PARSED_COUNT$ATTR_RESET parsed, \t $LOG_COLOR$EXEC_COUNT$ATTR_RESET executed"
+		ERR_COUNT=false
+	done
+	echo -e "$LOG_CONTENT" | grep time |  sed -e 1b -e '$!d'
+	echo
+	if [[ "$NBERR_COUNT" != "0" && "$EXIT_ON_ERROR" == "true" ]]; then
+		return 1
+	fi
+}
+
 
 deg_to_step()
 {
@@ -578,7 +652,7 @@ sch_split_frame_file()
 	mkdir -p $TMP_TRASH
 
 	# search end frame  ("\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}")
-	index_file=1
+	index_file=001
 	final_output_frames="$logfile_without_ext""_Cycle_"$index_file".txt"
 	if [[ -e "$final_output_frames" ]]; then
 		mv -f $final_output_frames $TMP_TRASH
@@ -590,7 +664,7 @@ sch_split_frame_file()
 		search="\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}"
 		END=$(echo $line | grep "$search")
 		if [[ "$END" != "" ]]; then
-			index_file=$(($index_file + 1))
+			index_file=$(printf "%03d" $((10#$index_file + 1)))
 			final_output_frames="$logfile_without_ext""_Cycle_"$index_file".txt"
 			if [[ -e "$final_output_frames" ]]; then
 				mv -f $final_output_frames $TMP_TRASH
