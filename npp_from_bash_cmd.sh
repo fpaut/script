@@ -18,11 +18,14 @@ fi
 [[ -f "$output" ]] && rm $output
 
 # Replace '&&' with consecutive grep (replace '&&' with " | egrep -ni ")
+echo "PWD=$(pwd)" > $output
+echo "$CMD" >> $output
+echo "" >> $output
 CMD=$(echo $CMD | sed 's/&&/\" | egrep -ni \"/g')             
 
 echo
-echo "$CMD > $output"
-eval "$CMD > $output"
+echo "$CMD >> $output"
+eval "$CMD >> $output"
 ERR=$?
 if [[ "$ERR" == "0" ]]; then
 	NPPPATH="$(which notepadpp)"

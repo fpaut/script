@@ -486,25 +486,34 @@ git_st_rename() {
 	if [[ old_pattern == "" || "$new_pattern" == "" ]];then
 		echo "2 parameters requested (old pattern and new pattern)"
 	fi
-	new_pattern="$new_pattern"
-	git status -s | grep $old_pattern | while read file
+	# escape '[' and ']' in old_pattern
+	old_pattern=$(str_replace "$old_pattern" "[" "\["); esc_old_pattern=$(str_replace "$old_pattern" "]" "\]")
+	debug_log "old_pattern=$esc_old_pattern"
+	git status -s | grep "$esc_old_pattern" | while read file
 	do
-		file=${file##* }	## Remove 'status' provided by "git status -s"
+		debug_log "FILTERED file=$file"
+		file=${file#* }	## Remove 'status' provided by "git status -s"
+		debug_log "STATE FILE FILTERED file=$file"
+		path=$(file_get_path $file)
+		debug_log "path=$path"
 		name=$(file_get_name $file)
-		ext=$(file_get_ext $file)
-		# Remove pattern
-		name=${name%$old_pattern*}
-		file1=$file
-		file2=$name$new_pattern.$ext
-		
-		debug_log "file=$file"
 		debug_log "name=$name"
-		debug_log "old_pattern=$old_pattern"
+		ext=$(file_get_ext $file)
+		debug_log "ext=$ext"
+		# Remove pattern
+		name=${name##*$old_pattern}
+		# Remove first space ' '
+		name=${name#* }
+		file1=$file
+		file2="$path$new_pattern $name.$ext"
+		
+		debug_log "old_pattern=$esc_old_pattern"
 		debug_log "name without pattern=$name"
 		debug_log "New name=$file2"
 
-		CMD="mv \"$file\" \"$file2\""
-		echo $CMD; eval "$CMD"
+		CMD="mv -v \"$file\" \"$file2\""
+		echo $CMD
+		eval "$CMD"
 	done
 }
 
@@ -648,14 +657,15 @@ git_st_save () {
 		path=$(file_get_path "$file")
 		name=$(file_get_name "$file")
 		ext=$(file_get_ext "$file")
+		rev=$(git rev-parse --verify --short HEAD)
 #		echo file=$file
 #		echo path=$path
 #		echo name=$name
 #		echo ext=$ext
 		if [[ "$name.$ext" != "version.c"  ]]; 
 		then 	
-			[[ "$ext" == "" ]] && CMD="cp \"$path/$name\" \"$path/[$pattern] [$myDate] $name\""
-			[[ "$ext" != "" ]] && CMD="cp \"$path/$name.$ext\" \"$path/[$pattern] [$myDate] $name.$ext\""
+			[[ "$ext" == "" ]] && CMD="cp \"$path/$name\" \"$path/[ $pattern ] [ $myDate ] [ $rev ]$name\""
+			[[ "$ext" != "" ]] && CMD="cp \"$path/$name.$ext\" \"$path/[ $pattern ] [ $myDate ] [ $rev ] $name.$ext\""
 			echo $CMD; 
 			eval $CMD
 		else

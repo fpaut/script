@@ -270,15 +270,15 @@ edit() {
 # Return filename+extension of a provided path+filename (eg.: "/home/user/toto.txt.doc" return "toto.txt.doc")
 file_get_fullname()
 {
-	f="$1"
+	f="$@"
 	echo $(basename "$f")
 }
 
 # Return path of provided path+filename (eg.: "/home/user/toto.txt.doc" return "/home/user")
 file_get_path()
 {
-	f="$1"
-	path=$(dirname "$1")
+	f="$@"
+	path=$(dirname "$f")
 	if [[ "$path" == "" ]]; then
 		path="./"
 	fi
@@ -288,7 +288,7 @@ file_get_path()
 # Return only name of the filename provided (eg.: "/home/user/toto.txt.doc" return "toto.txt")
 file_get_name()
 {
-	f="$1"
+	f="$@"
 	filename=$(file_get_fullname "$f")
 	echo ${filename%.*}
 }
@@ -296,7 +296,7 @@ file_get_name()
 # Return only extension of the filename provided (eg.: "/home/user/toto.txt.doc" return "doc")
 file_get_ext()
 {
-	f="$1"
+	f="$@"
 	filename=$(file_get_fullname "$f")
 	#remove last '"'; if any
 	filename=${filename%%\"*}
@@ -638,6 +638,11 @@ wbdb() {
 wcat() {
 	local path=$(which $1)
 	CMD="cat $path"; echo $CMD; $CMD
+}
+
+wsource() {
+	local path=$(which $1)
+	CMD="source $path"; echo $CMD; $CMD
 }
 
 

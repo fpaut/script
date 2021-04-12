@@ -131,19 +131,23 @@ copy_bin_to_msi()
 	if [[ "$(contains vcpF4 "$p1")" == "1" ]]; then
 		echo -e $GREEN"vcp for Red Board"$ATTR_RESET
 		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/build/binred-hal-f4/vcp.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/"; echo $CMD; $CMD
+		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/build/binred-hal-f4/vcp_ext.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/"; echo $CMD; $CMD
 	fi
 	
 	if [[ "$(contains vcpGB "$p1")" == "1" ]]; then
 		echo -e $GREEN"vcp for Generic Board"$ATTR_RESET
 		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/bin-spl_IA/vcp.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPGENERIC.bin"; echo $CMD; $CMD
+		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/bin-spl_IA/vcp_ext.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPGENERIC_EXT.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains vcpGB_HAL "$p1")" == "1" ]]; then
 		echo -e $GREEN"vcp-HAL for Generic Board"$ATTR_RESET
 		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/build/bingen-hal-f4/vcp.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPGENERIC-HAL.bin"; echo $CMD; $CMD
+		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/build/bingen-hal-f4/vcp_ext.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPGENERIC-HAL_EXT.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains vcppmt "$p1")" == "1" ]]; then
 		echo -e $GREEN"vcp for PMT Board"$ATTR_RESET
 		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/build/binpmt/vcp.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPPMT.BIN"; echo $CMD; $CMD
+		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/build/binpmt/vcp_ext.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPPMT_EXT.BIN"; echo $CMD; $CMD
 	fi
 	
 }
@@ -422,16 +426,20 @@ sch_extract_frames()
 	if [[ "$destPath" == "" ]]; then
 		destPath = "$HOME"
 	fi
-	logfile_without_ext=${logfile%.*}
-	logfile_ext=${logfile##*.}
+	mkdir -p $destPath
+	cp $logfile $destPath
+	logfile_name=${logfile##*/}
+	logfile_without_ext=${logfile_name%.*}
+	logfile_ext=${logfile_name##*.}
 	output_frames_1=$HOME/SCH_Frames_1.txt
 	final_output_frames="$destPath/$logfile_without_ext"_SCH_Frames.txt
-	
+	  
 	# Keep only frames & line with VAR
 	echo -e $GREEN"Extracting lines with frame in $output_frames_1" $ATTR_RESET
 	FILTER1="]\ ->\ {"
 	FILTER2="VAR;"
-	CMD="cat $logfile | egrep '$FILTER1|$FILTER2' > $output_frames_1"
+	FILTER3="SCHMaster"
+	CMD="cat $logfile | egrep '$FILTER1|$FILTER2|$FILTER3' > $output_frames_1"
 	echo $CMD; eval $CMD
 	echo -e $GREEN"$output_frames_1 done!" $ATTR_RESET
 	NB_LINES=$(cat $output_frames_1 | wc -l)
@@ -445,7 +453,9 @@ sch_extract_frames()
 	echo -e $GREEN"and store final output in"$BLUE $final_output_frames $ATTR_RESET
 	
 	LINE_NUMBER=1
-	rm -rf $final_output_frames
+	if [[ -f "$final_output_frames" ]]; then
+		rm -rf $final_output_frames
+	fi
 	# save cursor position
 	echo -e "\033[s"
 	FILTER1="]\ ->\ {"
@@ -459,12 +469,12 @@ sch_extract_frames()
 		PERCENT=$(($PERCENT / $NB_LINES))
 		echo -en "$NB_FRAME frames - $PERCENT%"
 		LINE_NUMBER=$(($LINE_NUMBER + 1))
-		# Replace \" by "
+		# Replace \" BY "
 		search='\\\\\\\"'
 		replace='\"'
 		line=$(echo $line | sed "s,$search,$replace,g")
 		
-		# Replace [{ "fct"] by [{"id":"880","com":"immu.1","fct"]
+		# Replace [{ "fct"] BY [{"id":"880","com":"immu.1","fct"]
 		search='{ \"fct\"'
 		replace='{\"id\":\"880\"\,\"com\":\"immu.1\"\,\"fct\"'
 		line=$(echo $line | sed "s,$search,$replace,g")
@@ -485,11 +495,30 @@ sch_extract_frames()
 			search="immu.1"
 			replace="smpl"
 			echo
-			echo -e $GREEN"Replace $search by $replace" $ATTR_RESET
+			echo -e $GREEN"Replace $search BY $replace" $ATTR_RESET
 			line=$(echo $line | sed "s,$search,$replace,g")
 		fi
-		
-		# Replace (...)VAR; by <
+
+		# Insert Line with WARNING
+		search='WARNING:'
+		WARNING=$(echo $line | grep "$search")
+		if [[ "$WARNING" != "" ]]; then 
+			echo -e $CYAN" WARNING found!"$ATTR_RESET
+			line="<$(echo $search ${line##*$search})"
+			line="$(echo  ${line%\'*})"
+		fi
+				
+		# Insert some line with ERROR
+		search="ERROR:(L:"
+		ERROR=$(echo $line | grep SCHMaster | grep "$search")
+		if [[ "$ERROR" != "" ]]; then 
+			echo -e $RED" ERROR found!"$ATTR_RESET
+			line=${line##*$search}
+			line="<$(echo $search ${line#*)})"
+			line="$(echo  ${line%\'*})"
+		fi
+				
+		# Replace (...)VAR; BY <
 		search='VAR;'
 		TO_LOG=$(echo $line | grep "$search")
 		if [[ "$TO_LOG" != "" ]]; then 
@@ -501,7 +530,7 @@ sch_extract_frames()
 	done
 	
 	echo "<END OF SCRIPT!" >>  $final_output_frames
-	echo -e $GREEN"Done! (from $logfile)"
+	echo -e $GREEN" Done! (from $logfile)"
 	echo $BLUE$final_output_frames $ATTR_RESET
 }
 
@@ -628,7 +657,7 @@ sch_set_end_timeout()
 	CMD="cat $logfile |  sed \"s,$search,$replace,g\"  | tee $tmp_file"
 	echo $CMD; eval "$CMD"
 	rm -f $logfile
-	mv -f $tmp_file $logfile
+	mv -f $tmp_file $logfile"_TO_"$timeout_value
 	echo -e $GREEN"$logfile done!" $ATTR_RESET
 	
 	echo -e $GREEN"Done! (from $logfile)"
