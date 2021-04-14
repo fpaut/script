@@ -19,15 +19,15 @@ export LIBGL_ALWAYS_INDIRECT=1
 
 
 
-alias cdd="cd $DEV_PATH"
-alias cdf="cd $FIRMWARE_PATH"
-alias cdfo="cd $FIRMWARE_PATH-other-branch"
+alias cdd="pushd $DEV_PATH"
+alias cdf="pushd $FIRMWARE_PATH"
+alias cdfo="pushd $FIRMWARE_PATH-other-branch"
 alias cdfsm="cdf && cd ODS/FSM/Cycles"
 alias cdsch="cdf && cd Scheduling"
 alias cdsimul="cdf && cd Combo/Simul/Files"
-alias cds="cd $SCRIPTS_PATH"
-alias cdt="cd $TOOLS_PATH"
-alias cdto="cd $TOOLS_PATH-other-branch"
+alias cds="pushd $SCRIPTS_PATH"
+alias cdt="pushd $TOOLS_PATH"
+alias cdto="pushd $TOOLS_PATH-other-branch"
 alias cmd="/mnt/c/WINDOWS/system32/cmd.exe /c"
 alias jsd_copy="pushd $FIRMWARE_PATH/Scheduling \
 				&& cp -v ../Combo/Simul/Files/0/schedule/iagan.jsd $ROOTDRIVE/n/Files/0/schedule \

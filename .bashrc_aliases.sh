@@ -32,7 +32,7 @@ define_alias "git" "LANG=en_GB git"
 define_alias "glunch" "lunch | grep -ni"
 define_alias "gmount" "mount | grep -ni"
 define_alias "gps" "echo \"PID TTY      STAT   TIME COMMAND\" && ps fax | grep -i"
-define_alias "grep" "grep --color=never"                     # show differences without colour
+define_alias "grep" "grep --color=always"                     # show differences without colour
 define_alias "grepc" "grep --color=always"                     # show differences in colour
 define_alias "gwps" "tasklist.exe | grep -i"                   # list Windows native process and grep
 define_alias "here" "conv_path_for_win \"$(pwd)\""
@@ -42,6 +42,7 @@ define_alias "la" "ls -A"
 define_alias "ls_switch" "du -a "
 define_alias "lsl" "ls --color=auto --format long"
 define_alias "mv" "mv -i"
+define_alias "return_on_error" 'err=$?; [[ "$err" != "0" ]] && return $err'
 define_alias "rm" "trash"
 define_alias "su" "su --preserve-environment"
 define_alias "sudo" "sudo env PATH=\"$PATH\""

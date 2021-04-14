@@ -1,5 +1,6 @@
 echo
 echo In BASHRC_GIT
+
 ####################################################################################################################################################################
 ## "WIP section" Utilities functions to manipulate Work In Progress files combined with GIT
 ####################################################################################################################################################################
@@ -61,13 +62,13 @@ git_branch_delete()
 
 git_branch_get_author()
 {
-	CMD="git for-each-ref --format='%(committerdate)%09%(authorname)%09%(refname)' | sort -k5n -k2M -k3n -k4n | grep remotes | awk -F \"\t\" '{ printf \"%-32s %-27s %s\n\", \$1, \$2, \$3 }'"
+	CMD="git for-each-ref --format='%(committerdate)%09%(authorname)%09%(refname)' | sort -k5n -k2M -k3n -k4n | grep --color=never remotes | awk -F \"\t\" '{ printf \"%-32s %-27s %s\n\", \$1, \$2, \$3 }'"
 	echo $CMD && eval $CMD
 }
 
 git_branch_get_tag()
 {
-	CMD="git for-each-ref --format='%(committerdate)%09%(authorname)%09%(refname)' | sort -k5n -k2M -k3n -k4n | grep tags | awk -F \"\t\" '{ printf \"%-32s %-27s %s\n\", \$1, \$2, \$3 }'"
+	CMD="git for-each-ref --format='%(committerdate)%09%(authorname)%09%(refname)' | sort -k5n -k2M -k3n -k4n | grep --color=never tags | awk -F \"\t\" '{ printf \"%-32s %-27s %s\n\", \$1, \$2, \$3 }'"
 	echo $CMD && eval $CMD
 }
 
@@ -79,7 +80,7 @@ git_diff_file_only(){
 git_diff_show_file(){
 	branch=$1
 	pattern=$2
-	git diff "$branch" | grep diff | grep "$pattern" | while read item
+	git diff "$branch" | grep --color=never diff | grep --color=never "$pattern" | while read item
 	do
 		file=${item##* b/}
 		echo $file
@@ -89,7 +90,7 @@ git_diff_show_file(){
 git_diff_cmp(){
 	branch=$1
 	pattern=$2
-	git diff "$branch" | grep diff | grep "$pattern" | while read item
+	git diff "$branch" | grep --color=never diff | grep --color=never "$pattern" | while read item
 	do
 		file=${item##* b/}
 		echo file
@@ -105,7 +106,7 @@ git_discard () {
 	if [[ "$file_pattern" == "all" ]]; then
 		file_pattern=""
 	fi
-	git status -s | grep --color=never "$file_pattern" | grep  --color=never  -v "?? " | while read file
+	git status -s | grep --color=never "$file_pattern" | grep --color=never  --color=never  -v "?? " | while read file
 	do
 		file=${file##* }
 		file=${file#*:}
@@ -133,7 +134,7 @@ export -f get_git_folder
 # (Avoiding difficult merge)
 #########################################
 git_dos2unix () {
-	git status -s | grep "modified" | grep -v "\-wip" | while read file
+	git status -s | grep --color=never "modified" | grep --color=never -v --color=never "\-wip" | while read file
 	do
 		file=${file#*:}
 		CMD="dos2unix.exe $file"
@@ -172,7 +173,7 @@ git_reset () {
 		file_pattern=""
 	fi
 	echo -e $GREEN"Following file will be reseted to HEAD."$ATTR_RESET
-	git status -s | grep --color=never "$file_pattern" | grep ":" | grep  --color=never  -v "$WIP_PREFIX" | while read file
+	git status -s | grep --color=never "$file_pattern" | grep --color=never ":" | grep --color=never  --color=never  -v "$WIP_PREFIX" | while read file
 	do
 		file=${file#*:}
 		CMD=" $file "
@@ -182,7 +183,7 @@ git_reset () {
 	read -e -i "N" -p "Ok? (y/N): "
 	echo -e $ATTR_RESET
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
-		git status -s | grep --color=never "$file_pattern" | grep ":" | grep  --color=never  -v "$WIP_PREFIX" | while read file
+		git status -s | grep --color=never "$file_pattern" | grep --color=never ":" | grep --color=never  --color=never  -v "$WIP_PREFIX" | while read file
 		do
 			file=${file#*:}
 			[[ "$file" != "" ]] && CMD="git reset HEAD -- $file"
@@ -221,8 +222,8 @@ git_patch_apply()
 git_remote_count_commit () {
 	unset REMOTE AHEAD BEHIND
 	BRANCH=$(git_get_branch)
- 	AHEAD=$(git commit --dry-run 2>/dev/null | grep ahead)
- 	BEHIND=$(git commit --dry-run 2>/dev/null | grep behind)
+ 	AHEAD=$(git commit --dry-run 2>/dev/null | grep --color=never ahead)
+ 	BEHIND=$(git commit --dry-run 2>/dev/null | grep --color=never behind)
 	if [[ ""$AHEAD"" == "" ]]; then
 		AHEAD="0"
 	fi
@@ -246,7 +247,7 @@ git_remote_count_commit () {
 }
 
 git_remote_test_pull() {
-	GITSTATUS=$(git status -uno | grep branch)
+	GITSTATUS=$(git status -uno | grep --color=never branch)
 	GITSTATUS2=${GITSTATUS##*is}
 	echo -e $GREEN ${GITSTATUS2##*and}
 	echo -e $ATTR_RESET
@@ -345,7 +346,7 @@ git_show_config () {
 git_show_unpushed_commit () {
 	BRANCH=$(git_get_branch)
 	REMOTE=$(eval "git remote show")
-	F_REMOTE_BRANCH=($(eval "git remote show $REMOTE | grep ' $BRANCH '  | grep 'merge'"))
+	F_REMOTE_BRANCH=($(eval "git remote show $REMOTE | grep --color=never ' $BRANCH '  | grep --color=never 'merge'"))
 	REMOTE_BRANCH=${F_REMOTE_BRANCH[4]}
 	eval "git log $REMOTE/$REMOTE_BRANCH..HEAD"
 }
@@ -355,7 +356,7 @@ git_show_unpushed_commit () {
 git_sh_cmp() 
 {
 	STASH="$1"
-	git stash show $STASH | grep "|"  | while read file
+	git stash show $STASH | grep --color=never "|"  | while read file
 	do 
 		file=${file%% |*}
 		CMD="git difftool -y $STASH -- $file"
@@ -377,7 +378,7 @@ git_sh_save() {
 	echo pattern=$pattern
 	pattern=$(echo $pattern |  sed 's, ,_,g')
 	echo pattern=$pattern
-	LANG=en_GB git stash show $stash | grep "|" | while read file
+	LANG=en_GB git stash show $stash | grep --color=never "|" | while read file
 	do 
 		file=${file%% |*}; 
 		file=$(echo $file |  sed 's, ,,g')
@@ -464,12 +465,12 @@ git_st_ls() {
 	
 	echo "From oldest to newest"
 	if [[ "$pattern" == "" ]]; then
-		LANG=en_GB git status -s | grep "WIP" | while read file; 
+		LANG=en_GB git status -s | grep --color=never "WIP" | while read file; 
 		do  
 			echo -e "[ $(get_wip_date "$file") ]\t[ WIP_$(get_wip_pattern "$file") ]"
 		done | sort | uniq
 	else
-		LANG=en_GB git status -s | grep "$pattern" | while read file; 
+		LANG=en_GB git status -s | grep --color=never "$pattern" | while read file; 
 		do
 			echo "\"${file#*?? }\""
 		done | sort
@@ -489,7 +490,7 @@ git_st_rename() {
 	# escape '[' and ']' in old_pattern
 	old_pattern=$(str_replace "$old_pattern" "[" "\["); esc_old_pattern=$(str_replace "$old_pattern" "]" "\]")
 	debug_log "old_pattern=$esc_old_pattern"
-	git status -s | grep "$esc_old_pattern" | while read file
+	git status -s | grep --color=never "$esc_old_pattern" | while read file
 	do
 		debug_log "FILTERED file=$file"
 		file=${file#* }	## Remove 'status' provided by "git status -s"
@@ -527,7 +528,7 @@ git_st_restore () {
 		return 1
 	fi
 	echo -e $GREEN"Following file will replace original."$ATTR_RESET
-	git status -s | grep "$pattern" | while read file
+	git status -s | grep --color=never "$pattern" | while read file
 	do
 		echo ======================================
 		echo file=$file
@@ -547,7 +548,7 @@ git_st_restore () {
 	read -e -i "N" -p "Ok? (y/N): "
 	echo -e $ATTR_RESET
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
-		git status -s | grep "$pattern" | while read file
+		git status -s | grep --color=never "$pattern" | while read file
 		do
 			echo ======================================
 			echo file=$file
@@ -569,7 +570,7 @@ git_st_restore () {
 	read -e -i "N" -p "Remove Backup ($pattern)? (y/N): "
 	echo -e $ATTR_RESET
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
-		git status -s | grep "$pattern" | while read file
+		git status -s | grep --color=never "$pattern" | while read file
 		do
 			file=$(var_get_right_first " " "$file")
 			echo file=$file
@@ -591,7 +592,7 @@ git_st_rm () {
 	[[ $pattern == "" ]] && echo missing pattern as parameter &&  return 1
 	echo -e $GREEN"Following file will be removed."$ATTR_RESET
 	test=$(
-	git status -s | grep  --color=never "$pattern" | while read file
+	git status -s | grep --color=never  --color=never "$pattern" | while read file
 	do
 		file=${file#* }
 		file=${file#*:}
@@ -625,7 +626,7 @@ git_st_rm_check () {
 	pattern=$1
 	[[ $pattern == "" ]] && echo missing pattern as parameter &&  return 1
 	echo -e $GREEN"Following file contains pattern '$pattern'."$ATTR_RESET
-	git status -s | grep --color=never $pattern | grep  --color=never -v "$WIP_PREFIX" | while read file
+	git status -s | grep --color=never $pattern | grep --color=never  --color=never -v "$WIP_PREFIX" | while read file
 	do
 		echo $file
 	done
@@ -647,7 +648,7 @@ git_st_save () {
 	myDate+=_$(date +%H)H
 	myDate+=$(date +%M)mn
 	echo myDate=$myDate
-	git status -s | grep -v "??" | egrep "A |M " | while read file
+	git status -s | grep --color=never -v "??" | egrep "A |M " | while read file
 	do
 		file=${file#* }
 		file=${file#*:}
@@ -694,7 +695,7 @@ git_st_save_from_rev () {
 		echo "Rev=$rev"
 	fi
 	echo "PATTERN="$pattern
-	branch=$(git branch | grep "\*")
+	branch=$(git branch | grep --color=never "\*")
 	branch=${branch#*\*}
 	git show --pretty="" --name-only $rev | while read file
 	do
@@ -703,7 +704,7 @@ git_st_save_from_rev () {
 		CMD="git show $rev:$file > $name-$pattern.$ext"
 		echo $CMD; eval "$CMD"
 	done
-	ls -halF | grep $pattern
+	ls -halF | grep --color=never $pattern
 }
 
 #########################################
@@ -748,7 +749,7 @@ git_st_exe () {
 # git_unix2dos
 #########################################
 git_unix2dos () {
-	git status -s | grep "modified" | grep -v "\-wip" | while read file
+	git status -s | grep --color=never "modified" | grep --color=never -v "\-wip" | while read file
 	do
 		file=${file#*:}
 		CMD="unix2dos.exe $file"
@@ -776,7 +777,7 @@ git_wip_ls () {
 	export WIP_LIST
 	pattern=$1
 	pattern="\-$WIP_PREFIX-$pattern"
-	git status -s | grep "$pattern" | while read file
+	git status -s | grep --color=never "$pattern" | while read file
 	do
 		f1=${file##*$WIP_PREFIX-}
 		f1=${file%.*}
@@ -837,7 +838,7 @@ git_wip_rename() {
 		echo "2 parameters requested (old pattern and new pattern)"
 	fi
 	new_pattern="$WIP_PREFIX-$new_pattern"
-	git status -s | grep $old_pattern | grep "\-$WIP_PREFIX" | while read file
+	git status -s | grep --color=never $old_pattern | grep --color=never "\-$WIP_PREFIX" | while read file
 	do
 		file=${file#*:}
 		name=$(file_get_name $file)
@@ -857,7 +858,7 @@ git_wip_restore () {
 		pattern="\-$WIP_PREFIX-$pattern"
 	fi
 	echo -e $GREEN"Following file will replace original."$ATTR_RESET
-	git status -s | grep "$pattern" | while read file
+	git status -s | grep --color=never "$pattern" | while read file
 	do
 		file=${file#*:}
 		name=$(file_get_name $file)
@@ -869,7 +870,7 @@ git_wip_restore () {
 	read -e -i "N" -p "Ok? (y/N): "
 	echo -e $ATTR_RESET
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
-		git status -s | grep "$pattern" | while read file
+		git status -s | grep --color=never "$pattern" | while read file
 		do
 			file=${file#*:}
 			name=$(file_get_name $file)
@@ -899,7 +900,7 @@ git_wip_rm () {
 git_wip_save () {
 	pattern="$1"
 	pattern="-$WIP_PREFIX-"$pattern
-	git status -s | grep "modified" | while read file
+	git status -s | grep --color=never "modified" | while read file
 	do
 		file=${file#*:}
 		name=${file%.*}
@@ -957,7 +958,7 @@ gitps1_update_stash() {
 			## 'Global' Stash (wathever the branch)
 			GIT_STASH=$(cat $repoGit/logs/refs/stash | wc -l 2>/dev/null)
 			## Stash specific to a branch (GIT_STASH_BRANCH)
-			GIT_STASH_BRANCH=$(cat $repoGit/logs/refs/stash | grep -w $BRANCH | wc -l 2>/dev/null)
+			GIT_STASH_BRANCH=$(cat $repoGit/logs/refs/stash | grep --color=never -w $BRANCH | wc -l 2>/dev/null)
 			if [[ "$GIT_STASH_BRANCH" == "0" ]]; then
 				unset GIT_STASH_BRANCH
 			fi

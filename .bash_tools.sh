@@ -2,9 +2,9 @@
 echo
 echo In BASHRC_TOOLS
 shopt -s expand_aliases
-alias exit_on_error='err=$?; [[ "$err" != "0" ]] && exit $err'
-alias return_on_error='err=$?; [[ "$err" != "0" ]] && return $err'
 SIG_LIST="EXIT SIGTSTP SIGTTIN SIGTTOU"
+export false=0
+export true=1
 
 ## Convert HEX to DEC
 0x() 
@@ -44,6 +44,21 @@ beep()
 {
 	CMD="play -q -n synth 0.1 sin 880 || echo -e "\a""
 	echo $CMD; eval "$CMD"
+}
+
+# Tests if the value is within an interval 
+#
+#eg.: if [[ "$(between 3 1 5)" == "1" ]]; then echo Yes, 3 is within 1 and 5; fi
+between()
+{
+    value=$1
+    min=$2
+    max=$3
+    if [[ "$value" -ge "$min" && "$value" -lt "$max" ]]; then
+        echo 1
+    else
+        echo 0
+    fi
 }
 
 ## Simple bash calculator (need bash calculator 'bc' tool)
@@ -111,7 +126,7 @@ cd_func ()
 
   #
   # Now change to the new dir and add to the top of the stack
-  pushd "${the_new_dir}" > /dev/null
+  eval "pushd ${the_new_dir} > /dev/null"
   [[ $? -ne 0 ]] && return 1
   the_new_dir=$(pwd)
 
@@ -151,7 +166,7 @@ contains()
 	fi
 	local search=$1
 	local myarray=${@:2}
-	test=$(echo ${myarray[@]} | grep -w $search)
+	test=$(echo ${myarray[@]} | grep --color=never -w $search)
 	if [[ "$test" != "" ]]; then
 		echo 1;
 		return 0
@@ -160,6 +175,19 @@ contains()
 	return 1
 }
 
+# save cursor position
+cursor_save_pos()
+{
+	echo -e "\033[s"
+}
+
+# restore cursor position
+cursor_rest_pos()
+{
+	echo -en "\033[u"
+}
+
+	
 c_exec ()
 {
 	# $1=command to execute
@@ -190,11 +218,17 @@ datediff()
 }
 
 debug_log() {
-	string=$@
-	if [[ "$DEBUG_BASH" != "" ]]; then
-		echo $string
+	string="$@"
+	if [[ "$DEBUG_BASH" = "1" ]]; then
+        echo -en $YELLOW> /dev/stderr
+        echo -n $string> /dev/stderr
+        echo -e $ATTR_RESET > /dev/stderr
+        return 1
+    else
+        return 0
 	fi
 }
+
 
 def_font_attributes() {
 	export PS1_ATTR_UNDERLINED="\[\e[0;4m\]"
@@ -209,7 +243,7 @@ def_font_attributes() {
 	export PS1_RED="\[\e[0;91m\]"
 	export PS1_GREEN="\[\e[0;92m\]"
 	export PS1_YELLOW="\[\e[0;93m\]"
-##	export PS1_BLUE="\[\e[0;34m\]"
+	export PS1_BLUE="\[\e[0;34m\]"
 	export PS1_BLUE="\[\e[34m\]"
 	export PS1_CYAN="\[\e[0;96m\]"
 	export PS1_WHITE="\[\e[0;97m\]"
@@ -262,36 +296,16 @@ edit() {
 	$CMD&
 }
 
+exit_on_error()
+{
+    [[ "$1" != "" ]] && err="$1"
+    [[ "$1" == "" ]] && err="$?"
+    [[ "$err" != "0" ]] && echo -e EXIT_ON_ERROR=$err && exit $err
+}
 
 #
 # Filename manipulation
 #
-
-# Return filename+extension of a provided path+filename (eg.: "/home/user/toto.txt.doc" return "toto.txt.doc")
-file_get_fullname()
-{
-	f="$@"
-	echo $(basename "$f")
-}
-
-# Return path of provided path+filename (eg.: "/home/user/toto.txt.doc" return "/home/user")
-file_get_path()
-{
-	f="$@"
-	path=$(dirname "$f")
-	if [[ "$path" == "" ]]; then
-		path="./"
-	fi
-	echo $path
-}
-
-# Return only name of the filename provided (eg.: "/home/user/toto.txt.doc" return "toto.txt")
-file_get_name()
-{
-	f="$@"
-	filename=$(file_get_fullname "$f")
-	echo ${filename%.*}
-}
 
 # Return only extension of the filename provided (eg.: "/home/user/toto.txt.doc" return "doc")
 file_get_ext()
@@ -306,6 +320,41 @@ file_get_ext()
 		return
 	fi
 }
+
+# Return filename+extension of a provided path+filename (eg.: "/home/user/toto.txt.doc" return "toto.txt.doc")
+file_get_fullname()
+{
+	f="$@"
+	echo $(basename "$f")
+}
+
+# Return only name of the filename provided without extension (eg.: "/home/user/toto.txt" return "toto")
+file_get_name()
+{
+	f="$@"
+	filename=$(file_get_fullname "$f")
+	echo ${filename%.*}
+}
+
+# Return path of provided path+filename (eg.: "/home/user/toto.txt.doc" return "/home/user")
+file_get_path()
+{
+	f="$@"
+	path=$(dirname "$f")
+	if [[ "$path" == "" ]]; then
+		path="./"
+	fi
+	echo $path
+}
+
+# Return size in byte of a file
+file_get_size()
+{
+	f="$@"
+	stat --printf="%s" "$f"
+}
+
+
 
 # Return only extension of the filename provided (eg.: "/home/user/toto.txt.doc" return "doc")
 replace()
@@ -329,7 +378,7 @@ gcat() {
 		echo "#3 pattern to exclude (separate with '|' eg.:\"exclude1|exclude2|...\") (could be 'options+patterns')"
 		return 1
 	fi
-	CMD="grep -E \"$pattern\" $filename | grep -Ev \"$expattern\""
+	CMD="grep --color=never -E \"$pattern\" $filename | grep --color=never -Ev \"$expattern\""
 	echo $CMD
 	eval $CMD
 }
@@ -344,7 +393,7 @@ get_caller() {
 
 gexport () {
 	local pattern=$1
-	eval "export | grep -i $pattern"
+	eval "export | grep -i --color=never $pattern"
 }
 
 ghexdiff()
@@ -374,6 +423,20 @@ hexdump() {
 #	OPTIONS2='8/1 "%c""\n"'
 }
 
+isprint()
+{
+    char=$1
+    echo $char
+    if [[ "$char" -ge \\x20 && "$char" -le \\x7E ]]; then
+        echo 1
+        return 1
+    else
+        echo 0
+        return 0
+    fi
+}
+export isprint
+
 unalias ll 2>/dev/null
 ll() {
 	path=$1
@@ -401,6 +464,58 @@ ll() {
 		ls --color=always --time-style=+"%b-%d-%Y %R:%S" -halF "$path" | grep --color=always "$pattern"
 	fi
 }
+
+# Log a text on screen
+logscreen_only()
+{
+    echo -e $@ > /dev/stderr
+}
+export logscreen_only
+
+# Log an error on screen (in red)
+logscreen_only_err()
+{
+    logscreen_only -n $RED
+    logscreen_only $@
+    logscreen_only -e $ATTR_RESET
+}
+export logscreen_only_err
+
+
+# Log a text on screen (in cyan) and add it to logfile
+logfile()
+{
+    # Checks than env var LOGFILE is well defined
+    [[ "$LOGFILE" == "" ]] && echo -e $RED"LOGFILE undefined, nothing logged in file!"$ATTR_RESET
+    logscreen_only -n $CYAN
+    logscreen_only -n $@
+    logscreen_only -e $ATTR_RESET
+    [[ "$LOGFILE" != "" ]] && echo "$@" >> $LOGFILE
+}
+export logfile
+
+# Log an error on screen (in red) and add it to logfile
+logfile_err()
+{
+    # Checks than env var LOGFILE is well defined
+    [[ "$LOGFILE" == "" ]] && echo -e $RED"LOGFILE undefined, nothing logged in file!"$ATTR_RESET
+    logscreen_only_err $@
+    [[ "$LOGFILE" != "" ]] && echo "$@" >> $LOGFILE
+    [[ "$LOGFILE" != "" ]] && echo >> $LOGFILE
+}
+export logfile_err
+
+
+# Add a text to logfile
+logfile_only()
+{
+    # Checks than env var LOGFILE is well defined
+    [[ "$LOGFILE" == "" ]] && echo -e $RED"LOGFILE undefined, returns!"$ATTR_RESET && kill -INT $$
+ #   echo $@ >> $LOGFILE
+}
+export logfile
+
+
 
 lower_case()
 {
@@ -547,7 +662,7 @@ show_parent()
     echo pid=$pid
     ps -o ppid=$pid | while read ppid;
     do 
-        ps fax | grep -i $ppid 2>&1  | egrep -v "grep|COMMAND"
+        ps fax | grep --color=never -i $ppid 2>&1  | egrep -v "grep|COMMAND"
     done
 }
 
@@ -559,6 +674,43 @@ str_replace() {
 	echo $result
 }
 export -f str_replace
+
+# String padding on the left
+str_pad_left() {
+    str="$1"
+    padLen="$2"
+    char="$3"
+    str_len=${#str}
+    # if string longer then pad length, return string
+	if [[ "$str_len" -ge "$padLen" ]]; then
+		echo $str
+		return
+	fi
+    # otherwise, create a string of padding char of (pad length) - (string length)
+    pad_char_length=$(($padLen - $str_len))
+    
+    format="$char%.0s"
+    result=$(eval "printf $format {1..$pad_char_length}")
+    result+=$str
+    echo $result
+}
+export -f str_pad_left
+
+# String padding on the right
+str_pad_right() {
+    str="$1"
+    padLen="$2"
+    char="$3"
+    str_len=${#str}
+    # if string longer then pad length, return string
+	if [[ "$str_len" -ge "$padLen" ]]; then
+		echo $str
+		return
+	fi
+	echo -e $RED"TODO: str_pad_right() not developped now!!"$ATTR_RESET > /dev/stderr
+	return 1
+}
+export -f str_pad_right
 
 
 trap_handler_cb() {
