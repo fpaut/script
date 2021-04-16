@@ -590,6 +590,8 @@ prompt_update() {
 	gitps1_update_stash $repoGit
 	ps1_prefix
 	PS1=$PS1_PREFIX
+	# Restore color after an input command
+	trap 'echo -ne "\e[0m"' DEBUG
 }
 
 ps1_print() {
@@ -628,7 +630,8 @@ ps1_prefix()
 			PS1_PREFIX=$PS1_PREFIX"$PS1_BLINK[stash]$ATTR_RESET"
 		fi
 	fi
-	PS1_PREFIX=$PS1_PREFIX"$PS1_ATTR_RESET> "
+	# All input command will be yellow
+	PS1_PREFIX=$PS1_PREFIX"> $PS1_YELLOW"
 }
 
 ps1_unset() {

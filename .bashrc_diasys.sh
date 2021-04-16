@@ -417,12 +417,14 @@ sch_extract_frames()
 	if [[ "$#" -le "1" ]]; then
 		echo "Parse a Scheduler Log file, and extract Scheduler frame file"
 		echo "#1 is the logfile"
-		echo "#2 is the destination path"
+		echo "#2 is the related module ("[IA1]"|"[IA2]"|"[SA]"|"[CC1]"|"[CC2]")"
+		echo "#3 is the destination path"
 		return
 	fi
 	NB_FRAME=0
-	logfile=$1
-	destPath=$2
+	logfile="$1"
+	module="$2"
+	destPath="$3"
 	if [[ "$destPath" == "" ]]; then
 		destPath = "$HOME"
 	fi
@@ -439,8 +441,17 @@ sch_extract_frames()
 	FILTER1="]\ ->\ {"
 	FILTER2="VAR;"
 	FILTER3="SCHMaster"
-	CMD="cat $logfile | egrep '$FILTER1|$FILTER2|$FILTER3' > $output_frames_1"
-	echo $CMD; eval $CMD
+	MODFILTER="$module"
+	# for grep, replace "[" BY "\[" and "]" BY "\]"
+	search='\['
+	replace='\\\['
+	MODFILTER=$(echo $MODFILTER | sed "s,$search,$replace,g")
+	search='\]'
+	replace='\\\]'
+	MODFILTER=$(echo $MODFILTER | sed "s,$search,$replace,g")
+	CMD="cat $logfile | egrep '$FILTER1|$FILTER2|$FILTER3'| egrep '$MODFILTER' > $output_frames_1"
+	echo $CMD
+	eval $CMD
 	echo -e $GREEN"$output_frames_1 done!" $ATTR_RESET
 	NB_LINES=$(cat $output_frames_1 | wc -l)
 	
@@ -793,8 +804,17 @@ upstream_repo()
 }
 
 wedit() {
-	local path=$(which "$1" 2>/dev/null)
-	CMD="npp \"$path\""; echo $CMD; eval "$CMD"
+	filepath="$1"
+	if [[ "${filepath:0:1}" != "." ]]; then
+		filepath="./$1"
+	fi
+	local path=$(which "$filepath" 2>/dev/null)
+	CMD="npp \"$path\""; echo $CMD; 
+	if [[ "$filepath" != "" && "$path" == "" ]]; then
+		return 0
+	fi
+	
+	eval "$CMD"
 }
 
 cd $SCRIPTS_PATH

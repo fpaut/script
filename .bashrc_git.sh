@@ -484,9 +484,8 @@ git_st_ls() {
 git_st_rename() {
 	old_pattern="$1"
 	new_pattern="$2"
-	if [[ old_pattern == "" || "$new_pattern" == "" ]];then
-		echo "2 parameters requested (old pattern and new pattern)"
-	fi
+	[[ old_pattern == "" || "$new_pattern" == "" ]] && echo "2 parameters requested (old pattern and new pattern)"  && return 1
+
 	# escape '[' and ']' in old_pattern
 	old_pattern=$(str_replace "$old_pattern" "[" "\["); esc_old_pattern=$(str_replace "$old_pattern" "]" "\]")
 	debug_log "old_pattern=$esc_old_pattern"
@@ -587,12 +586,18 @@ git_st_restore () {
 #########################################
 git_st_rm () {
 	local found=false
-	pattern=$1
+	pattern="$1"
+	exclude="$2"
 	echo "searching pattern '$pattern'"
-	[[ $pattern == "" ]] && echo missing pattern as parameter &&  return 1
+	[[ $pattern == "" ]] && echo -e "parameter: \n#1 is 'egrep' pattern to include \n#2 is 'egrep' pattern to exclude" &&  return 1
 	echo -e $GREEN"Following file will be removed."$ATTR_RESET
+	if [[ "$exclude" != "" ]]; then
+		cmd_list="git status -s | egrep --color=never \"$pattern\" | egrep --color=never -v \"$exclude\""
+	else
+		cmd_list="git status -s | egrep --color=never \"$pattern\" "
+	fi
 	test=$(
-	git status -s | grep --color=never  --color=never "$pattern" | while read file
+	eval "$cmd_list" | while read file
 	do
 		file=${file#* }
 		file=${file#*:}
@@ -607,7 +612,7 @@ git_st_rm () {
 		read -e -i "N" -p "Ok? (y/N): "
 		echo -e $ATTR_RESET
 		if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
-			git status -s | grep --color=never $pattern | while read file
+			eval "$cmd_list" | while read file
 			do
 				file=${file#* }
 				file=${file#*:}
@@ -626,7 +631,7 @@ git_st_rm_check () {
 	pattern=$1
 	[[ $pattern == "" ]] && echo missing pattern as parameter &&  return 1
 	echo -e $GREEN"Following file contains pattern '$pattern'."$ATTR_RESET
-	git status -s | grep --color=never $pattern | grep --color=never  --color=never -v "$WIP_PREFIX" | while read file
+	git status -s | grep --color=never $pattern | grep --color=never -v "$WIP_PREFIX" | while read file
 	do
 		echo $file
 	done
