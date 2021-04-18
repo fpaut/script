@@ -46,7 +46,7 @@
 	stDeleted = "!bash -c 'echo -e \"\\033[0;44mFiles Deleted:\\033[0;0m\" && git status | grep --color=always \"deleted\"'"
 	stModified = "!bash -c 'echo -e \"\\033[0;44mFiles Modified:\\033[0;0m\" && git status | grep --color=always \"modified\"'"
 	stRenamed = "!bash -c 'echo -e \"\\033[0;44mFiles Renamed:\\033[0;0m\" && git status | grep --color=always \"renamed\"'"
-	st = "!bash -c echo && git stModified && git stAppend && git stDeleted"
+	st = "!bash -c echo && git stModified;git stAppend;git stDeleted"
 	sta = "!bash -c 'echo -e \"\\033[0;44mNormal git status\\033[0;0m\"' && git status"
 	stu = "!bash -c 'echo -e \"\\033[0;44mOnly untracked files! (st for tracked files, sta for all)\\033[0;0m\"' && git status -s | grep -w --color=always \"??\""
 	sub = submodule update --init --recursive

@@ -616,7 +616,7 @@ git_st_rm () {
 			do
 				file=${file#* }
 				file=${file#*:}
-				CMD="rm -rf \"$file\""
+				CMD="rm -rf \"$file\"  2>&1 | grep -v unsecure"
 				echo $CMD;
 				eval $CMD
 			done
