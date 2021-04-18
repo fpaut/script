@@ -1,6 +1,11 @@
 echo
 echo In BASHRC_GIT
 
+if [[ -e $HOME/.gitconfig.lock ]]; then
+    echo "Deleting $HOME/.gitconfig.lock" >&2
+    rm $HOME/.gitconfig.lock
+fi
+
 ####################################################################################################################################################################
 ## "WIP section" Utilities functions to manipulate Work In Progress files combined with GIT
 ####################################################################################################################################################################
