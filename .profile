@@ -22,6 +22,7 @@
 # a patch to the cygwin mailing list.
 
 # User dependent .profile file
+echo In .PROFILE
 
 # Set user-defined locale
 export LANG=en_US.UTF8
@@ -45,3 +46,5 @@ if [ -n "${BASH_VERSION}" ]; then
 		source "${HOME}/.bashrc"
 	fi
 fi
+
+echo Out .PROFILE

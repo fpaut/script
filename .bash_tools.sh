@@ -40,6 +40,13 @@ backslash_to_slash()
 }
 export -f backslash_to_slash
 
+bash_show_shell_opened_files()
+{
+	cmd="$@ | strace bash -li |& grep '^open'"
+	echo $cmd; eval "$cmd"
+}
+export -f bash_show_shell_opened_files
+
 beep()
 {
 	CMD="play -q -n synth 0.1 sin 880 || echo -e "\a""
