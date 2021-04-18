@@ -676,6 +676,59 @@ show_parent()
     done
 }
 
+str_contains() {
+	pattern="$1"
+	str="$2"
+	if echo "$str" | grep -iqF "$pattern"; then
+		echo 1
+		return 1
+	else
+		echo 0
+		return 0
+	fi
+}
+
+# Variable extraction
+str_get_left_first()
+{
+	sep="$1"
+	echo sep="\"$sep\""
+	line="$2"
+	echo line="\"$line\""
+	echo ${line%$sep*}
+}
+
+# Variable extraction
+str_get_left_last()
+{
+	sep="$1"
+	line="$2"
+	echo ${line%%$sep*}
+}
+
+# Variable length
+str_get_length()
+{
+	var="$1"
+	echo ${#var}
+}
+
+# Variable extraction
+str_get_right_first()
+{
+	sep="$1"
+	line="$2"
+	echo ${line#*$sep}
+}
+
+# Variable extraction
+str_get_right_last()
+{
+	sep="$1"
+	line="$2"
+	echo ${line##*$sep}
+}
+
 str_replace() {
 	str=$1
 	search=$2
@@ -750,46 +803,6 @@ upper_case()
 }
 export -f upper_case
 
-# Variable extraction
-var_get_left_first()
-{
-	sep="$1"
-	echo sep="\"$sep\""
-	line="$2"
-	echo line="\"$line\""
-	echo ${line%$sep*}
-}
-
-# Variable extraction
-var_get_left_last()
-{
-	sep="$1"
-	line="$2"
-	echo ${line%%$sep*}
-}
-
-# Variable length
-var_get_length()
-{
-	var="$1"
-	echo ${#var}
-}
-
-# Variable extraction
-var_get_right_first()
-{
-	sep="$1"
-	line="$2"
-	echo ${line#*$sep}
-}
-
-# Variable extraction
-var_get_right_last()
-{
-	sep="$1"
-	line="$2"
-	echo ${line##*$sep}
-}
 
 wbdb() {
 	local path=$(which $1)

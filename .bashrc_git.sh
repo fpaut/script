@@ -8,19 +8,32 @@ WIP_PREFIX="WIP"
 
 get_wip_date()
 {
-	wip_date=$(var_get_right_last "[" "$1")
-	echo $(var_get_left_last "]" "$wip_date");
+	file="$1"
+	wip_pattern=$(str_get_right_first "[" "$file")
+	wip_date=$(str_get_right_first "[" "$wip_pattern")
+	echo $(str_get_left_last "]" "$wip_date");
 }
 
 get_wip_pattern()
 {
-	wip_pattern=$(var_get_right_last "[WIP_" "$1");
-	echo $(var_get_left_last "]" "$wip_pattern");
+	file="$1"
+	wip_pattern=$(str_get_right_first "[" "$file");
+	echo $(str_get_left_last "]" "$wip_pattern");
 }
 
 get_wip_filename()
 {
-	echo $(var_get_right_first " " "$1")
+	file="$1"
+	echo $(str_get_right_last " " "$file")
+}
+
+get_wip_rev()
+{
+	file="$1"
+	wip_pattern=$(str_get_right_first "[" "$file")
+	wip_date=$(str_get_right_first "[" "$wip_pattern")
+	wip_rev=$(str_get_right_first "[" "$wip_date")
+	echo $(str_get_left_last "]" "$wip_rev");
 }
 
 ####################################################################################################################################################################
@@ -396,6 +409,40 @@ git_sh_save() {
 ####################################################################################################################################################################
 ## "GIT STATUS" section : Utilities functions to manipulate files present in git status list
 ####################################################################################################################################################################
+git_st_add () {
+	pattern="$1"
+	files="$2"
+	[[ "$files" == "" ]] &&	
+		echo "#1 list of files to copy" &&
+		echo "#2 WIP pattern for rename" &&
+	return 1;
+	
+	if [[ "$(str_contains "WIP" "$pattern")" == "0" ]]; then
+		pattern="WIP_"$pattern
+	fi
+	
+	myDate=$(date +%y)
+	myDate+=_$(date +%m)
+	myDate+=_$(date +%d)
+	myDate+=_$(date +%H)H
+	myDate+=$(date +%M)mn
+	for file in ${files}
+	do
+		path=$(file_get_path "$file")
+		name=$(file_get_name "$file")
+		ext=$(file_get_ext "$file")
+		rev=$(git rev-parse --verify --short HEAD)
+		if [[ "$name.$ext" != "version.c"  ]]; 
+		then 	
+			[[ "$ext" == "" ]] && CMD="cp -v \"$path/$name\" \"$path/[ $pattern ] [ $myDate ] [ $rev ]$name\""
+			[[ "$ext" != "" ]] && CMD="cp -v \"$path/$name.$ext\" \"$path/[ $pattern ] [ $myDate ] [ $rev ] $name.$ext\""
+			eval $CMD
+		else
+			echo Files version found. Ignoring...
+		fi
+	done
+
+}
 
 git_st_cmp () {
 do_cmp=false
@@ -416,7 +463,7 @@ pattern2=$2
 		if [[ "$ext" != "" ]]; then
 			name=$name"."
 		fi
-		file_p2=$path/$( var_get_right_last " " "$file_p1")
+		file_p2=$path/$( str_get_right_last " " "$file_p1")
 #		echo file_p2=$file_p1
 		file_p1="$path/$name$ext"
 #		echo "file_p1=$file_p1"
@@ -467,7 +514,7 @@ git_st_ls() {
 	if [[ "$pattern" == "" ]]; then
 		LANG=en_GB git status -s | grep --color=never "WIP" | while read file; 
 		do  
-			echo -e "[ $(get_wip_date "$file") ]\t[ WIP_$(get_wip_pattern "$file") ]"
+			echo -e "[ $(get_wip_date "$file") ]\t[ $(get_wip_rev "$file") ]\t[ $(get_wip_pattern "$file") ]"
 		done | sort | uniq
 	else
 		LANG=en_GB git status -s | grep --color=never "$pattern" | while read file; 
@@ -539,7 +586,7 @@ git_st_restore () {
 		echo name=$name
 		echo ext=$ext
 		[[ "$ext" != "" ]] && name=$name"."
-		destname=$(var_get_right_last "]" "$name")
+		destname=$(str_get_right_last "]" "$name")
 		CMD="copy $path/$name$ext -> $path/$destname$ext"
 		echo $CMD
 	done
@@ -559,7 +606,7 @@ git_st_restore () {
 			echo name=$name
 			echo ext=$ext
 			[[ "$ext" != "" ]] && name=$name"."
-			destname=$(var_get_right_last "]" "$name")
+			destname=$(str_get_right_last "]" "$name")
 			CMD="cp \"$path/$name$ext\" \"$path/$destname$ext\""
 			echo $CMD
 			eval $CMD
@@ -571,7 +618,7 @@ git_st_restore () {
 	if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
 		git status -s | grep --color=never "$pattern" | while read file
 		do
-			file=$(var_get_right_first " " "$file")
+			file=$(str_get_right_first " " "$file")
 			echo file=$file
 			CMD="rm \"$file\""
 			echo $CMD
@@ -617,7 +664,6 @@ git_st_rm () {
 				file=${file#* }
 				file=${file#*:}
 				CMD="rm -rf \"$file\"  2>&1 | grep -v unsecure"
-				echo $CMD;
 				eval $CMD
 			done
 		fi
@@ -645,14 +691,15 @@ git_st_save () {
 	pattern="$1"
 	pattern=$(echo $pattern |  sed 's, ,_,g')
 	# Remove previous saved pattern 
-	echo -e $CYAN Removing previous saved pattern$ATTR_RESET
-	CMD="yes y | git_st_rm $pattern"; echo -e $CYAN$CMD$ATTR_RESET; eval "$CMD"
+	echo -e $CYAN Removing previous saved pattern
+	CMD="yes y | git_st_rm $pattern"; eval "$CMD"
+	echo -e $ATTR_RESET
+	echo
 	myDate=$(date +%y)
 	myDate+=_$(date +%m)
 	myDate+=_$(date +%d)
 	myDate+=_$(date +%H)H
 	myDate+=$(date +%M)mn
-	echo myDate=$myDate
 	git status -s | grep --color=never -v "??" | egrep "A |M " | while read file
 	do
 		file=${file#* }
@@ -660,24 +707,9 @@ git_st_save () {
 		#remove last '"'; if any
 		file=${file%\"*}
 		file=${file#*\"}
-		path=$(file_get_path "$file")
-		name=$(file_get_name "$file")
-		ext=$(file_get_ext "$file")
-		rev=$(git rev-parse --verify --short HEAD)
-#		echo file=$file
-#		echo path=$path
-#		echo name=$name
-#		echo ext=$ext
-		if [[ "$name.$ext" != "version.c"  ]]; 
-		then 	
-			[[ "$ext" == "" ]] && CMD="cp \"$path/$name\" \"$path/[ $pattern ] [ $myDate ] [ $rev ]$name\""
-			[[ "$ext" != "" ]] && CMD="cp \"$path/$name.$ext\" \"$path/[ $pattern ] [ $myDate ] [ $rev ] $name.$ext\""
-			echo $CMD; 
-			eval $CMD
-		else
-			echo Files version found. Ignoring...
-		fi
+		git_st_add "$pattern" "$file"
 	done
+
 	find . -iname "*"-$pattern"*"
 	echo -e $GREEN
 	read -e -i "N" -p "Do you want to discard modified file? (y/N): "
