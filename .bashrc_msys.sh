@@ -1,5 +1,6 @@
 echo
-echo In BASHRC_MSYS
+echo -e $YELLOW"In BASHRC_MSYS"$ATTR_RESET
+
 export BASH_STR="MSYS on Windows"
 export HOME_IN_WINDOWS="D:\Users\fpaut"
 export ROOTDRIVE="/."
@@ -22,4 +23,4 @@ conv_path_for_bash()
 	fi
 }
 export -f conv_path_for_bash
-echo Out of BASHRC_MSYS
+echo -e $YELLOW"Out of BASHRC_ALIASES"$ATTR_RESET

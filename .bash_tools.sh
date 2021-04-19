@@ -1,6 +1,7 @@
 #!/bin/bash
 echo
-echo In BASHRC_TOOLS
+echo -e $YELLOW"In .BASH_TOOLS"$ATTR_RESET
+
 shopt -s expand_aliases
 SIG_LIST="EXIT SIGTSTP SIGTTIN SIGTTOU"
 export false=0
@@ -839,6 +840,4 @@ x0()
 ## Background 
 ############################################################
 
-
-
-echo Out of BASHRC_TOOLS
+echo -e $YELLOW"Out of .BASH_TOOLS"$ATTR_RESET

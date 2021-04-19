@@ -1,5 +1,5 @@
 echo
-echo In BASHRC_CYGWIN
+echo -e $YELLOW"In BASHRC_CYGWIN"$ATTR_RESET
 export BASH_STR="CYGWIN bash on Windows"
 export HOME_IN_WINDOWS="C:\\cygwin64\\home\\fpaut"
 export ROOTDRIVE="/cygdrive"
@@ -56,4 +56,4 @@ if [[ "$X" == "" ]]; then
 	export DISPLAY=:0.0
 fi
 
-echo Out of BASHRC_CYGWIN
+echo -e $YELLOW"Out of BASHRC_CYGWIN"$ATTR_RESET

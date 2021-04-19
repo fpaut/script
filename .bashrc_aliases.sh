@@ -1,5 +1,6 @@
 echo
-echo In BASHRC_ALIASES
+echo -e $YELLOW"In BASHRC_ALIASES"$ATTR_RESET
+
 shopt -s expand_aliases
 
 
@@ -52,4 +53,5 @@ define_alias "whence" "type -a"                        # where, of a sort
 define_alias "wkill" "taskkill.exe /PID"                 # Kill Windows native process
 define_alias "wps" "tasklist.exe"                        # list Windows native process
 define_alias "xopen" "xdg-open"
-echo Out of BASHRC_ALIASES
+
+echo -e $YELLOW"Out of BASHRC_ALIASES"$ATTR_RESET

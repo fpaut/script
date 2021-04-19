@@ -1,5 +1,5 @@
 echo
-echo In BASHRC_GIT
+echo -e $YELLOW"In BASHRC_GIT"$ATTR_RESET
 
 if [[ -e $HOME/.gitconfig.lock ]]; then
     echo "Deleting $HOME/.gitconfig.lock" >&2
@@ -1008,34 +1008,6 @@ gitps1_update_stash() {
 	fi
 }
 
-# Start SSH Agent
-#----------------------------
-
-SSH_ENV="$HOME/.ssh/environment"
-
-function run_ssh_env() {
-  . "${SSH_ENV}" > /dev/null
-}
-
-function start_ssh_agent() {
-  echo "Initializing new SSH agent..."
-  ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
-  echo "succeeded"
-  chmod 600 "${SSH_ENV}"
-
-  run_ssh_env;
-
-  ssh-add ~/.ssh/id_rsa;
-}
-
-if [ -f "${SSH_ENV}" ]; then
-  run_ssh_env;
-  ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
-    start_ssh_agent;
-  }
-else
-  start_ssh_agent;
-fi
 
 alias gitps1_restore=ps1_restore
 
@@ -1045,4 +1017,4 @@ if [[ "$GIT" != "" ]]; then
     source $SCRIPTS_PATH/git-completion.bash
 fi
 
-echo Out of BASHRC_GIT
+echo -e $YELLOW"Out of BASHRC_GIT"$ATTR_RESET

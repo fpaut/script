@@ -22,7 +22,8 @@
 # a patch to the cygwin mailing list.
 
 # User dependent .profile file
-echo In .PROFILE
+echo
+echo -e $YELLOW"In .PROFILE"$ATTR_RESET
 
 # Set user-defined locale
 export LANG=en_US.UTF8
@@ -48,3 +49,4 @@ if [ -n "${BASH_VERSION}" ]; then
 fi
 
 echo Out .PROFILE
+echo -e $YELLOW"Out of .PROFILE"$ATTR_RESET

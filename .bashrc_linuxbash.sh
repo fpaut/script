@@ -1,5 +1,6 @@
 echo
-echo In BASHRC_LINUXBASH
+echo -e $YELLOW"In BASHRC_LINUXBASH"$ATTR_RESET
+
 export BASH_STR="Ubuntu bash on Windows"
 export HOME_IN_WINDOWS="C:\Users\fpaut\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs\home\fpaut"
 export ROOTDRIVE="/mnt"
@@ -41,4 +42,4 @@ wedit() {
 }
 
 
-echo Out of BASHRC_LINUXBASH
+echo -e $YELLOW"Out of BASHRC_LINUXBASH"$ATTR_RESET

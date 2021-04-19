@@ -1,5 +1,6 @@
 echo
-echo In BASHRC_DIASYS
+echo -e $YELLOW"In BASHRC_DIASYS"$ATTR_RESET
+
 
 DEV_PATH="$ROOTDRIVE/e/dev/"
 BIN_PATH="$ROOTDRIVE/e/Tools/bin"
@@ -872,5 +873,5 @@ else
 	echo Mailbox polling not launched
 fi
 echo MAILBOX_POLLING_PID= $MAILBOX_POLLING_PID
- 
-echo Out of BASHRC_DIASYS
+
+echo -e $YELLOW"Out of BASHRC_DIASYS"$ATTR_RESET

@@ -1,4 +1,8 @@
-echo In BASHRC
+echo
+export YELLOW="\e[0;93m"
+export ATTR_RESET=$(tput sgr0)
+
+echo -e $YELLOW"In BASHRC"$ATTR_RESET
 # To the extent possible under law, the author(s) have dedicated all 
 # copyright and related and neighboring rights to this software to the 
 # public domain worldwide. This software is distributed without any warranty. 
@@ -97,11 +101,11 @@ case $HOSTNAME in
 		echo "Unknown machine ($HOSTNAME), or no bash specificities"
 	;;
 esac
+source $SCRIPTS_PATH/.bash_tools.sh
 
 source $SCRIPTS_PATH/.bashrc_standard.sh
 source $SCRIPTS_PATH/.bashrc_aliases.sh
 source $SCRIPTS_PATH/.bashrc_git.sh
-source $SCRIPTS_PATH/.bash_tools.sh
 
 def_font_attributes
 
@@ -118,5 +122,6 @@ echo Windows home =$HOMEW
 
 gitconfig_restore
 
-echo Out of BASHRC
+
+echo -e $YELLOW"Out of BASHRC"$ATTR_RESET
 export LESSCHARSET=utf-8
