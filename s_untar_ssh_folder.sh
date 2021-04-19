@@ -1,1 +1,2 @@
-unzip -P "Transalp1*" $ZIP -d ssh_old2
+ZIP="./ssh.zip"
+unzip -P "Transalp1*" $ZIP -d .
