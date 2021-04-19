@@ -2,7 +2,9 @@ echo
 export YELLOW="\e[0;93m"
 export ATTR_RESET=$(tput sgr0)
 
+SCRIPTNAME="$0";
 echo -e $YELLOW"In BASHRC"$ATTR_RESET
+echo -e $YELLOW"In SCRIPTNAME=$SCRIPTNAME"$ATTR_RESET
 # To the extent possible under law, the author(s) have dedicated all 
 # copyright and related and neighboring rights to this software to the 
 # public domain worldwide. This software is distributed without any warranty. 

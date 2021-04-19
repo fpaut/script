@@ -1,5 +1,7 @@
 echo
-echo -e $YELLOW"In BASHRC_PERSO"$ATTR_RESET
+echo -e $YELLOW"In ${@}"$ATTR_RESET
+echo \#{@}=${@} 
+echo \#@=$@
 
 DEV_PATH="$HOME/dev"
 SCRIPTS_PATH="$HOME/bin/scripts"
@@ -19,4 +21,4 @@ else
   start_ssh_agent;
 fi
 
-echo -e $YELLOW"Out of BASHRC_PERSO"$ATTR_RESET
+echo -e $YELLOW"Out of '${@}'"$ATTR_RESET
