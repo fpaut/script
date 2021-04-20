@@ -78,15 +78,41 @@ git_branch_delete()
 	echo $CMD && $CMD
 }
 
-git_branch_get_author()
+git_branch_get_info()
 {
-	CMD="git for-each-ref --format='%(committerdate)%09%(authorname)%09%(refname)' | sort -k5n -k2M -k3n -k4n | grep --color=never remotes | awk -F \"\t\" '{ printf \"%-32s %-27s %s\n\", \$1, \$2, \$3 }'"
-	echo $CMD && eval $CMD
+	echo -e $CYAN"Local Branchs"$ATTR_RESET
+	git for-each-ref --format='date=%(committerdate)%09author=%(authorname)%09branch=%(refname)' | sort -k5n -k2M -k3n -k4n | grep --color=never heads | while read line
+	do
+		log_debug line=\"$line\"
+		date=${line%+*}; date=${date#*=}; log_debug date=\"$date\"
+		ignore=${line#*$date}; ignore=${ignore##*0}; log_debug ignore=\"$ignore\"
+		author=${ignore#*=}; author=${author%branch=*}; log_debug author=\"$author\"
+		branch=${ignore#*=}; branch=${ignore##*/}; log_debug branch=\"$branch\"
+		echo -e "$branch \t$author\t$date"
+	done
+	echo 
+	echo -e $CYAN"Remote Branchs"$ATTR_RESET
+	git for-each-ref --format='date=%(committerdate)%09author=%(authorname)%09branch=%(refname)' | sort -k5n -k2M -k3n -k4n | grep --color=never remote | while read line
+	do
+		log_debug line=\"$line\"
+		date=${line%+*}; date=${date#*=}; log_debug date=\"$date\"
+		ignore=${line#*$date}; ignore=${ignore#*0}; log_debug ignore=\"$ignore\"
+		author=${ignore#*=}; author=${author%branch=*}; log_debug author=\"$author\"
+		branch=${ignore#*=}; branch=${ignore##*/}; log_debug branch=\"$branch\"
+		echo -e "$branch \t$author\t$date"
+	done
+	echo 
+	echo -e $CYAN"Tags:"$ATTR_RESET
+
+	git for-each-ref --format='%(refname)%09%09%09%(authorname)%09%09%09%(committerdate)' | sort -k5n -k2M -k3n -k4n | grep --color=never tags | awk -F \"\t\" '{ printf "%-32s %-27s %s\n", $1, $2, $3 }'  | while read line
+	do
+		echo -e "$line"
+	done		
 }
 
 git_branch_get_tag()
 {
-	CMD="git for-each-ref --format='%(committerdate)%09%(authorname)%09%(refname)' | sort -k5n -k2M -k3n -k4n | grep --color=never tags | awk -F \"\t\" '{ printf \"%-32s %-27s %s\n\", \$1, \$2, \$3 }'"
+	CMD="git for-each-ref --format='%(committerdate)|%(authorname)%09%(refname)' | sort -k5n -k2M -k3n -k4n | grep --color=never tags | awk -F \"\t\" '{ printf \"%-32s %-27s %s\n\", \$1, \$2, \$3 }'"
 	echo $CMD && eval $CMD
 }
 
@@ -425,6 +451,8 @@ git_st_add () {
 	if [[ "$(str_contains "WIP" "$pattern")" == "0" ]]; then
 		pattern="WIP_"$pattern
 	fi
+	echo "#1 WIP pattern for rename" &&
+	echo "#2 list of files to copy" &&
 	
 	myDate=$(date +%y)
 	myDate+=_$(date +%m)
@@ -540,18 +568,18 @@ git_st_rename() {
 
 	# escape '[' and ']' in old_pattern
 	old_pattern=$(str_replace "$old_pattern" "[" "\["); esc_old_pattern=$(str_replace "$old_pattern" "]" "\]")
-	debug_log "old_pattern=$esc_old_pattern"
+	log_debug "old_pattern=$esc_old_pattern"
 	git status -s | grep --color=never "$esc_old_pattern" | while read file
 	do
-		debug_log "FILTERED file=$file"
+		log_debug "FILTERED file=$file"
 		file=${file#* }	## Remove 'status' provided by "git status -s"
-		debug_log "STATE FILE FILTERED file=$file"
+		log_debug "STATE FILE FILTERED file=$file"
 		path=$(file_get_path $file)
-		debug_log "path=$path"
+		log_debug "path=$path"
 		name=$(file_get_name $file)
-		debug_log "name=$name"
+		log_debug "name=$name"
 		ext=$(file_get_ext $file)
-		debug_log "ext=$ext"
+		log_debug "ext=$ext"
 		# Remove pattern
 		name=${name##*$old_pattern}
 		# Remove first space ' '
@@ -559,9 +587,9 @@ git_st_rename() {
 		file1=$file
 		file2="$path$new_pattern $name.$ext"
 		
-		debug_log "old_pattern=$esc_old_pattern"
-		debug_log "name without pattern=$name"
-		debug_log "New name=$file2"
+		log_debug "old_pattern=$esc_old_pattern"
+		log_debug "name without pattern=$name"
+		log_debug "New name=$file2"
 
 		CMD="mv -v \"$file\" \"$file2\""
 		echo $CMD

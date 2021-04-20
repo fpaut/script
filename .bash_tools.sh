@@ -225,12 +225,11 @@ datediff()
 	echo $(( (((d1-d2) > 0 ? (d1-d2) : (d2-d1)) + 43200) / 86400 )) days
 }
 
-debug_log() {
+log_debug() {
 	string="$@"
 	if [[ "$DEBUG_BASH" = "1" ]]; then
         echo -en $YELLOW> /dev/stderr
-        echo -n $string> /dev/stderr
-        echo -e $ATTR_RESET > /dev/stderr
+        echo -e $string$ATTR_RESET> /dev/stderr
         return 1
     else
         return 0
