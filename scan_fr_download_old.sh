@@ -153,7 +153,7 @@ update_url()
        ;;
     esac
     UPDATED_URL="$UPDATED_URL;$IMG"
- #   debug_log "update_url($NAME,CH$CHAPTER, PAGE$PAGE) return $UPDATED_URL"
+ #   log_debug "update_url($NAME,CH$CHAPTER, PAGE$PAGE) return $UPDATED_URL"
     echo $UPDATED_URL
 }
 
@@ -186,7 +186,7 @@ get_chapter()
         log_err  "-n $NAME / Chapitre $CHAPTER / Page $PAGE"
         
 
-        CMD="wget \"$URL/$IMG\""; debug_log "-n : $CMD"; UNUSED=$(eval "$CMD 2>&1 1>/dev/null"); ERR=$?
+        CMD="wget \"$URL/$IMG\""; log_debug "-n : $CMD"; UNUSED=$(eval "$CMD 2>&1 1>/dev/null"); ERR=$?
         if [[ "$ERR" != "0" ]]; then
             PAGE_WITH_ERR=$(($PAGE_WITH_ERR + 1))
             log $RED" : NOK, erreurs $PAGE_WITH_ERR/$MAX_ERRORS (ERR=$ERR)"$ATTR_RESET
@@ -222,7 +222,7 @@ convert_to_pdf()
     img_to_pdf.sh "*" "$NAME-Chapitre_$(printf %03d $CHAPTER)".pdf
     SRC="$OUTPUT/"$NAME-Chapitre_$(printf %03d $CHAPTER)".pdf"
     DEST="$OUTPUT/.."
-    debug_log $GREEN"Move  $SRC to $DEST"$ATTR_RESET; echo
+    log_debug $GREEN"Move  $SRC to $DEST"$ATTR_RESET; echo
     mv $SRC $DEST 2>/dev/null
     if [[ "$?" == "0" ]]; then
         echo -ne $GREEN"Delete $OUTPUT"$ATTR_RESET; echo
@@ -240,16 +240,16 @@ fi
 sleep 2
 
 
-debug_log "LOGFILE is "$LOGFILE
+log_debug "LOGFILE is "$LOGFILE
 rm -f $LOGFILE
 CHAPTER_WITH_ERR=0
 while [[ "$CHAPTER" -le $END_CHAPTER && "$CHAPTER_WITH_ERR" -lt 2 ]]
 do
     get_chapter $NAME $CHAPTER
     convert_to_pdf $NAME $CHAPTER
-    debug_log CHAPTER=$CHAPTER
-    debug_log END_CHAPTER=$END_CHAPTER
-    debug_log CHAPTER_WITH_ERR=$CHAPTER_WITH_ERR
+    log_debug CHAPTER=$CHAPTER
+    log_debug END_CHAPTER=$END_CHAPTER
+    log_debug CHAPTER_WITH_ERR=$CHAPTER_WITH_ERR
     if [[ "$CHAPTER" -ge $END_CHAPTER ]]; then
         CHAPTER=$END_CHAPTER
         log $GREEN"Fini!"$ATTR_RESET

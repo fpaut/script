@@ -16,7 +16,7 @@ my_ls()
 
 
 # be sure each filename have at least 8 digits
-debug_log $CYAN"$SCRIPT_NAME: be sure each filename have at least 2 digits"$ATTR_RESET
+log_debug $CYAN"$SCRIPT_NAME: be sure each filename have at least 2 digits"$ATTR_RESET
 ls $IMG_PATTERN | while read file
 do
     filename=$(file_get_name $file)
@@ -29,7 +29,7 @@ do
 done
 
 # Convert each image as a pdf
-debug_log $CYAN"$SCRIPT_NAME: Convert each image as a pdf"$ATTR_RESET
+log_debug $CYAN"$SCRIPT_NAME: Convert each image as a pdf"$ATTR_RESET
 ls $IMG_PATTERN | while read file
 do
     filename=$(file_get_name $file)
@@ -40,13 +40,13 @@ do
 done
 
 # Concatenate all pdf as one
-debug_log $CYAN"$SCRIPT_NAME: Concatenate all pdf as one"$ATTR_RESET
+log_debug $CYAN"$SCRIPT_NAME: Concatenate all pdf as one"$ATTR_RESET
 FILE_LIST=$(ls *.pdf)
 CMD="pdftk $FILE_LIST cat output $OUTPUT"
 #CMD="java -jar /mnt/c/Users/fpaut/dev/Perso/pdftk/build/jar/pdftk.jar $FILE_LIST cat output $OUTPUT"
 echo $CMD
 eval $CMD; ERR="$?"
 
-debug_log $CYAN"Return from $SCRIPT_NAME with status $?"$ATTR_RESET
+log_debug $CYAN"Return from $SCRIPT_NAME with status $?"$ATTR_RESET
 
 

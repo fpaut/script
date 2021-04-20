@@ -53,11 +53,11 @@ img_type()
 get_html_chapter_list()
 {
     name="$1"
-    debug_log "get_html_chapter_list($name)"
+    log_debug "get_html_chapter_list($name)"
     url="https://www.scan-fr.cc/manga/$name"
     output="$tmp_folder/$name.html"
     if [[ ! -e $output || $(file_get_size "$output") -le "1" ]]; then
-        debug_log "wget $url -O \"$output\""
+        log_debug "wget $url -O \"$output\""
         wget $url -O "$output"
         logfile "$url downloaded in $output"
     else
@@ -83,11 +83,11 @@ get_html_page_list()
 {
     name="$1"
     chapter="$2"
-    debug_log "get_html_page_list($name, chapt $chapter)"
+    log_debug "get_html_page_list($name, chapt $chapter)"
     url="https://www.scan-fr.cc/manga/$name/$chapter/1"
     output="$tmp_folder/$name"_"$chapter.html"
     if [[ ! -e $output || $(file_get_size "$output") -le "1" ]]; then
-        debug_log "wget $url -O \"$output\""
+        log_debug "wget $url -O \"$output\""
         CMD="wget \"$url\" -O $output"; UNUSED=$(eval "$CMD 2>&1 1>/dev/null"); ERR=$?
        logfile "$url downloaded in $output"
     else
@@ -101,7 +101,7 @@ extract_page_url_list()
 {
     html_content="$1"
     logfile "get pages list..."
-    debug_log "extract_page_url_list()"
+    log_debug "extract_page_url_list()"
     echo -e "$html_content" | grep --color=never "Page" | grep --color=never "data-src" | while read line
     do
         line=${line#*data-src=\' }
@@ -158,13 +158,13 @@ convert_to_pdf()
     src_folder="/home/user/Documents/Doc_Perso/Fred/ebook/Manga/$manga_name/Chapitre_"$chapter""
     
     logfile "Convert $manga_name Chapter $chapter in PDF format"
-    debug_log Cleaning all old pdf
+    log_debug Cleaning all old pdf
     cleaning_all_pdf "$src_folder"
-    debug_log normalize_filename
+    log_debug normalize_filename
     normalize_filename "$src_folder" $file_nb_digits "jpg|jpeg|png"
-    debug_log convert each image as pdf
+    log_debug convert each image as pdf
     convert_img_as_pdf "$src_folder" "jpg|jpeg|png"
-    debug_log concatenate all generated pdfs
+    log_debug concatenate all generated pdfs
     create_final_pdf "$src_folder" "/home/user/Documents/Doc_Perso/Fred/ebook/Manga/$manga_name/$manga_name-Chapitre_$(printf %04d $chapter).pdf"
     if [[ "$?" == "0" ]]; then
         echo -ne $GREEN"Delete $src_folder"; echo
