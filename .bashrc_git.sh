@@ -1,5 +1,5 @@
 echo
-echo -e $YELLOW"In '${@}'"$ATTR_RESET
+echo -e $YELLOW"In '.BASHRC_GIT'"$ATTR_RESET
 
 if [[ -e $HOME/.gitconfig.lock ]]; then
     echo "Deleting $HOME/.gitconfig.lock" >&2
@@ -1045,4 +1045,4 @@ if [[ "$GIT" != "" ]]; then
     source $SCRIPTS_PATH/git-completion.bash
 fi
 
-echo -e $YELLOW"Out of '${@}'"$ATTR_RESET
+echo -e $YELLOW"Out of '.BASHRC_GIT'"$ATTR_RESET

@@ -1,3 +1,4 @@
+#!/bin/bash
 BOARDS=("F4 VCP" "F4 RNDIS" "F7 RNDIS")
 BOARD=$(zenity --list --column=BOARD "${BOARDS[@]}")
 

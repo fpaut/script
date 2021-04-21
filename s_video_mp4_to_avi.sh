@@ -1,3 +1,4 @@
+#!/bin/bash
 FILE_IN=$1
 FILE_OUT=$1'.avi'
 ## [Pass1]

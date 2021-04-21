@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 #
 # Ce fichier peut être trouvé dans /etc/completion sur Ubuntu…
 #

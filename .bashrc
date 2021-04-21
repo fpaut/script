@@ -3,7 +3,7 @@ export YELLOW="\e[0;93m"
 export ATTR_RESET=$(tput sgr0)
 
 SCRIPTNAME="$0";
-echo -e $YELLOW"In BASHRC"$ATTR_RESET
+echo -e $YELLOW"In .BASHRC"$ATTR_RESET
 echo -e $YELLOW"In SCRIPTNAME=$SCRIPTNAME"$ATTR_RESET
 # To the extent possible under law, the author(s) have dedicated all 
 # copyright and related and neighboring rights to this software to the 
@@ -115,6 +115,40 @@ export PATH=$PATH:$SCRIPTS_PATH
 export PATH=$PATH:$ROOTDRIVE/c/Users/fpaut/bin/Debug
 export PATH=$PATH:$BIN_PATH
 
+# Start SSH Agent
+#----------------------------
+
+SSH_ENV="$HOME/.ssh/environment"
+
+function run_ssh_env() {
+    echo "source ${SSH_ENV}"
+  . "${SSH_ENV}" > /dev/null
+}
+
+function start_ssh_agent() {
+  echo "Initializing new SSH agent..." >&2
+  ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+  echo "succeeded" >&2
+  chmod 600 "${SSH_ENV}"
+
+  run_ssh_env;
+
+   echo "ssh-add"
+   ssh-add ~/.ssh/id_rsa;
+}
+
+if [ -f "${SSH_ENV}" ]; then
+  run_ssh_env;
+  ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+   echo "start_ssh_agent $LINENO"
+    start_ssh_agent;
+  }
+else
+  echo "start_ssh_agent $LINENO"
+  start_ssh_agent;
+fi
+
+
 check_var ROOTDRIVE
 check_var HOME
 check_var HOMEW
@@ -125,5 +159,5 @@ echo Windows home =$HOMEW
 gitconfig_restore
 
 
-echo -e $YELLOW"Out of BASHRC"$ATTR_RESET
+echo -e $YELLOW"Out of .BASHRC"$ATTR_RESET
 export LESSCHARSET=utf-8

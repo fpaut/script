@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 #
 
 SOURCE=$1 # source = 'upstream' or 'origin' (fork)

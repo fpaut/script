@@ -1,3 +1,4 @@
+#!/bin/bash
 PATH_BACKUP_HD2To="/media/user/NTFS_1To82/WikoUFEEL/Memoire_Interne/BACKUP_Wiko_Fred"
 
 alias ll="ls -halF --color=never"
