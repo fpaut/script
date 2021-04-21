@@ -5,7 +5,7 @@ export BASH_STR="MSYS on Windows"
 export HOME_IN_WINDOWS="D:\Users\fpaut"
 export ROOTDRIVE="/."
 export HOMEW="$ROOTDRIVE/c/Users/fpaut"
-SCRIPTS_PATH="$ROOTDRIVE/e/Tools/bin/scripts"
+export SCRIPTS_PATH="$ROOTDRIVE/e/Tools/bin/scripts"
 export HOME=$HOMEW
 
 conv_path_for_win()
