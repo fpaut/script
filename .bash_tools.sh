@@ -339,6 +339,23 @@ file_get_ext()
 	fi
 }
 
+ file_count_line() 
+ {
+	folder="$1"
+	min_line_nb="$2"
+	find $folder -exec ls -ld $PWD/{} \; | egrep -v "\.git|\[" | while read line
+	do
+		file="/${line#*/}"
+		if [[ -f "$file" ]]; then
+			COUNT=$(wc -l $file)
+			COUNT=${COUNT% *}
+			if [[ "$COUNT" -gt "$min_line_nb" ]]; then
+				echo "$file:$COUNT"
+			fi
+		fi
+	done
+}
+ 
 # Return filename+extension of a provided path+filename (eg.: "/home/user/toto.txt.doc" return "toto.txt.doc")
 file_get_fullname()
 {
@@ -845,6 +862,14 @@ x0()
 	val=$1
 	printf "%x\n" $val
 }
+
+## manpage using yelp
+yman() 
+{ 
+	cmd="$1"
+	yelp man:$cmd 2>/dev/null &
+}
+
 
 ############################################################
 ## Background 
