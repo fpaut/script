@@ -1,8 +1,8 @@
 echo
 echo -e $YELLOW"In .BASHRC_PERSO"$ATTR_RESET
 
-DEV_PATH="$HOME/dev"
-SCRIPTS_PATH="$HOME/bin/scripts"
+export DEV_PATH="$HOME/dev"
+export SCRIPTS_PATH="$HOME/bin/scripts"
 
 alias cdd="cd $DEV_PATH"
 alias cds="cd $SCRIPTS_PATH"

@@ -2,18 +2,18 @@ echo
 echo -e $YELLOW"In BASHRC_DIASYS"$ATTR_RESET
 
 
-DEV_PATH="$ROOTDRIVE/e/dev/"
-BIN_PATH="$ROOTDRIVE/e/Tools/bin"
-SCRIPTS_PATH="$BIN_PATH/scripts"
-FIRMWARE_PATH="$DEV_PATH/STM32_Toolchain/dt-arm-firmware"
-TOOLS_PATH="$DEV_PATH/STM32_Toolchain/dt-fwtools"
-FSM_CYCLE="$FIRMWARE_PATH/ODS/FSM/Cycles/"
+export DEV_PATH="$ROOTDRIVE/e/dev/"
+export BIN_PATH="$ROOTDRIVE/e/Tools/bin"
+export SCRIPTS_PATH="$BIN_PATH/scripts"
+export FIRMWARE_PATH="$DEV_PATH/STM32_Toolchain/dt-arm-firmware"
+export TOOLS_PATH="$DEV_PATH/STM32_Toolchain/dt-fwtools"
+export FSM_CYCLE="$FIRMWARE_PATH/ODS/FSM/Cycles/"
 
-INBOX_FILE="$ROOTDRIVE/c/Users/fpaut/AppData/Roaming/Thunderbird/Profiles/mtrhwyn5.default/ImapMail/mail2.diasys-technologies.com/INBOX"
-MAILBOX_TMP_FOLDER="$HOME/tmp/"
-MAILBOX_PREFIX="MAILBOX_"
-MAILBOX_POLLING_LOCK=$MAILBOX_PREFIX"POLLING_RUNNING"
-MAILBOX_POLLING_POPUP=$MAILBOX_PREFIX"POLLING_POPUP"
+export INBOX_FILE="$ROOTDRIVE/c/Users/fpaut/AppData/Roaming/Thunderbird/Profiles/mtrhwyn5.default/ImapMail/mail2.diasys-technologies.com/INBOX"
+export MAILBOX_TMP_FOLDER="$HOME/tmp/"
+export MAILBOX_PREFIX="MAILBOX_"
+export MAILBOX_POLLING_LOCK=$MAILBOX_PREFIX"POLLING_RUNNING"
+export MAILBOX_POLLING_POPUP=$MAILBOX_PREFIX"POLLING_POPUP"
 
 export DISPLAY=localhost:0.0
 export LIBGL_ALWAYS_INDIRECT=1

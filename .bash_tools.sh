@@ -238,7 +238,7 @@ log_debug() {
 
 
 def_font_attributes() {
-	export PS1_ATTR_UNDERLINED="\[\e[0;4m\]"
+	export PS1_UNDERLINED="\[\e[0;4m\]"
 
 	export PS1_FONT_BOLD="\[\e[0;1m\]"
 
@@ -270,7 +270,7 @@ def_font_attributes() {
 	TPUT_WHITE=7
 	TPUT_DEFAULT=9
 
-	export ATTR_UNDERLINED=$(tput smul)
+	export UNDERLINED=$(tput smul)
 	export BLINK=$(tput blink)
 	export BOLD=$(tput bold)
 	
@@ -283,9 +283,14 @@ def_font_attributes() {
 	export MAGENTA=$(tput setaf $TPUT_MAGENTA)
 	export WHITE=$(tput setaf $TPUT_WHITE)
 	
+	export BKG_BLACK=$(tput setab $TPUT_BLACK)
 	export BKG_RED=$(tput setab $TPUT_RED)
 	export BKG_GREEN=$(tput setab $TPUT_GREEN)
+	export BKG_YELLOW=$(tput setab $TPUT_YELLOW)
 	export BKG_BLUE=$(tput setab $TPUT_BLUE)
+	export BKG_CYAN=$(tput setab $TPUT_CYAN)
+	export BKG_MAGENTA=$(tput setab $TPUT_MAGENTA)
+	export BKG_WHITE=$(tput setab $TPUT_WHITE)
 	
 	export ATTR_RESET=$(tput sgr0)
 }
@@ -301,6 +306,12 @@ edit() {
     CMD="npp $(conv_path_for_win $@)&"
     echo $CMD
 	$CMD&
+}
+
+exec() {
+    CMD="$@"
+    echo -e $UNDERLINED$BLUE"$CMD"$ATTR_RESET
+	eval "$CMD"
 }
 
 exit_on_error()

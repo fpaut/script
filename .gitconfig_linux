@@ -5,12 +5,10 @@
 [cola]
 	spellcheck = false
 	blameviewer = git gui blame
-	
 [diff]
 	tool = meld
 [merge]
 	tool =  meld
-
 [alias]
 	co = -c diff.mnemonicprefix=false -c core.quotepath=false --no-optional-locks checkout --
 	conflicts="diff --name-only --diff-filter=U"
@@ -42,14 +40,17 @@
 	stDeleted = "!bash -c 'echo -e \"\\033[0;44mFiles Deleted:\\033[0;0m\" && git status | grep --color=always \"deleted\"'"
 	stModified = "!bash -c 'echo -e \"\\033[0;44mFiles Modified:\\033[0;0m\" && git status | grep --color=always \"modified\"'"
 	stRenamed = "!bash -c 'echo -e \"\\033[0;44mFiles Renamed:\\033[0;0m\" && git status | grep --color=always \"renamed\"'"
-	st = "!bash -c echo && git stModified;git stAppend;git stDeleted"
+	st = "!bash -c echo && git stModified;git stAppend;git stRenamed; git stDeleted"
 	sta = "!bash -c 'echo -e \"\\033[0;44mNormal git status\\033[0;0m\"' && git status"
 	stu = "!bash -c 'echo -e \"\\033[0;44mOnly untracked files! (st for tracked files, sta for all)\\033[0;0m\"' && git status -s | grep -w --color=always \"??\""
 	sub = submodule update --init --recursive
 	sw = "!bash -c 'echo stash show' && git stash show"
 [core]
+	repositoryformatversion = 0
+	fileMode = false
+	bare = false
+	logallrefupdates = true
 	autocrlf = true
-	filemode = false
 [push]
 	default = current
 [color]

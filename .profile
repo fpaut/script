@@ -47,6 +47,6 @@ if [ -n "${BASH_VERSION}" ]; then
 		source "${HOME}/.bashrc"
 	fi
 fi
-
+export SCRIPTS_PATH
 echo Out .PROFILE
 echo -e $YELLOW"Out of .PROFILE"$ATTR_RESET

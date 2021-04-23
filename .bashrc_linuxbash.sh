@@ -38,7 +38,9 @@ wedit() {
 	else
 		path=$1
 	fi
-	CMD="kate $path"; echo $CMD; eval "$CMD&"
+	CMD="kate $path 2>&1 1>/dev/null"
+	CMD+="&"
+	exec "$CMD"
 }
 
 
