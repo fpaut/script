@@ -225,14 +225,41 @@ datediff()
 	echo $(( (((d1-d2) > 0 ? (d1-d2) : (d2-d1)) + 43200) / 86400 )) days
 }
 
+double_backslash()
+{
+	str="$1"
+	echo $(echo $str |  sed 's,\\,\\\\,g')
+}
+export -f double_backslash
+
+trap_handler_cb() {
+	# Backup exit status if you're interested...
+    local exit_status=$?
+    echo "TRAP HANDLER (CALLER=$(caller 0)"
+} # trap_exit_handler()
+
+trap_handler_set() {
+	trap trap_handler_cb $SIG_LIST
+
+	# nounset : Attempt to use undefined variable outputs error message, and forces an exit
+	set -o nounset
+}
+
+trap_handler_unset() {
+	trap "" $SIG_LIST
+
+	# nounset : Attempt to use undefined variable outputs error message, and forces an exit
+	set +o nounset
+}
+
 log_debug() {
 	string="$@"
 	if [[ "$DEBUG_BASH" = "1" ]]; then
-        echo -en $YELLOW> /dev/stderr
-        echo -e $string$ATTR_RESET> /dev/stderr
-        return 1
-    else
-        return 0
+        	echo -en $YELLOW> /dev/stderr
+        	echo -e $string$ATTR_RESET> /dev/stderr
+        	return 1
+    	else
+        	return 0
 	fi
 }
 

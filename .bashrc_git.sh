@@ -196,7 +196,7 @@ gitconfig_restore()
         WSTMONDT019)
             gitconfig_src=".gitconfig_diasys"
         ;;
-        user-HP-ENVY-TS-15-Notebook-PC)
+        user-HP-ENVY-TS-15-Notebook-PC | imane-Latitude-E5410)
             gitconfig_src=".gitconfig_linux"
         ;;
         *)

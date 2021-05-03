@@ -95,12 +95,13 @@ case $HOSTNAME in
 		echo DIASYS machine
 		source $ROOTDRIVE/e/Tools/bin/scripts/.bashrc_diasys.sh
 	;;
-	user-HP-ENVY-TS-15-Notebook-PC)
+	user-HP-ENVY-TS-15-Notebook-PC | imane-Latitude-E5410)
 		echo Personal machine
 		source $HOME/bin/scripts/.bashrc_perso.sh
 	;;
 	*)
-		echo "Unknown machine ($HOSTNAME), or no bash specificities"
+		echo "here"
+		echo "Unknown machine (\"$HOSTNAME\"), or no bash specificities"
 	;;
 esac
 source $SCRIPTS_PATH/.bash_tools.sh
