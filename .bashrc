@@ -4,7 +4,6 @@ export ATTR_RESET=$(tput sgr0)
 
 SCRIPTNAME="$0";
 echo -e $YELLOW"In .BASHRC"$ATTR_RESET
-echo -e $YELLOW"In SCRIPTNAME=$SCRIPTNAME"$ATTR_RESET
 # To the extent possible under law, the author(s) have dedicated all 
 # copyright and related and neighboring rights to this software to the 
 # public domain worldwide. This software is distributed without any warranty. 
@@ -37,11 +36,10 @@ echo -e $YELLOW"In SCRIPTNAME=$SCRIPTNAME"$ATTR_RESET
 ## (Cygwin, WSL, MSYS, or real linux)
 get_term_env()
 {
-    WSL=$(which wslpath)
 	# Searching terminal environment
 	[[ "$MINGW_PREFIX" != "" ]] && echo msys && return 0
 	[[ "$MINTTY_SHORTCUT" != "" ]] && echo cygwin && return 0
-	[[ "$WSL" ]] && echo wsl && return 0
+	[[ $(which wslpath) ]] && echo wsl && return 0
 	echo linuxBash
 	
 	return 0
@@ -97,16 +95,21 @@ case $HOSTNAME in
 	;;
 	user-HP-ENVY-TS-15-Notebook-PC | imane-Latitude-E5410)
 		echo Personal machine
+		SCRIPTS_PATH="/home/user/bin/scripts"
 		source $HOME/bin/scripts/.bashrc_perso.sh
 	;;
 	*)
-		echo "here"
-		echo "Unknown machine (\"$HOSTNAME\"), or no bash specificities"
+		echo "Unknown machine ($HOSTNAME), or no bash specificities"
 	;;
 esac
 source $SCRIPTS_PATH/.bash_tools.sh
 
 source $SCRIPTS_PATH/.bashrc_standard.sh
+
+GIT=$(which git)
+if [[ "$GIT" != "" ]]; then
+$SCRIPTS_PATH/git-aliases.sh
+fi
 source $SCRIPTS_PATH/.bashrc_aliases.sh
 source $SCRIPTS_PATH/.bashrc_git.sh
 
