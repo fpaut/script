@@ -184,16 +184,18 @@ contains()
 }
 
 # save cursor position
-cursor_save_pos()
+cursor_pos_save()
 {
 	echo -e "\033[s"
 }
+export cursor_pos_save
 
 # restore cursor position
-cursor_rest_pos()
+cursor_pos_rest()
 {
 	echo -en "\033[u"
 }
+export cursor_pos_rest
 
 	
 c_exec ()
@@ -337,7 +339,7 @@ edit() {
 
 exec() {
     CMD="$@"
-    echo -e $UNDERLINED$BLUE"$CMD"$ATTR_RESET
+    echo -e $UNDERLINED$BLUE"$CMD"$ATTR_RESET > /dev/stderr
 	eval "$CMD"
 }
 

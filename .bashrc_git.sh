@@ -451,8 +451,6 @@ git_st_add () {
 	if [[ "$(str_contains "WIP" "$pattern")" == "0" ]]; then
 		pattern="WIP_"$pattern
 	fi
-	echo "#1 WIP pattern for rename" &&
-	echo "#2 list of files to copy" &&
 	
 	myDate=$(date +%y)
 	myDate+=_$(date +%m)
@@ -669,7 +667,7 @@ git_st_rm () {
 	pattern="$1"
 	exclude="$2"
 	echo "searching pattern '$pattern'"
-	[[ $pattern == "" ]] && echo -e "parameter: \n#1 is 'egrep' pattern to include \n#2 is 'egrep' pattern to exclude" &&  return 1
+	[[ "$pattern" == "" ]] && echo -e "parameter: \n#1 is 'egrep' pattern to include \n#2 is 'egrep' pattern to exclude" &&  return 1
 	echo -e $GREEN"Following file will be removed."$ATTR_RESET
 	if [[ "$exclude" != "" ]]; then
 		cmd_list="git status -s | egrep --color=never \"$pattern\" | egrep --color=never -v \"$exclude\""

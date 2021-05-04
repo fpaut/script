@@ -20,29 +20,26 @@ export LIBGL_ALWAYS_INDIRECT=1
 
 
 
-alias cdd="pushd $DEV_PATH"
-alias cdf="pushd $FIRMWARE_PATH"
-alias cdfo="pushd $FIRMWARE_PATH-other-branch"
+alias cdd="popd; pushd $DEV_PATH"
+alias cdf="popd; pushd $FIRMWARE_PATH"
+alias cdfo="popd; pushd $FIRMWARE_PATH-other-branch"
 alias cdfsm="cdf && cd ODS/FSM/Cycles"
+alias cdjstest="cdf && cd Combo/Simul/Files/1/www/testscripts"
 alias cdsch="cdf && cd Scheduling"
 alias cdsimul="cdf && cd Combo/Simul/Files"
-alias cds="pushd $SCRIPTS_PATH"
-alias cdt="pushd $TOOLS_PATH"
-alias cdto="pushd $TOOLS_PATH-other-branch"
+alias cds="popd; pushd $SCRIPTS_PATH"
+alias cdt="popd; pushd $TOOLS_PATH"
+alias cdto="popd; pushd $TOOLS_PATH-other-branch"
 alias cmd="/mnt/c/WINDOWS/system32/cmd.exe /c"
-alias jsd_copy="pushd $FIRMWARE_PATH/Scheduling \
-				&& cp -v ../Combo/Simul/Files/0/schedule/iagan.jsd $ROOTDRIVE/n/Files/0/schedule \
-				&& cp -v ../Combo/Simul/Files/0/schedule/iagan.jsn $ROOTDRIVE/n/Files/0/schedule \
-				; popd \\
-				&& pushd $FIRMWARE_PATH/SchedulerUnitTests/Test1 \
+alias jsd_copy="cdf \
+				&& cp -v Combo/Simul/Files/0/schedule/iagan.jsd $ROOTDRIVE/n/Files/0/schedule \
+				&& cp -v Combo/Simul/Files/0/schedule/iagan.jsn $ROOTDRIVE/n/Files/0/schedule \
+				\\
+				&& cdf && pushd SchedulerUnitTests/Test1 \
 				&& cp -v ./IAtestdata.ana $ROOTDRIVE/m/respons/Tools/scripts/Test1/IAtestdata.ana.txt \
 				; popd
 				"
-alias ledappli_clean="pushd $FIRMWARE_PATH/ODS/LEDappli && make clean; popd"
-alias ledappli_make="pushd $FIRMWARE_PATH/ODS/LEDappli && make BOARD=STM32P405_HAL MODULE=IA DEBUG=TRUE && copy_bin_to_msi ledappli; echo; read -t 5 -p \"Appuyez sur entrée... \"; popd"
 #alias pdftk="java -jar /mnt/c/Users/fpaut/dev/Perso/pdftk/build/jar/pdftk.jar"
-alias vcp_clean="pushd $FIRMWARE_PATH/ODS/vcp && make clean; popd"
-alias vcp_make="pushd $FIRMWARE_PATH/ODS/vcp &&  make BOARD=STM32P405_HAL MODULE=IA && copy_bin_to_msi vcpF4; echo; read -p \"Appuyez sur entrée... \"; popd"
 alias jenkins_CLI="java -jar jenkins-cli.jar -auth pautf:QtxS1204+ -s http://FRSOFTWARE02:8080/"
 
 cmlog()
@@ -85,7 +82,8 @@ cdlog()
 
 copy_bin_to_msi()
 {
-	p1=$@
+	p1="$1"
+	target="$2"
 	ROOT_FOLDER=$(get_git_folder)/..
 	export ROOT_FOLDER
 	
@@ -95,39 +93,45 @@ copy_bin_to_msi()
 		echo "${FUNCNAME[0]} \"ledappli incubator separator measmeca hydro1 hydro2\""
 		return 1
 	fi
+	if [[ "$target" == "" ]]; then
+		echo; echo
+		echo -e $CYAN"parameter #2 is the Main board target (IA, SA, CC)"
+		echo -e "Default is 'IA'"$ATTR_RESET
+		target="IA"
+	fi
 		
 	
 	DT_ARM_FIRMWARE="$DEV_PATH/STM32_Toolchain/dt-arm-firmware"
 	
 	if [[ "$(contains ledappli "$p1")" == "1" ]]; then
 		echo -e $GREEN"LEDappli for Red Board"$ATTR_RESET
-		CMD="cp $DT_ARM_FIRMWARE/ODS/LEDappli/build/bin-spl_IA/LEDappli_IA.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/IA.bin"; echo $CMD; $CMD
+		CMD="cp $DT_ARM_FIRMWARE/ODS/LEDappli/build/bin-spl_$target/LEDappli_$target.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/$target.bin"; echo $CMD; $CMD
 	fi
 	
 	if [[ "$(contains incubator "$p1")" == "1" ]]; then
 		echo -e $GREEN"INCUBATOR.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_IA/INCUBATOR.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/INCUB.bin"; echo $CMD; $CMD
+		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_$target/INCUBATOR.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/INCUB.bin"; echo $CMD; $CMD
 		
 	fi
 	if [[ "$(contains separator "$p1")" == "1" ]]; then
 		echo -e $GREEN"SEPAR.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_IA/SEPARATOR.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/SEPAR.bin"; echo $CMD; $CMD
+		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_$target/SEPARATOR.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/SEPAR.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains measmeca "$p1")" == "1" ]]; then
 		echo -e $GREEN"MEASMECA.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_IA/MEASMECA.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/MEASM.bin"; echo $CMD; $CMD
+		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_$target/MEASMECA.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/MEASM.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains hydro1 "$p1")" == "1" ]]; then
 		echo -e $GREEN"HYDRO1.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_IA/HYDRO1.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/HYDRO1.bin"; echo $CMD; $CMD
+		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_$target/HYDRO1.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/HYDRO1.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains hydro2 "$p1")" == "1" ]]; then
 		echo -e $GREEN"HYDRO2.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_IA/HYDRO2.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/HYDRO2.bin"; echo $CMD; $CMD
+		CMD="cp  $DT_ARM_FIRMWARE/ODS/StepMotor/build/bin-spl_$target/HYDRO2.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/HYDRO2.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains pmt "$p1")" == "1" ]]; then
 		echo -e $GREEN"PMT.bin for Generic Board"$ATTR_RESET
-		CMD="cp  $DT_ARM_FIRMWARE/ODS/PMTboardAppli/bin-spl_IA/PMTboardAppli.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/PMT.bin"; echo $CMD; $CMD
+		CMD="cp  $DT_ARM_FIRMWARE/ODS/PMTboardAppli/bin-spl_$target/PMTboardAppli.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/PMT.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains vcpF4 "$p1")" == "1" ]]; then
 		echo -e $GREEN"vcp for Red Board"$ATTR_RESET
@@ -137,8 +141,8 @@ copy_bin_to_msi()
 	
 	if [[ "$(contains vcpGB "$p1")" == "1" ]]; then
 		echo -e $GREEN"vcp for Generic Board"$ATTR_RESET
-		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/bin-spl_IA/vcp.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPGENERIC.bin"; echo $CMD; $CMD
-		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/bin-spl_IA/vcp_ext.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPGENERIC_EXT.bin"; echo $CMD; $CMD
+		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/bin-spl_$target/vcp.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPGENERIC.bin"; echo $CMD; $CMD
+		CMD="cp $DT_ARM_FIRMWARE/ODS/vcp/bin-spl_$target/vcp_ext.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/VCPGENERIC_EXT.bin"; echo $CMD; $CMD
 	fi
 	if [[ "$(contains vcpGB_HAL "$p1")" == "1" ]]; then
 		echo -e $GREEN"vcp-HAL for Generic Board"$ATTR_RESET
@@ -298,6 +302,31 @@ get_version()
 	version=${version#*\"}
 	version=${version%\"*}
 	echo $version
+}
+
+ledappli_clean()
+{
+	popd
+	pushd $FIRMWARE_PATH/ODS/LEDappli
+	make clean
+	popd
+}
+
+ledappli_make()
+{
+	target="$1"
+	if [[ "$target" == "" ]]; then
+	echo; echo
+		echo -e $CYAN"First parameter is the Main board target (IA, SA, CC)"
+		echo -e "Default is 'IA'"$ATTR_RESET
+		target="IA"
+	fi
+	pushd $FIRMWARE_PATH/ODS/LEDappli
+	CMD="make BOARD=STM32P405_HAL MODULE=$target DEBUG=TRUE SHOW_GCC=0"
+	echo; echo -e $YELLOW$CMD$ATTR_RESET; echo; $CMD
+	copy_bin_to_msi ledappli "$target"
+	echo; read -t 5 -p "Appuyez sur entrée... "
+	popd
 }
 
 npp() {
@@ -468,15 +497,18 @@ sch_extract_frames()
 	if [[ -f "$final_output_frames" ]]; then
 		rm -rf $final_output_frames
 	fi
+
 	# save cursor position
-	echo -e "\033[s"
+	cursor_pos_save
+	
 	FILTER1="]\ ->\ {"
 	FILTER2="VAR;"
 	cat $output_frames_1 | while read line
 	do
 		# restore cursor position
+		cursor_pos_rest
+		
 		NB_FRAME=$(($NB_FRAME + 1))
-		echo -en "\033[u"
 		PERCENT=$((100 * $LINE_NUMBER))
 		PERCENT=$(($PERCENT / $NB_LINES))
 		echo -en "$NB_FRAME frames - $PERCENT%"
@@ -804,10 +836,32 @@ upstream_repo()
 	CMD="git sp"; echo -e $CYAN$CMD$ATTR_RESET; $CMD
 }
 
+vcp_clean() 
+{
+	popd
+	pushd $FIRMWARE_PATH/ODS/vcp
+	make clean
+	popd
+}
+
+vcp_make()
+{
+	popd
+	pushd $FIRMWARE_PATH/ODS/vcp
+	make BOARD=STM32P405_HAL MODULE=IA
+	copy_bin_to_msi vcpF4 IA
+	echo
+	read -t 5 -p \"Appuyez sur entrée... \"
+	popd
+}
+
+
 wedit() {
 	filepath="$1"
 	if [[ "${filepath:0:1}" != "." ]]; then
-		filepath="./$1"
+		if [[ -e "./$1" ]]; then
+			filename="./$1"
+		fi
 	fi
 	local path=$(which "$filepath" 2>/dev/null)
 	CMD="npp \"$path\""; echo $CMD; 
