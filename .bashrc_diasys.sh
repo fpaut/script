@@ -104,7 +104,7 @@ copy_bin_to_msi()
 	DT_ARM_FIRMWARE="$DEV_PATH/STM32_Toolchain/dt-arm-firmware"
 	
 	if [[ "$(contains ledappli "$p1")" == "1" ]]; then
-		echo -e $GREEN"LEDappli for Red Board"$ATTR_RESET
+		echo -e $GREEN"LEDappli ($target) for Red Board"$ATTR_RESET
 		CMD="cp $DT_ARM_FIRMWARE/ODS/LEDappli/build/bin-spl_$target/LEDappli_$target.bin $ROOTDRIVE/m/respons/Tools/Combo_Firmware_perso/$target.bin"; echo $CMD; $CMD
 	fi
 	
@@ -289,6 +289,19 @@ get_combo_log_folder()
 		nbLog=${#DIR[@]}
 		lastArrayIndex=$(echo $(( $nbLog - 1)))
 		lastDir=$(echo ${DIR[$lastArrayIndex]})
+		dirOk=0
+		while [[ "$dirOk" != "1" ]]
+		do
+			if [[ "${lastDir:0:1}" -gt 0 ]] && [[ "${lastDir:0:1}" -lt 9 ]];
+			then
+				dirOk=1
+			else 
+#				echo -n lastArrayIndex=$lastArrayIndex \-\> >&2
+				lastArrayIndex=$(($lastArrayIndex - 1))
+#				echo $lastArrayIndex >&2
+				lastDir=$(echo ${DIR[$lastArrayIndex]})
+			fi
+		done
 		echo $logPath$lastDir
 	else
 		echo "Not in firmware folder"
@@ -314,18 +327,21 @@ ledappli_clean()
 
 ledappli_make()
 {
-	target="$1"
-	if [[ "$target" == "" ]]; then
+	targetList="$@"
+	if [[ "$targetList" == "" ]]; then
 	echo; echo
 		echo -e $CYAN"First parameter is the Main board target (IA, SA, CC)"
 		echo -e "Default is 'IA'"$ATTR_RESET
-		target="IA"
+		targetList="IA"
 	fi
 	pushd $FIRMWARE_PATH/ODS/LEDappli
-	CMD="make BOARD=STM32P405_HAL MODULE=$target DEBUG=TRUE SHOW_GCC=0"
-	echo; echo -e $YELLOW$CMD$ATTR_RESET; echo; $CMD
-	copy_bin_to_msi ledappli "$target"
-	echo; read -t 5 -p "Appuyez sur entrée... "
+	for target in $targetList
+	do
+		CMD="make BOARD=STM32P405_HAL MODULE=$target DEBUG=TRUE SHOW_GCC=0"
+		echo; echo -e $YELLOW$CMD$ATTR_RESET; echo; $CMD
+		copy_bin_to_msi ledappli "$target"
+	done
+	echo; read -t 2 -p "Appuyez sur entrée... "
 	popd
 }
 
@@ -424,8 +440,6 @@ myMount()
 	fi
 }
 
-
-
 notify-send() {
 	powershell.exe "New-BurntToastNotification -Text \"$1\"" 2>&1 1>/dev/null
 }
@@ -441,57 +455,104 @@ pdftk() {
 }
 
 ####################################################################################################
+# Parse a line read in a Scheduler Log file, and determine which COMM is used
+sch_get_comm()
+{
+	line="$1"
+	if [[ "$(echo "$line" | grep \\\[IA1\\\])" != "" ]]; then
+		echo "ia.1"
+	elif [[ "$(echo "$line" | grep \\\[IA2\\\])" != "" ]]; then
+		echo "ia.2"
+	elif [[ "$(echo "$line" | grep \\\[SA\\\])" != "" ]]; then
+		echo "sa"
+	elif [[ "$(echo "$line" | grep \\\[CC1\\\])" != "" ]]; then
+		echo "cc.1"
+	elif [[ "$(echo "$line" | grep \\\[CC2\\\])" != "" ]]; then
+		echo "cc.2"
+	fi
+}
+
+####################################################################################################
 # Parse a Scheduler Log file, and extract Scheduler frame file
 sch_extract_frames()
 {
 	if [[ "$#" -le "1" ]]; then
 		echo "Parse a Scheduler Log file, and extract Scheduler frame file"
 		echo "#1 is the logfile"
-		echo "#2 is the related module ("[IA1]"|"[IA2]"|"[SA]"|"[CC1]"|"[CC2]")"
-		echo "#3 is the destination path"
+		echo "#2 is the related module (eg.: "[IA1]"|"[IA2]"|"[SA]"|"[CC1]"|"[CC2]")"
+		echo "#3 is additionnal filters (eg.: "reaarm"|"samarm"|"reatr"|"samtr")"
+		echo "#4 is the destination path"
+		echo 
+		echo "eg.: sch_extract_frames \"./093441.LOG\"  \"[IA1]|[SA]" "reaarm|samarm\" \"path/to/output\""
 		return
 	fi
 	NB_FRAME=0
 	logfile="$1"
 	module="$2"
-	destPath="$3"
+	addFilter="$3"
+	destPath="$4"
 	if [[ "$destPath" == "" ]]; then
 		destPath = "$HOME"
 	fi
 	mkdir -p $destPath
-	cp $logfile $destPath
+	cp -f $logfile $destPath
 	logfile_name=${logfile##*/}
 	logfile_without_ext=${logfile_name%.*}
 	logfile_ext=${logfile_name##*.}
 	output_frames_1=$HOME/SCH_Frames_1.txt
-	final_output_frames="$destPath/$logfile_without_ext"_SCH_Frames.txt
+	final_output_frames="$destPath/"
+	final_output_frames=$final_output_frames"$logfile_without_ext"
+	if [[ "$addFilter" != "" ]]; then
+		search='|'
+		replace='_'
+		add_to_filename=$(echo $addFilter | sed "s,$search,$replace,g")
+		final_output_frames=$final_output_frames"_$add_to_filename"
+	fi
+	final_output_frames=$final_output_frames"_SCH_Frames.txt"
 	  
+	#Before continue, checks errors found
+	echo "cat $logfile | grep 'ERROR\:'"
+	ERROR_FOUND=$(cat $logfile | egrep 'ERROR\:')
+	if [[ "$ERROR_FOUND" != "" ]]; then
+		echo -e $CYAN"ERRORS FOUND! :"$RED
+		cat $logfile | egrep 'ERROR\:'
+		echo -e $CYAN
+		read -e -i "N" -p "Continue? ( (Y)es / (n)o : "
+		if [ "$REPLY" != "y" ] && [ "$REPLY" != "Y" ]; then
+			return 0
+		fi
+		echo -e $ATTR_RESET
+	fi
+		
 	# Keep only frames & line with VAR
 	echo -e $GREEN"Extracting lines with frame in $output_frames_1" $ATTR_RESET
-	FILTER1="]\ ->\ {"
-	FILTER2="VAR;"
-	FILTER3="SCHMaster"
-	MODFILTER="$module"
+	FILTER_FRAME_SENT="]\ ->\ {"
+	FILTER_VAR="VAR;"
+	MODULE_FILTER="$module"
 	# for grep, replace "[" BY "\[" and "]" BY "\]"
 	search='\['
 	replace='\\\['
-	MODFILTER=$(echo $MODFILTER | sed "s,$search,$replace,g")
+	MODULE_FILTER=$(echo $MODULE_FILTER | sed "s,$search,$replace,g")
 	search='\]'
 	replace='\\\]'
-	MODFILTER=$(echo $MODFILTER | sed "s,$search,$replace,g")
-	CMD="cat $logfile | egrep '$FILTER1|$FILTER2|$FILTER3'| egrep '$MODFILTER' > $output_frames_1"
+	MODULE_FILTER=$(echo $MODULE_FILTER | sed "s,$search,$replace,g")
+	addFilter=$addFilter"|""\\\\\"type\\\\\" : \\\\\"begin\\\\\""
+	addFilter=$addFilter"|""\\\\\"type\\\\\" : \\\\\"end\\\\\""
+	addFilter=$addFilter"|""\\\\\"type\\\\\" : \\\\\"cancelRun\\\\\""
+	CMD="cat $logfile | egrep '$FILTER_FRAME_SENT|$FILTER_VAR'| egrep '$FILTER_VAR|$MODULE_FILTER' | egrep '$FILTER_VAR|$addFilter' > $output_frames_1"
 	echo $CMD
 	eval $CMD
 	echo -e $GREEN"$output_frames_1 done!" $ATTR_RESET
 	NB_LINES=$(cat $output_frames_1 | wc -l)
 	
 	echo -e $GREEN"Reparse $output_frames_1 to: "
-	echo -e $GREEN'- Replace \" by "'$ATTR_RESET
-	echo -e $GREEN'- Replace { "fct" by {"id":"880","com":"immu.1","fct"' $ATTR_RESET
-	echo -e $GREEN'- Removing prefix log part {"time":"2021/02/04 09:05:21 (...) ] -> {' $ATTR_RESET
-	echo -e $GREEN'- Remove ending "}' $ATTR_RESET
-	echo -e $GREEN'- Replace (...)VAR; by <' $ATTR_RESET
-	echo -e $GREEN"and store final output in"$BLUE $final_output_frames $ATTR_RESET
+	echo -e '- Replace \" by "'
+	echo -e '- Replace { "fct" by {"id":"880","com":"immu.1","fct"'
+	echo -e '- Removing prefix log part {"time":"2021/02/04 09:05:21 (...) ] -> {'
+	echo -e '- Remove ending "}'
+	echo -e '- Replace (...)VAR; by <'
+	echo -e "and store final output in"$BLUE $final_output_frames $ATTR_RESET
+	echo -e $GREEN"\n\nParsing and extracting $(cat $logfile | wc -l) lines...\n\n"$ATTR_RESET
 	
 	LINE_NUMBER=1
 	if [[ -f "$final_output_frames" ]]; then
@@ -501,8 +562,8 @@ sch_extract_frames()
 	# save cursor position
 	cursor_pos_save
 	
-	FILTER1="]\ ->\ {"
-	FILTER2="VAR;"
+	FILTER_FRAME_SENT="]\ ->\ {"
+	FILTER_VAR="VAR;"
 	cat $output_frames_1 | while read line
 	do
 		# restore cursor position
@@ -517,10 +578,11 @@ sch_extract_frames()
 		search='\\\\\\\"'
 		replace='\"'
 		line=$(echo $line | sed "s,$search,$replace,g")
-		
+
 		# Replace [{ "fct"] BY [{"id":"880","com":"immu.1","fct"]
 		search='{ \"fct\"'
-		replace='{\"id\":\"880\"\,\"com\":\"immu.1\"\,\"fct\"'
+		COMM=$(sch_get_comm "$line")
+		replace="{\"id\":\"880\"\,\"com\":\"$COMM\"\,\"fct\""
 		line=$(echo $line | sed "s,$search,$replace,g")
 		
 		# Remove prefix log part {"time":"2021/02/04 09:05:21 (...) ] -> {
@@ -532,17 +594,6 @@ sch_extract_frames()
 		rep='};50;'
 		line=${line//$sep/$rep}
 
-		# Check COMM of some device
-		search="\"dev\":\"samtr\""
-		SMPL=$(echo $line | grep "$search")
-		if [[ "$SMPL" != "" ]]; then 
-			search="immu.1"
-			replace="smpl"
-			echo
-			echo -e $GREEN"Replace $search BY $replace" $ATTR_RESET
-			line=$(echo $line | sed "s,$search,$replace,g")
-		fi
-
 		# Insert Line with WARNING
 		search='WARNING:'
 		WARNING=$(echo $line | grep "$search")
@@ -553,7 +604,7 @@ sch_extract_frames()
 		fi
 				
 		# Insert some line with ERROR
-		search="ERROR:(L:"
+		search="ERROR:"
 		ERROR=$(echo $line | grep SCHMaster | grep "$search")
 		if [[ "$ERROR" != "" ]]; then 
 			echo -e $RED" ERROR found!"$ATTR_RESET
@@ -603,9 +654,9 @@ sch_extract_frames_V1()
 	
 	# Keep only frames
 	echo -e $GREEN"Extracting lines with frame" $ATTR_RESET
-	FILTER1="]\ ->\ {"
-	FILTER2="VAR;"
-	CMD="cat $logfile | egrep '$FILTER1|$FILTER2' > $output_frames_1"
+	FILTER_FRAME_SENT="]\ ->\ {"
+	FILTER_VAR="VAR;"
+	CMD="cat $logfile | egrep '$FILTER_FRAME_SENT|$FILTER_VAR' > $output_frames_1"
 	echo $CMD; eval $CMD
 	echo -e $GREEN"$output_frames_1 done!" $ATTR_RESET
 	
@@ -731,23 +782,72 @@ sch_split_frame_file()
 		mv -f $final_output_frames $TMP_TRASH
 	fi
 	echo "Generate "$final_output_frames
+	NB_LINE=0
 	cat $logfile | while read line
 	do
 		echo $line >> $final_output_frames
+		NB_LINE=$(($NB_LINE + 1))
 		search="\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}"
 		END=$(echo $line | grep "$search")
 		if [[ "$END" != "" ]]; then
+			echo "End of Generate "$final_output_frames
+			if [[ "$NB_LINE" -lt 3 ]]; then
+				echo "Empty file NB_LINE=$NB_LINE"
+				rm $final_output_frames
+			fi
 			index_file=$(printf "%03d" $((10#$index_file + 1)))
 			final_output_frames="$logfile_without_ext""_Cycle_"$index_file".txt"
 			if [[ -e "$final_output_frames" ]]; then
 				mv -f $final_output_frames $TMP_TRASH
 			fi
 			echo "Generate "$final_output_frames
+			NB_LINE=0
 		fi
 	done
 	echo -e $GREEN"Done! (from $logfile)"
 	echo $BLUE$final_output_frames $ATTR_RESET
 }
+
+send_folder_to_ComboMaster()
+{
+	ip="$1"
+	to="$2"
+	if [[ "$#" < 1 ]]; then
+		echo "#1 is the IP of ComboMaster"
+		echo "#2 (optionnal) is the time out to wait between to sending frame"
+		return 1
+	fi
+	if [[ "$to" == "" ]]; then
+		to=50
+	fi
+	
+	ls * | while read file
+	do
+		echo -e $CYAN$file$ATTR_RESET
+		CMD="send_to_ComboMaster 127.0.0.1 $file $to | egrep \"Sending|Receive\""
+		echo $GREEN$CMD$ATTR_RESET
+		eval $CMD
+	done
+}
+
+send_to_ComboMaster()
+{
+	ip="$1"
+	file="$2"
+	to="$3"
+	if [[ "$#" < 2 ]]; then
+		echo "#1 is the IP of ComboMaster"
+		echo "#2 is the file to send to ComboMaster"
+		echo "#3 (optionnal) is the time out to wait between to sending frame"
+		return 1
+	fi
+		
+	CMD="/mnt/e/dev/STM32_Toolchain/dt-arm-firmware/Tools/RawIpClient/RawIpClient.exe --ip $ip --rwc "$file" --to $to"
+	echo "$CMD"
+	eval "$CMD"
+}
+
+
 step_to_deg()
 {
 	step=$1
@@ -896,11 +996,16 @@ which() {
 	
 	paths=($(eval "/bin/which -a $who" 2>/dev/null))
 	ERR=$?
+	
+ 	if [[ "$paths" == "" ]]; then
+		paths="$who"
+	fi
  	if [[ "$ERR" == "0" ]]; then
         echo "${paths[$((${#paths[@]} - 1))]}"
         ERR=$?
 	else
-		echo "Error $ERR on which $who" > /dev/stderr
+		echo -e "Error $ERR on which $who" > /dev/stderr
+        echo "${paths[$((${#paths[@]} - 1))]}"
     fi
 }
 

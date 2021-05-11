@@ -15,6 +15,7 @@ else
 	output=$(echo "$output " | sed 's/:/_/g')
 fi
 
+
 [[ -f "$output" ]] && rm $output
 
 # Replace '&&' with consecutive grep (replace '&&' with " | egrep -ni ")
@@ -23,6 +24,9 @@ echo "$CMD" >> $output
 echo "" >> $output
 CMD=$(echo $CMD | sed 's/&&/\" | egrep -ni \"/g')             
 
+echo CMD=$CMD >&2
+
+
 echo
 echo "$CMD >> $output"
 eval "$CMD >> $output"
@@ -30,6 +34,8 @@ ERR=$?
 if [[ "$ERR" == "0" ]]; then
 	NPPPATH="$(which notepadpp)"
 	WINPATH="$(conv_path_for_win $output)"
+	echo OUTPUT=$output >&2
+	echo WINPATH=$WINPATH >&2
 	CMD="$NPPPATH \"$WINPATH\""
 	echo "$CMD"
 	eval $CMD
