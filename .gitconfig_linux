@@ -51,7 +51,6 @@
 	fileMode = false
 	bare = false
 	logallrefupdates = true
-	autocrlf = true
 [push]
 	default = current
 [color]

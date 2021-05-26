@@ -129,7 +129,7 @@ function run_ssh_env() {
   . "${SSH_ENV}" > /dev/null
 }
 
-function start_ssh_agent() {
+function ssh_agent_start() {
   echo "Initializing new SSH agent..." >&2
   ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
   echo "succeeded" >&2
@@ -140,16 +140,17 @@ function start_ssh_agent() {
    echo "ssh-add"
    ssh-add ~/.ssh/id_rsa;
 }
+export ssh_agent_start
 
 if [ -f "${SSH_ENV}" ]; then
   run_ssh_env;
   ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
-   echo "start_ssh_agent $LINENO"
-    start_ssh_agent;
+   echo "ssh_agent_start $LINENO"
+    ssh_agent_start;
   }
 else
-  echo "start_ssh_agent $LINENO"
-  start_ssh_agent;
+  echo "ssh_agent_start $LINENO"
+  ssh_agent_start;
 fi
 
 
