@@ -13,17 +13,6 @@ export file_nb_digits=13
 
 set +x
 
-
-
-
-
-
-
-
-
-
-
-
 [[ "$first_chapter" == "" ]] && first_chapter=1
 [[ "$end_chapter" == "" ]] && end_chapter=99999
 

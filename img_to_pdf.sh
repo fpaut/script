@@ -5,7 +5,7 @@ source ~/bin/scripts/.bashrc_aliases.sh
 cleaning_all_pdf()
 {
     src_folder="$1"
-    rm "$src_folder"/*.pdf 2>&1 1/dev/null
+    rm -rf "$src_folder"/*.pdf 2>&1 1>/dev/null
 }
 export cleaning_all_pdf
 
