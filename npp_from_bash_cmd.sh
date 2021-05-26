@@ -1,5 +1,5 @@
 #/bin/bash
-CMD="$1"
+CMD="$@"
 if [[ "$2" == "" ]]; then
 	output="$HOME/npp.txt"
 else

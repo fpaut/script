@@ -5,7 +5,9 @@ echo -e $YELLOW"In .BASH_TOOLS"$ATTR_RESET
 shopt -s expand_aliases
 SIG_LIST="EXIT SIGTSTP SIGTTIN SIGTTOU"
 export false=0
+export FALSE=0
 export true=1
+export TRUE=1
 
 ## Convert HEX to DEC
 0x() 

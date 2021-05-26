@@ -20,16 +20,16 @@ export LIBGL_ALWAYS_INDIRECT=1
 
 
 
-alias cdd="popd; pushd $DEV_PATH"
-alias cdf="popd; pushd $FIRMWARE_PATH"
-alias cdfo="popd; pushd $FIRMWARE_PATH-other-branch"
+alias cdd="popd 1>/dev/null; pushd $DEV_PATH 1>/dev/null"
+alias cdf="popd 1>/dev/null; pushd $FIRMWARE_PATH 1>/dev/null"
+alias cdfo="popd 1>/dev/null; pushd $FIRMWARE_PATH-other-branch 1>/dev/null"
 alias cdfsm="cdf && cd ODS/FSM/Cycles"
 alias cdjstest="cdf && cd Combo/Simul/Files/1/www/testscripts"
 alias cdsch="cdf && cd Scheduling"
 alias cdsimul="cdf && cd Combo/Simul/Files"
-alias cds="popd; pushd $SCRIPTS_PATH"
-alias cdt="popd; pushd $TOOLS_PATH"
-alias cdto="popd; pushd $TOOLS_PATH-other-branch"
+alias cds="popd 1>/dev/null; pushd $SCRIPTS_PATH 1>/dev/null"
+alias cdt="popd 1>/dev/null; pushd $TOOLS_PATH 1>/dev/null"
+alias cdto="popd 1>/dev/null; pushd $TOOLS_PATH-other-branch 1>/dev/null"
 alias cmd="/mnt/c/WINDOWS/system32/cmd.exe /c"
 alias jsd_copy="cdf \
 				&& cp -v Combo/Simul/Files/0/schedule/iagan.jsd $ROOTDRIVE/n/Files/0/schedule \
@@ -37,8 +37,10 @@ alias jsd_copy="cdf \
 				\\
 				&& cdf && pushd SchedulerUnitTests/Test1 \
 				&& cp -v ./IAtestdata.ana $ROOTDRIVE/m/respons/Tools/scripts/Test1/IAtestdata.ana.txt \
-				; popd
+				&& popd
 				"
+alias jsd_from_gant="cdf && cd Scheduling && ./iagan.sh  && jsd_copy && popd 1>/dev/null"
+				
 #alias pdftk="java -jar /mnt/c/Users/fpaut/dev/Perso/pdftk/build/jar/pdftk.jar"
 alias jenkins_CLI="java -jar jenkins-cli.jar -auth pautf:QtxS1204+ -s http://FRSOFTWARE02:8080/"
 
@@ -317,9 +319,9 @@ get_version()
 	echo $version
 }
 
+
 ledappli_clean()
 {
-	popd
 	pushd $FIRMWARE_PATH/ODS/LEDappli
 	make clean
 	popd
@@ -776,8 +778,70 @@ sch_split_frame_file()
 	mkdir -p $TMP_TRASH
 
 	# search end frame  ("\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}")
+	index_file=1
+	final_output_frames="$logfile_without_ext""_Cycle_"$(printf "%03d" $((10#$index_file)))".txt"
+	search_next_cycle=$false
+	if [[ -e "$final_output_frames" ]]; then
+		mv -f $final_output_frames $TMP_TRASH
+	fi
+	echo "Generate "$final_output_frames
+	NB_LINE=0
+	cat $logfile | while read line
+	do
+		search="\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}"
+		END=$(echo $line | grep "$search")
+		NB_LINE=$(($NB_LINE + 1))
+		search="\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}|\"fct\":{\"name\":\"IAsched\", \"type\" : \"cancelRun\"}}"
+		END=$(echo $line | egrep "$search")
+		if [[ "$END" != "" && "$search_next_cycle" == "$false" ]]; then
+			search_next_cycle=$true
+			echo -n "Searching next cycle..."
+		fi
+		if [[ "$END" == "" && "$search_next_cycle" == "$true" ]]; then
+			echo "found!"
+			search_next_cycle=$false
+			echo $final_output_frames" ended ($NB_LINE lines)"
+			if [[ "$NB_LINE" -lt 3 ]]; then
+				echo "Empty file NB_LINE=$NB_LINE"
+				rm $final_output_frames
+			fi
+			NB_LINE=0
+			index_file=$(($index_file + 1))
+			final_output_frames="$logfile_without_ext""_Cycle_"$(printf "%03d" $((10#$index_file)))".txt"
+			if [[ -e "$final_output_frames" ]]; then
+				mv -f $final_output_frames $TMP_TRASH
+			fi
+			echo "Generate "$final_output_frames
+		fi
+		
+		echo $line >> $final_output_frames
+		echo -n "-"
+	done
+	echo -e $GREEN"\nDone! (from $logfile)"
+	echo $BLUE
+	eval "ls -halF "$logfile_without_ext""_Cycle_""*""
+	echo $ATTR_RESET
+}
+
+sch_split_frame_file_V1()
+{
+	if [[ "$#" -lt "1" ]]; then
+		echo "Number of parameters = $#"
+		echo "Parse frame file, and generate a new file on each (\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}};;) found"
+		echo "#1 is the frame file"
+		echo "  Each new file generated is named '#1__Cycle_\index_file\.txt'"
+		return
+	fi
+	logfile=$1
+	logfile_without_ext=${logfile%.*}
+	TMP_TRASH="$(dirname $logfile)/TO_DELETE"
+	mkdir -p $TMP_TRASH
+
+	# search end frame  ("\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}")
 	index_file=001
 	final_output_frames="$logfile_without_ext""_Cycle_"$index_file".txt"
+	next_output_frames="$logfile_without_ext""_Cycle_"$(($index_file + 1))".txt"
+	search_next_cycle=$false
 	if [[ -e "$final_output_frames" ]]; then
 		mv -f $final_output_frames $TMP_TRASH
 	fi

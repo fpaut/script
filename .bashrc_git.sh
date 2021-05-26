@@ -482,32 +482,33 @@ pattern2=$2
 	git status -s | grep --color=never "$pattern1" | while read file
 	do
 		do_cmp=false
-#		echo file=$file
+		debug_log file=$file
 		file_p1=$(get_wip_filename "$file")
-#		echo file_p1=$file_p1
+		debug_log file_p1=$file_p1
 		path=$(file_get_path "$file_p1")
-#		echo file_p1 path=$path
+		debug_log file_p1 path=$path
 		ext=$(file_get_ext "$file_p1")
-#		echo file_p1 ext=$ext
+		debug_log file_p1 ext=$ext
 		name=$(file_get_name "$file_p1")
-#		echo file_p1 name=$name
+		debug_log file_p1 name=$name
 		if [[ "$ext" != "" ]]; then
 			name=$name"."
 		fi
 		file_p2=$path/$( str_get_right_last " " "$file_p1")
-#		echo file_p2=$file_p1
+		debug_log file_p2=$file_p1
 		file_p1="$path/$name$ext"
-#		echo "file_p1=$file_p1"
+		debug_log "file_p1=$file_p1"
 		if [[ "$pattern2" != "" ]]; then
 			file=$(git status -s | grep --color=never "$name.$ext" | grep --color=never "$pattern2")
 			file_p2="$path[$pattern2] [$(get_wip_date "$file")] $name.$ext"
-#			echo "file_p2=$file_p2"
+		debug_log "file_p2=$file_p2"
 		fi
 		[[ ! -f "$file_p1" ]] && echo -e $RED"$file_p1 does not exist"$ATTR_RESET;
 		[[ ! -f "$file_p2" ]] && echo -e $RED"$file_p2 does not exist"$ATTR_RESET;
 
 		## DIFF
 		CMD="diff \"$file_p1\" \"$file_p2\" 1>/dev/null"
+		debug_log CMD=$CMD
 		eval $CMD
 		case  "$?" in
 			"0")

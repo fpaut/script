@@ -18,6 +18,7 @@ conv_path_for_win()
 	path="$@"
 	if [[ "$path" != "" ]]; then
 		CMD="$WSLPATH -w \"$path\""
+		echo WSLPATH=$WSLPATH >&2
 		echo "$CMD" > /dev/stderr
 		echo $(eval "$CMD")
 	fi

@@ -5,6 +5,11 @@ if [[ "$ISS_file" == "" ]]; then
 	echo "eg.: iscc ./Combo_Jenkins_ComboMaster_Only.iss"
 	exit 1
 fi
+# Refresh ComboMaster executable
+touch  /mnt/e/dev/STM32_Toolchain/dt-arm-firmware/ODS/Simulator/ComboMaster/ComboMasterDlg.cpp
+msbuild E:\\dev\\STM32_Toolchain\\dt-arm-firmware\\ODS\\Simulator\\ComboMaster.sln
+
+
 output_name=$(cat "$ISS_file" | grep OutputBaseFilename)
 output_name=${output_name#*=}
 output_name=${output_name%{*}
