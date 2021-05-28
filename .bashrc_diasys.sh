@@ -39,7 +39,7 @@ alias jsd_copy="cdf \
 				&& cp -v ./IAtestdata.ana $ROOTDRIVE/m/respons/Tools/scripts/Test1/IAtestdata.ana.txt \
 				&& popd
 				"
-alias jsd_from_gant="cdf && cd Scheduling && ./iagan.sh  && jsd_copy && popd 1>/dev/null"
+alias iagan_from_gant="cdf && cd Scheduling && ./iagan.sh  && jsd_copy && popd 1>/dev/null"
 				
 #alias pdftk="java -jar /mnt/c/Users/fpaut/dev/Perso/pdftk/build/jar/pdftk.jar"
 alias jenkins_CLI="java -jar jenkins-cli.jar -auth pautf:QtxS1204+ -s http://FRSOFTWARE02:8080/"
