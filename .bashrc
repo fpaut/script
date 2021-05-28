@@ -57,7 +57,6 @@ check_var()
 	fi
 }
 
-
 unset ROOTDRIVE
 	case $(get_term_env) in
 		cygwin)
