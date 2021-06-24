@@ -83,22 +83,22 @@ git_branch_get_info()
 	echo -e $CYAN"Local Branchs"$ATTR_RESET
 	git for-each-ref --format='date=%(committerdate)%09author=%(authorname)%09branch=%(refname)' | sort -k5n -k2M -k3n -k4n | grep --color=never heads | while read line
 	do
-		log_debug line=\"$line\"
-		date=${line%+*}; date=${date#*=}; log_debug date=\"$date\"
-		ignore=${line#*$date}; ignore=${ignore##*0}; log_debug ignore=\"$ignore\"
-		author=${ignore#*=}; author=${author%branch=*}; log_debug author=\"$author\"
-		branch=${ignore#*=}; branch=${ignore##*/}; log_debug branch=\"$branch\"
+		debug_log line=\"$line\"
+		date=${line%+*}; date=${date#*=}; debug_log date=\"$date\"
+		ignore=${line#*$date}; ignore=${ignore##*0}; debug_log ignore=\"$ignore\"
+		author=${ignore#*=}; author=${author%branch=*}; debug_log author=\"$author\"
+		branch=${ignore#*=}; branch=${ignore##*/}; debug_log branch=\"$branch\"
 		echo -e "$branch \t$author\t$date"
 	done
 	echo 
 	echo -e $CYAN"Remote Branchs"$ATTR_RESET
 	git for-each-ref --format='date=%(committerdate)%09author=%(authorname)%09branch=%(refname)' | sort -k5n -k2M -k3n -k4n | grep --color=never remote | while read line
 	do
-		log_debug line=\"$line\"
-		date=${line%+*}; date=${date#*=}; log_debug date=\"$date\"
-		ignore=${line#*$date}; ignore=${ignore#*0}; log_debug ignore=\"$ignore\"
-		author=${ignore#*=}; author=${author%branch=*}; log_debug author=\"$author\"
-		branch=${ignore#*=}; branch=${ignore##*/}; log_debug branch=\"$branch\"
+		debug_log line=\"$line\"
+		date=${line%+*}; date=${date#*=}; debug_log date=\"$date\"
+		ignore=${line#*$date}; ignore=${ignore#*0}; debug_log ignore=\"$ignore\"
+		author=${ignore#*=}; author=${author%branch=*}; debug_log author=\"$author\"
+		branch=${ignore#*=}; branch=${ignore##*/}; debug_log branch=\"$branch\"
 		echo -e "$branch \t$author\t$date"
 	done
 	echo 
@@ -142,6 +142,26 @@ git_diff_cmp(){
 		CMD="git difftool $branch -- $file"
 		echo $CMD && $CMD
 	done
+}
+
+git_debug_log_activity_OFF()
+{
+	CMD="export GIT_TRACE=0"
+	echo "Disable verbose mode"
+	echo -e $YELLOW$CMD$ATTR_RESET; eval "$CMD"
+	CMD="export GIT_CURL_VERBOSE=0"
+	echo "Disable network verbose mode"
+	echo -e $YELLOW$CMD$ATTR_RESET; eval "$CMD"
+}
+
+git_debug_log_activity_ON()
+{
+	CMD="export GIT_TRACE=1"
+	echo "Setting verbose mode"
+	echo -e $YELLOW$CMD$ATTR_RESET; eval "$CMD"
+	CMD="export GIT_CURL_VERBOSE=1"
+	echo "Setting network verbose mode"
+	echo -e $YELLOW$CMD$ATTR_RESET; eval "$CMD"
 }
 
 git_discard () {
@@ -567,18 +587,18 @@ git_st_rename() {
 
 	# escape '[' and ']' in old_pattern
 	old_pattern=$(str_replace "$old_pattern" "[" "\["); esc_old_pattern=$(str_replace "$old_pattern" "]" "\]")
-	log_debug "old_pattern=$esc_old_pattern"
+	debug_log "old_pattern=$esc_old_pattern"
 	git status -s | grep --color=never "$esc_old_pattern" | while read file
 	do
-		log_debug "FILTERED file=$file"
+		debug_log "FILTERED file=$file"
 		file=${file#* }	## Remove 'status' provided by "git status -s"
-		log_debug "STATE FILE FILTERED file=$file"
+		debug_log "STATE FILE FILTERED file=$file"
 		path=$(file_get_path $file)
-		log_debug "path=$path"
+		debug_log "path=$path"
 		name=$(file_get_name $file)
-		log_debug "name=$name"
+		debug_log "name=$name"
 		ext=$(file_get_ext $file)
-		log_debug "ext=$ext"
+		debug_log "ext=$ext"
 		# Remove pattern
 		name=${name##*$old_pattern}
 		# Remove first space ' '
@@ -586,9 +606,9 @@ git_st_rename() {
 		file1=$file
 		file2="$path$new_pattern $name.$ext"
 		
-		log_debug "old_pattern=$esc_old_pattern"
-		log_debug "name without pattern=$name"
-		log_debug "New name=$file2"
+		debug_log "old_pattern=$esc_old_pattern"
+		debug_log "name without pattern=$name"
+		debug_log "New name=$file2"
 
 		CMD="mv -v \"$file\" \"$file2\""
 		echo $CMD

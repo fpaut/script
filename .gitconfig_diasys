@@ -65,3 +65,5 @@
   added = blue
   changed = green
   untracked = cyan
+[commit]
+	template = /mnt/c/Users/fpaut/.gitmessage

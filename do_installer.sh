@@ -6,10 +6,19 @@ if [[ "$ISS_file" == "" ]]; then
 	exit 1
 fi
 # Refresh ComboMaster executable
+echo -n >> /mnt/e/dev/STM32_Toolchain/dt-arm-firmware/ODS/VisualBin/Debug/ComboMaster.exe
+if [[ "$?" != "0" ]]; then
+	echo -e $RED"ComboMaster.exe is open. Close it before"$ATTR_RESET
+	exit 0
+fi
+
 touch  /mnt/e/dev/STM32_Toolchain/dt-arm-firmware/ODS/Simulator/ComboMaster/ComboMasterDlg.cpp
-msbuild E:\\dev\\STM32_Toolchain\\dt-arm-firmware\\ODS\\Simulator\\ComboMaster.sln
 
 
+echo -e $CYAN"Recompiling ComboMaster.exe to update build time"$ATTR_RESET
+msbuild E:\\dev\\STM32_Toolchain\\dt-arm-firmware\\ODS\\Simulator\\ComboMaster.sln | grep --color=always \.cpp | grep -v warning 
+
+echo -e $CYAN"Generate installer..."$ATTR_RESET
 output_name=$(cat "$ISS_file" | grep OutputBaseFilename)
 output_name=${output_name#*=}
 output_name=${output_name%{*}
@@ -22,3 +31,4 @@ OUTPUT=$(wslpath -u $(echo $OUTPUT|dos2unix))
 CMD="cp -v \"$OUTPUT\" /mnt/m/respons/Tools/"
 echo $CMD
 eval "$CMD"
+echo -e $CYAN"Done!"$ATTR_RESET

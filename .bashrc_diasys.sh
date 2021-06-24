@@ -31,18 +31,18 @@ alias cds="popd 1>/dev/null; pushd $SCRIPTS_PATH 1>/dev/null"
 alias cdt="popd 1>/dev/null; pushd $TOOLS_PATH 1>/dev/null"
 alias cdto="popd 1>/dev/null; pushd $TOOLS_PATH-other-branch 1>/dev/null"
 alias cmd="/mnt/c/WINDOWS/system32/cmd.exe /c"
-alias jsd_copy="cdf \
+alias gantt="echo \"/mnt/e/Tools/GanttProject/ganttproject.exe \"\"E:\\dev\\STM32_Toolchain\\dt-arm-firmware\\Scheduling\\ia-source.gan\"\"\" && /mnt/e/Tools/GanttProject/ganttproject.exe \"E:\\dev\\STM32_Toolchain\\dt-arm-firmware\\Scheduling\\ia-source.gan\"&"
+alias jsd_copy="pushd && cdf \
 				&& cp -v Combo/Simul/Files/0/schedule/iagan.jsd $ROOTDRIVE/n/Files/0/schedule \
 				&& cp -v Combo/Simul/Files/0/schedule/iagan.jsn $ROOTDRIVE/n/Files/0/schedule \
 				\\
 				&& cdf && pushd SchedulerUnitTests/Test1 \
 				&& cp -v ./IAtestdata.ana $ROOTDRIVE/m/respons/Tools/scripts/Test1/IAtestdata.ana.txt \
-				&& popd
-				"
-alias iagan_from_gant="cdf && cd Scheduling && ./iagan.sh  && jsd_copy && popd 1>/dev/null"
+				&& popd"
+alias iagan_from_gant="pushd && cdf && cd Scheduling && ./iagan.sh && jsd_copy && popd 1>/dev/null"
 				
 #alias pdftk="java -jar /mnt/c/Users/fpaut/dev/Perso/pdftk/build/jar/pdftk.jar"
-alias jenkins_CLI="java -jar jenkins-cli.jar -auth pautf:QtxS1204+ -s http://FRSOFTWARE02:8080/"
+alias jenkins_CLI="java -jar /mnt/e/dev/Jenkins/jenkins-cli.jar -auth pautf:QtxS1204+ -s http://FRSOFTWARE02:8080/"
 
 cmlog()
 {
@@ -456,6 +456,18 @@ pdftk() {
 	java -jar /mnt/c/Users/fpaut/dev/Perso/pdftk/build/jar/pdftk.jar $files
 }
 
+poubelle() {
+	FILE="$*"
+	mkdir -p ../POUBELLE
+	for file in $FILE
+	do
+		CMD="mv -f \"$file\" ../POUBELLE"
+		echo $CMD
+		eval "$CMD"
+	done
+}
+
+
 ####################################################################################################
 # Parse a line read in a Scheduler Log file, and determine which COMM is used
 sch_get_comm()
@@ -631,104 +643,6 @@ sch_extract_frames()
 	echo $BLUE$final_output_frames $ATTR_RESET
 }
 
-sch_extract_frames_V1()
-{
-	if [[ "$#" -le "1" ]]; then
-		echo "Parse a Scheduler Log file, and extract Scheduler frame file"
-		echo "#1 is the logfile"
-		echo "#2 is the destination path"
-		return
-	fi
-	logfile=$1
-	destPath=$2
-	if [[ "$destPath" == "" ]]; then
-		destPath = "$HOME"
-	fi
-	logfile_without_ext=${logfile%.*}
-	logfile_ext=${logfile##*.}
-	output_frames_1=$HOME/SCH_Frames_1.txt
-	output_frames_2=$HOME/SCH_Frames_2.txt
-	output_frames_3=$HOME/SCH_Frames_3.txt
-	output_frames_4=$HOME/SCH_Frames_4.txt
-	output_frames_5=$HOME/SCH_Frames_5.txt
-	output_frames_6=$HOME/SCH_Frames_6.txt
-	final_output_frames="$destPath/$logfile_without_ext"_SCH_Frames.txt
-	
-	# Keep only frames
-	echo -e $GREEN"Extracting lines with frame" $ATTR_RESET
-	FILTER_FRAME_SENT="]\ ->\ {"
-	FILTER_VAR="VAR;"
-	CMD="cat $logfile | egrep '$FILTER_FRAME_SENT|$FILTER_VAR' > $output_frames_1"
-	echo $CMD; eval $CMD
-	echo -e $GREEN"$output_frames_1 done!" $ATTR_RESET
-	
-	# Replace \" by "
-	search='\\\\\\\"'
-	replace='\"'
-	echo -e $GREEN'Replace \" by "' $ATTR_RESET
-	CMD="cat $output_frames_1 |  sed \"s,$search,$replace,g\" "
-	echo $CMD; eval $CMD | tee $output_frames_2 | tee /dev/null
-	echo -e $GREEN"$output_frames_2 done!" $ATTR_RESET
-	
-	# Replace [{ "fct"] by [{"id":"880","com":"immu.1","fct"]
-	search='{ \"fct\"'
-	replace='{\"id\":\"880\"\,\"com\":\"immu.1\"\,\"fct\"'
-	echo -e $GREEN'Replace { "fct" by {"id":"880","com":"immu.1","fct"' $ATTR_RESET
-	CMD="cat $output_frames_2 |  sed \"s,$search,$replace,g\""
-	echo $CMD; eval $CMD | tee $output_frames_3 | tee /dev/null
-	echo -e $GREEN"$output_frames_3 done!" $ATTR_RESET
-	
-	# Remove prefix log part {"time":"2021/02/04 09:05:21 (...) ] -> {
-	rm $output_frames_4
-	echo -e $GREEN'Removing prefix log part {"time":"2021/02/04 09:05:21 (...) ] -> {' $ATTR_RESET
-	sep='] ->'
-	cat $output_frames_3 | while read line
-	do
-		echo ${line#*$sep} >> $output_frames_4
-	done
-	echo -e $GREEN"$output_frames_4 done!" $ATTR_RESET
-	
-	# Remove ending "}
-	rm -f $output_frames_5
-	echo -e $GREEN'Removing ending "}' $ATTR_RESET
-	sep='}"}'
-	rep='};50;'
-	cat $output_frames_4 | while read line
-	do
-		echo ${line//$sep/$rep} >> $output_frames_5
-	done
-	
-	# Replace (...)VAR; by <
-	rm -f $output_frames_6
-	echo -e $GREEN'Replace (...)VAR; by <' $ATTR_RESET
-	search='VAR;'
-	cat $output_frames_5 | while read line
-	do
-		# Check COMM of some device
-		TO_LOG=$(echo $line | grep "$search")
-		if [[ "$TO_LOG" != "" ]]; then 
-			line="<$(echo ${line#*VAR;})"
-			line="$(echo  ${line%;*})"
-			echo $line >> $output_frames_6
-		else
-			echo $line >> $output_frames_6
-		fi
-	done
-	
-	# Replace "end"}};50; by "end"}};;
-	rm -vf $final_output_frames
-	search='\"end\"}};50;'
-	replace='\"end\"}};;'
-	echo -e $GREEN"Replace $search by $replace" $ATTR_RESET
-	CMD="cat $output_frames_6 |  sed \"s,$search,$replace,g\" "
-	echo $CMD; eval $CMD | tee $final_output_frames | tee /dev/null
-	echo -e $GREEN"$final_output_frames done!" $ATTR_RESET
-	
-	echo "<END OF SCRIPT!" >>  $final_output_frames
-	echo -e $GREEN"Done! (from $logfile)"
-	echo $BLUE$final_output_frames $ATTR_RESET
-}
-####################################################################################################
 # Parse frame file, and set Scheduler end frame ("fct":{"name":"IAsched", "type" : "end"}};;) with a
 # specified timeout
 sch_set_end_timeout()
@@ -788,21 +702,26 @@ sch_split_frame_file()
 	NB_LINE=0
 	cat $logfile | while read line
 	do
-		search="\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}"
-		END=$(echo $line | grep "$search")
-		NB_LINE=$(($NB_LINE + 1))
+#		search="\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}"
+#		END=$(echo $line | grep "$search")
+		
 		search="\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}|\"fct\":{\"name\":\"IAsched\", \"type\" : \"cancelRun\"}}"
 		END=$(echo $line | egrep "$search")
 		if [[ "$END" != "" && "$search_next_cycle" == "$false" ]]; then
 			search_next_cycle=$true
 			echo -n "Searching next cycle..."
 		fi
+		
+		FILTER_FRAME="{\"id\""
+		FRAME=$(echo $line | grep "$FILTER_FRAME")
+		[[ "$FRAME" != "" ]] && NB_LINE=$(($NB_LINE + 1))
+
 		if [[ "$END" == "" && "$search_next_cycle" == "$true" ]]; then
 			echo "found!"
 			search_next_cycle=$false
 			echo $final_output_frames" ended ($NB_LINE lines)"
-			if [[ "$NB_LINE" -lt 3 ]]; then
-				echo "Empty file NB_LINE=$NB_LINE"
+			if [[ "$NB_LINE" -le 4 ]]; then
+				echo "Trashing empty file"
 				rm $final_output_frames
 			fi
 			NB_LINE=0
@@ -817,60 +736,71 @@ sch_split_frame_file()
 		echo $line >> $final_output_frames
 		echo -n "-"
 	done
+	echo Last is "$logfile_without_ext""_Cycle_"$(printf "%03d" $((10#$index_file)))".txt"
 	echo -e $GREEN"\nDone! (from $logfile)"
 	echo $BLUE
 	eval "ls -halF "$logfile_without_ext""_Cycle_""*""
 	echo $ATTR_RESET
 }
 
-sch_split_frame_file_V1()
+####################################################################################################
+# Parse frame file, and extract task
+sch_task()
 {
 	if [[ "$#" -lt "1" ]]; then
 		echo "Number of parameters = $#"
-		echo "Parse frame file, and generate a new file on each (\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}};;) found"
+		echo "Parse frame file, and extract only task"
 		echo "#1 is the frame file"
+		echo "#2 (optional) is an exlude pattern"
+		echo "#3 (optional) !="" for screen only, otherwhise output will be to file"
 		echo "  Each new file generated is named '#1__Cycle_\index_file\.txt'"
 		return
 	fi
+	EXCLUDE="$2"
+	FOR_SCREEN="$3"
 	logfile=$1
 	logfile_without_ext=${logfile%.*}
 	TMP_TRASH="$(dirname $logfile)/TO_DELETE"
-	mkdir -p $TMP_TRASH
-
-	# search end frame  ("\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}")
-	index_file=001
-	final_output_frames="$logfile_without_ext""_Cycle_"$index_file".txt"
-	next_output_frames="$logfile_without_ext""_Cycle_"$(($index_file + 1))".txt"
-	search_next_cycle=$false
-	if [[ -e "$final_output_frames" ]]; then
-		mv -f $final_output_frames $TMP_TRASH
+	if [[ "$FOR_SCREEN" != "" ]]; then
+		output="/dev/stdout"
+	else
+		output="$logfile_without_ext""_TASK".txt
 	fi
-	echo "Generate "$final_output_frames
-	NB_LINE=0
-	cat $logfile | while read line
+	mkdir -p $TMP_TRASH
+	NB_LINES=$(cat $output_frames_1 | wc -l)
+
+	PROCESSED=0
+	if [[ "$EXCLUDE" == "" ]]; then
+		CMD="cat $logfile"
+	else
+		CMD="cat $logfile | egrep -v \"$EXCLUDE\""
+	fi
+	eval "$CMD" | while read line
 	do
-		echo $line >> $final_output_frames
-		NB_LINE=$(($NB_LINE + 1))
-		search="\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}"
-		END=$(echo $line | grep "$search")
-		if [[ "$END" != "" ]]; then
-			echo "End of Generate "$final_output_frames
-			if [[ "$NB_LINE" -lt 3 ]]; then
-				echo "Empty file NB_LINE=$NB_LINE"
-				rm $final_output_frames
-			fi
-			index_file=$(printf "%03d" $((10#$index_file + 1)))
-			final_output_frames="$logfile_without_ext""_Cycle_"$index_file".txt"
-			if [[ -e "$final_output_frames" ]]; then
-				mv -f $final_output_frames $TMP_TRASH
-			fi
-			echo "Generate "$final_output_frames
-			NB_LINE=0
+#		search="\"fct\":{\"name\":\"IAsched\", \"type\" : \"end\"}}"
+#		END=$(echo $line | grep "$search")
+		
+		search="\"task\":\""
+		PROCESSED=$(($PROCESSED + 1))
+		PERCENT=$((100 * $LINE_NUMBER))
+		PERCENT=$(($PERCENT / $PROCESSED))
+		echo -en "$PROCESSED frames - $PERCENT%" >&2
+		echo -e "$PROCESSED frames - $PERCENT%" >&2
+		
+		task=$(echo $line | egrep "$search")
+		if [[ "$task" != "" ]]; then
+			task=${line#*\"task\":\"}
+			task=${task%%\",*}
+			echo [$task] >> $output
+		else
+			echo $line >> $output
 		fi
 	done
-	echo -e $GREEN"Done! (from $logfile)"
-	echo $BLUE$final_output_frames $ATTR_RESET
+	echo -e $GREEN"\n$output Done! (from $logfile)"
 }
+
+####################################################################################################
+
 
 send_folder_to_ComboMaster()
 {

@@ -9,13 +9,14 @@ export FALSE=0
 export true=1
 export TRUE=1
 
-## Convert HEX to DEC
+
+## Convert HEX to DEC, invert of x0()
 0x() 
 { 
 	val=$1
 	printf "%d\n" 0x$val
 }
-
+export -f 0x
 
 backslash_to_slash()
 {
@@ -72,7 +73,7 @@ between()
 }
 
 ## Simple bash calculator (need bash calculator 'bc' tool)
-c()
+c_float()
 {
 	decimal_digit=4
 	formula=${@}
@@ -81,7 +82,7 @@ c()
 }
 
 ## Simple bash calculator (without bash calculator 'bc' tool)
-c_()
+c_dec()
 {
     echo "$((${@}))"
 }
@@ -256,7 +257,7 @@ trap_handler_unset() {
 	set +o nounset
 }
 
-log_debug() {
+debug_log() {
 	string="$@"
 	if [[ "$DEBUG_BASH" = "1" ]]; then
         	echo -en $YELLOW> /dev/stderr
@@ -721,6 +722,14 @@ set_term_title() {
   echo -ne '\033]0;'$TITLE'\007'
 }
 
+show_bad_encoding()
+{
+	FILE="$1"
+	CMD="pcregrep --color='auto' -n '[^\x00-\x7F]' $FILE"
+	echo $CMD
+	eval "$CMD"
+}
+
 show_parent()
 {
     pid=$1
@@ -887,7 +896,7 @@ wll() {
 	echo
 }
 
-## Convert DEC to HEX
+## Convert DEC to HEX, invert of 0x()
 x0() 
 { 
 	val=$1
