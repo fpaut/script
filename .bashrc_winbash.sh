@@ -15,11 +15,9 @@ export WSLPATH="/bin/wslpath"
 
 conv_path_for_win()
 {
-	path="$@"
+	path="$1"
 	if [[ "$path" != "" ]]; then
-		CMD="$WSLPATH -w \"$path\""
-		echo WSLPATH=$WSLPATH >&2
-		echo "$CMD" > /dev/stderr
+		CMD="$WSLPATH -w $path"
 		echo $(eval "$CMD")
 	fi
 }

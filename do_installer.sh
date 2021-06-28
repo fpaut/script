@@ -17,6 +17,13 @@ touch  /mnt/e/dev/STM32_Toolchain/dt-arm-firmware/ODS/Simulator/ComboMaster/Comb
 
 echo -e $CYAN"Recompiling ComboMaster.exe to update build time"$ATTR_RESET
 msbuild E:\\dev\\STM32_Toolchain\\dt-arm-firmware\\ODS\\Simulator\\ComboMaster.sln | grep --color=always \.cpp | grep -v warning 
+ERR=$?
+if [[ "$ERR" == "0" ]]; then
+	echo -e $GREEN"ComboMaster compilation ended with status $ERR"$ATTR_RESET
+else
+	echo -e $RED"ComboMaster compilation ended with status $ERR"$ATTR_RESET
+fi
+
 
 echo -e $CYAN"Generate installer..."$ATTR_RESET
 output_name=$(cat "$ISS_file" | grep OutputBaseFilename)

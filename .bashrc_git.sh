@@ -32,6 +32,13 @@ get_wip_filename()
 	echo $(str_get_right_last " " "$file")
 }
 
+get_wip_path()
+{
+	file="$1"
+	path=$(str_get_right_first " " "$file")
+	echo $(str_get_left_first "/" "$path")
+}
+
 get_wip_rev()
 {
 	file="$1"
@@ -505,7 +512,7 @@ pattern2=$2
 		debug_log file=$file
 		file_p1=$(get_wip_filename "$file")
 		debug_log file_p1=$file_p1
-		path=$(file_get_path "$file_p1")
+		path=$(get_wip_path "$file")
 		debug_log file_p1 path=$path
 		ext=$(file_get_ext "$file_p1")
 		debug_log file_p1 ext=$ext

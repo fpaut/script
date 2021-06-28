@@ -267,7 +267,7 @@ debug_log() {
         	return 0
 	fi
 }
-
+export debug_log
 
 def_font_attributes() {
 	export PS1_UNDERLINED="\[\e[0;4m\]"
@@ -370,9 +370,10 @@ file_get_ext()
 		return
 	fi
 }
-
- file_count_line() 
- {
+export -f file_get_ext
+	
+file_count_line() 
+{
 	folder="$1"
 	min_line_nb="$2"
 	find $folder -exec ls -ld $PWD/{} \; | egrep -v "\.git|\[" | while read line
@@ -394,6 +395,7 @@ file_get_fullname()
 	f="$@"
 	echo $(basename "$f")
 }
+export -f file_get_fullname
 
 # Return only name of the filename provided without extension (eg.: "/home/user/toto.txt" return "toto")
 file_get_name()
@@ -402,6 +404,7 @@ file_get_name()
 	filename=$(file_get_fullname "$f")
 	echo ${filename%.*}
 }
+export -f file_get_name
 
 # Return path of provided path+filename (eg.: "/home/user/toto.txt.doc" return "/home/user")
 file_get_path()
@@ -413,6 +416,7 @@ file_get_path()
 	fi
 	echo $path
 }
+export -f file_get_path
 
 # Return size in byte of a file
 file_get_size()
@@ -420,6 +424,7 @@ file_get_size()
 	f="$@"
 	stat --printf="%s" "$f"
 }
+export -f file_get_size
 
 
 
@@ -431,6 +436,7 @@ replace()
 	str=$3
 	echo $(echo $str |  sed "s,$pattern1,$pattern2,g")
 }
+export -f replace
 
 ###################################################
 ## filtered cat using pattern and excluded pattern
@@ -456,6 +462,7 @@ get_caller() {
 	echo SCRIPT CALLED FORM \'$caller\'
 	which $caller
 }
+export -f get_caller
 
 
 gexport () {
@@ -760,9 +767,7 @@ str_contains() {
 str_get_left_first()
 {
 	sep="$1"
-	echo sep="\"$sep\""
 	line="$2"
-	echo line="\"$line\""
 	echo ${line%$sep*}
 }
 
