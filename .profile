@@ -33,20 +33,28 @@ export LANG=en_US.UTF8
 #
 # if running bash
 if [ -n "${BASH_VERSION}" ]; then
+	env_term=linux
 	if [[ "$MINGW_PREFIX" != "" ]]; then
-		if [ -f "/e/Tools/bin/scripts/.bashrc" ]; then
-			SCRIPTS_PATH="/e/Tools/bin/scripts"
-			source $SCRIPTS_PATH/.bashrc
-		fi
+		env_term=msys_path
 	fi
 	if [[ "$MINTTY_SHORTCUT" != "" ]]; then
+		env_term=cygwin_path
 		SCRIPTS_PATH="/cygdrive/e/Tools/bin/scripts"
        source $SCRIPTS_PATH/.bashrc
 	fi 
-	if [ -f "${HOME}/.bashrc" ]; then
-		source "${HOME}/.bashrc"
-	fi
+	
+	case $env_term in
+		msys_path)
+			SCRIPTS_PATH="/e/Tools/bin/scripts"
+		;;
+		cygwin_path)
+			SCRIPTS_PATH="/cygdrive/e/Tools/bin/scripts"
+		;;
+		*)
+			SCRIPTS_PATH="${HOME}/bin/scripts"
+		;;
+	esac
+	source $SCRIPTS_PATH/.bashrc
 fi
 export SCRIPTS_PATH
-echo Out .PROFILE
 echo -e $YELLOW"Out of .PROFILE"$ATTR_RESET

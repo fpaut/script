@@ -35,6 +35,8 @@ alias gantt="echo \"/mnt/e/Tools/GanttProject/ganttproject.exe \"\"E:\\dev\\STM3
 alias jsd_copy="pushd && cdf \
 				&& cp -v Combo/Simul/Files/0/schedule/iagan.jsd $ROOTDRIVE/n/Files/0/schedule \
 				&& cp -v Combo/Simul/Files/0/schedule/iagan.jsn $ROOTDRIVE/n/Files/0/schedule \
+				&& cp -v Combo/Simul/Files/0/schedule/iagan.jsd SchedulerUnitTests/data-src \
+				&& cp -v Combo/Simul/Files/0/schedule/iagan.jsn SchedulerUnitTests/data-src \
 				\\
 				&& cdf && pushd SchedulerUnitTests/Test1 \
 				&& cp -v ./IAtestdata.ana $ROOTDRIVE/m/respons/Tools/scripts/Test1/IAtestdata.ana.txt \
@@ -467,6 +469,75 @@ poubelle() {
 	done
 }
 
+# Scheduler Unit Test: sch file player
+schut_play_schfile()
+{
+	CYC_FILTER="\"sch"
+	SEP_FILTER="separpos_tosep|seppos"
+	CUV_FILTER="_to_|rcuv|scuv"
+# To determine rcuvX/scuvX without variables, using action
+# load_to_rcuvX 			= push rcuvX
+# rotpu_to_rcuvX 			= push rcuvX
+# rcuvX_to_scuvY 			= take rcuvX, push scuvY
+# rotpu_scuvX_to_incub 		= take scuvX
+# rotpu_rcuvX_to_incub 		= take rcuvX
+
+	empty='.'
+	busy='X'
+	separation[0]=$empty
+	separation[1]=$empty
+	separation[2]=$empty
+	separation[3]=$empty
+	file="$1"
+	nbLine=$(cat "$file" | wc -l)
+	echo $nbLine lines
+	cat "$file" | egrep "$CYC_FILTER|$SEP_FILTER" > "$file".f1
+	NBLINE=0
+	cat "$file".f1 | while read line
+	do
+#		NBLINE=$(($NBLINE + 1))
+#		if [[ "$((NBLINE % 10))" == "0" ]]; then
+##			echo Line $NBLINE
+#		fi
+		#Get current cycle
+		_cycle=$(echo "$line" | grep --color=never "\"sch")
+		if [[ "$_cycle" != "" ]]; then
+			_cycle=${_cycle##*\"sch}
+			cycle=${_cycle%\":\{*}
+			cycle=$(str_pad_left "$cycle" "4" "0")
+		fi
+
+		#Requesting to push a cuvette in separation?
+		pushSep=$(echo -e "$line" | grep "separpos_tosep")
+		if [[ "$pushSep" != "" ]]; then
+			pushSep=${pushSep%\"*}
+			posPushSep=${pushSep##*\"}
+			if [[ "$posPushSep" != "0" ]]; then
+				if [[ "${separation[$(($posPushSep - 1))]}" == "$empty" ]]; then
+					separation[$(($posPushSep - 1))]=$busy
+					echo "cyc $cycle: Push pos"$posPushSep, seppush=${separation[@]}
+				else
+					echo $RED"cyc $cycle: Push pos$posPushSep, Impossible to push to pos$posPushSep, position busy"$ATTR_RESET
+				fi
+			fi
+		fi
+		#Requesting to take a cuvette from separation?
+		takeSep=$(echo -e "$line" | grep "seppos")
+		if [[ "$takeSep" != "" ]]; then
+			takeSep=${takeSep%\"*}
+			posTakeSep=${takeSep##*\"}
+			if [[ "$posTakeSep" != "0" ]]; then
+				if [[ "${separation[$(($posTakeSep - 1))]}" == "$busy" ]]; then
+					separation[$(($posTakeSep - 1))]=$empty
+					echo "cyc $cycle: Take pos"$posTakeSep, septake=${separation[@]}
+				else
+					echo $RED"cyc $cycle: Take pos$posTakeSep, Impossible to take from pos$posTakeSep, position empty"$ATTR_RESET
+				fi
+			fi
+		fi
+	done
+}
+
 
 ####################################################################################################
 # Parse a line read in a Scheduler Log file, and determine which COMM is used
@@ -818,7 +889,7 @@ send_folder_to_ComboMaster()
 	ls * | while read file
 	do
 		echo -e $CYAN$file$ATTR_RESET
-		CMD="send_to_ComboMaster 127.0.0.1 $file $to | egrep \"Sending|Receive\""
+		CMD="send_to_ComboMaster $ip $file $to | egrep \"Sending|\"id\"\""
 		echo $GREEN$CMD$ATTR_RESET
 		eval $CMD
 	done

@@ -8,3 +8,4 @@ echo -n "N'importe quel caractere dans le groupe: "
 echo -e $CYAN"[character_group]"$ATTR_RESET
 echo -n "Aucun des caracteres du groupe: "
 echo -e $CYAN"[~character_group]"$ATTR_RESET
+

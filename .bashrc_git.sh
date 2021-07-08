@@ -427,10 +427,22 @@ git_show_unpushed_commit () {
 git_sh_cmp() 
 {
 	STASH="$1"
+	DIFFTOOL="$2"
+	if [[ "$@" == "0" ]]; then
+		echo "#1 is the stash name 'stash@{0}'..."
+		echo "#2 is optional and is the diff tool name (otherwise the difftool set in git config will be used)"
+		exit 1
+	fi
 	git stash show $STASH | grep --color=never "|"  | while read file
 	do 
 		file=${file%% |*}
-		CMD="git difftool -y $STASH -- $file"
+		if [[ "$DIFFTOOL" == "" ]]; then
+			CMD="git difftool -y $STASH -- $file"
+		else
+			dest=$HOME/tmp/$(basename $file)
+			git show $STASH:$file > $dest
+			CMD="$DIFFTOOL $file $dest"
+		fi
 		echo $CMD
 		$CMD
 	done
@@ -523,7 +535,7 @@ pattern2=$2
 		fi
 		file_p2=$path/$( str_get_right_last " " "$file_p1")
 		debug_log file_p2=$file_p1
-		file_p1="$path/$name$ext"
+		file_p1="$path/[ $(get_wip_pattern "$file") ] [ $(get_wip_date "$file") ] [ $(get_wip_rev "$file") ] $name$ext"
 		debug_log "file_p1=$file_p1"
 		if [[ "$pattern2" != "" ]]; then
 			file=$(git status -s | grep --color=never "$name.$ext" | grep --color=never "$pattern2")

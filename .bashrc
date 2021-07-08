@@ -139,7 +139,16 @@ function ssh_agent_start() {
    echo "ssh-add"
    ssh-add ~/.ssh/id_rsa;
 }
-export ssh_agent_start
+export -f ssh_agent_start
+
+function ssh_agent_show() {
+	echo SSH_ENV= ${SSH_ENV}; echo 
+	echo SSH_AGENT_PID= ${SSH_AGENT_PID}; echo 
+	echo; ps fax | grep "ssh\-agent"
+	echo; CMD="cat ${SSH_ENV}"; echo $CYAN$CMD$ATTR_RESET; $CMD
+	echo
+}
+export -f ssh_agent_show
 
 if [ -f "${SSH_ENV}" ]; then
   run_ssh_env;

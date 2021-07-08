@@ -24,6 +24,8 @@ else
 	echo -e $RED"ComboMaster compilation ended with status $ERR"$ATTR_RESET
 fi
 
+echo -e $CYAN"Copy \"ComboComPlus.exe\" to Tools folder"$ATTR_RESET
+cp -v ../dt-fwtools/RuntimeFolder/ComboComPlus.exe Tools
 
 echo -e $CYAN"Generate installer..."$ATTR_RESET
 output_name=$(cat "$ISS_file" | grep OutputBaseFilename)

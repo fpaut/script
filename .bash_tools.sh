@@ -455,6 +455,7 @@ gcat() {
 	echo $CMD
 	eval $CMD
 }
+export -f gcat
 
 get_caller() {
 	var="$(ps | grep "$PID" | head -n 2)"
@@ -464,11 +465,47 @@ get_caller() {
 }
 export -f get_caller
 
+# Get value of an option
+# eg. 'scriptname -a=1 -b="parameter with spaces"'
+# 'get_opt "-a" "$cmdline"' return 1 & $?=1
+# 'get_opt "-b" "$cmdline"' return parameter with spaces & $?=1
+get_opt()
+{
+	if [[ "$#" == "0" ]]; then
+		echo "#1 is the option name"
+		echo "#2 is the command line"
+		echo "eg.: get_opt \"-b\" \"cmdline\""
+		return 1
+	fi
+	ret=0
+	opt="$1"
+	cmdline="$2"
+	value=${cmdline#*$opt}
+	[ "$value" == "$cmdline" ] && return 0
+	if [ "$value" != "" ]; then
+		ret=1
+	fi
+	# ignore character following option ('=' or ' ')
+	if [ "${#value}" > 0 ]; then
+		value=${value:1}
+	fi
+	if [ "${value:0:1}" == "\"" ]; then
+		end="\""
+		value=${value:1}
+	else
+		end=" "
+	fi
+	# cut value at the end
+	echo ${value%%$end*}
+	return $ret
+}
+export -f get_opt
 
 gexport () {
 	local pattern=$1
 	eval "export | grep -i --color=never $pattern"
 }
+export -f gexport
 
 ghexdiff()
 {
@@ -479,6 +516,7 @@ ghexdiff()
     meld /tmp/"$a".hex /tmp/"$b".hex ;
     rm /tmp/"$a".hex /tmp/"$b".hex ;
 }
+export -f ghexdiff
 
 hexdump() {
 	HD=$(which xxd)
@@ -496,6 +534,7 @@ hexdump() {
 #	OPTIONS1='8/1 "%02X ""\t"" "'
 #	OPTIONS2='8/1 "%c""\n"'
 }
+export -f hexdump
 
 isprint()
 {
@@ -538,6 +577,7 @@ ll() {
 		ls --color=always --time-style=+"%b-%d-%Y %R:%S" -halF "$path" | grep --color=always "$pattern"
 	fi
 }
+export ll
 
 # Log a text on screen
 logscreen_only()
